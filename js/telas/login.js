@@ -11,18 +11,19 @@
     const colaborador = (tipo) => {
       const u = primeiroDoTipo(tipo);
       const p = u && u.equipe[0];
-      return p && { matricula: p.matricula, nome: p.nome, detalhe: `${p.funcao} · ${u.nome}`, tipo: R.tipoDe(u).nome };
+      return p && { matricula: p.matricula, nome: p.nome, detalhe: `${p.funcao} · ${u.nome} · ${R.tipoDe(u).nome.toLowerCase()}`, tipo: "Colaborador" };
     };
-    const lideranca = (perfil, rotulo) => {
-      const l = E.dados.liderancas.find((x) => x.perfil === perfil);
-      const onde = perfil === "gerente" ? "todos os CDDs" : (l?.unidades || []).map((id) => R.unidade(id).nome.replace("CDD ", "")).join(" e ");
-      return l && { matricula: l.matricula, nome: l.nome, detalhe: `${l.funcao} · ${onde}`, tipo: rotulo };
+    // Dois exemplos de liderança: quem acompanha mais CDDs e quem acompanha só um.
+    const lideres = [...E.dados.liderancas].sort((a, b) => R.unidadesDoLider(b).length - R.unidadesDoLider(a).length);
+    const lider = (l) => {
+      if (!l) return null;
+      const ids = R.unidadesDoLider(l);
+      const onde = ids.length > 1 ? `${ids.length} CDDs` : R.unidade(ids[0]).nome;
+      return { matricula: l.matricula, nome: l.nome, detalhe: `${l.cargo} · ${onde}`, tipo: "Liderança" };
     };
-    const sup = R.unidades()[0];
     return [
-      lideranca("gerente", "Gerência"),
-      lideranca("coordenador", "Coordenação"),
-      sup && { matricula: sup.supervisor.matricula, nome: sup.supervisor.nome, detalhe: `${sup.supervisor.funcao} · ${sup.nome}`, tipo: "Supervisão" },
+      lider(lideres[0]),
+      lider(lideres.find((l) => R.unidadesDoLider(l).length === 1)),
       colaborador("rotativa"),
       colaborador("fixa"),
       colaborador("mensal"),
@@ -48,11 +49,11 @@
 
           <div class="demo">
             <p>Acessos de demonstração <span>(senha ${U.esc(E.dados.senhaDemo)})</span></p>
-            ${acessosDemo().map((a) => `<button class="demo-item" data-acao="demo" data-matricula="${U.esc(a.matricula)}">
+            ${["Liderança", "Colaborador"].map((grupo) => `<p class="demo-grupo">${grupo}</p>
+              ${acessosDemo().filter((a) => a.tipo === grupo).map((a) => `<button class="demo-item" data-acao="demo" data-matricula="${U.esc(a.matricula)}">
                 ${U.avatar(a.nome)}
                 <span><b>${U.esc(a.nome)}</b><small>${U.esc(a.detalhe)}</small></span>
-                <span class="demo-tipo">${U.esc(a.tipo)}</span>
-              </button>`).join("")}
+              </button>`).join("")}`).join("")}
           </div>
 
           <p class="login-nota">Login simulado para apresentação, com dados fictícios. Na versão final, o acesso será validado por um servidor.</p>

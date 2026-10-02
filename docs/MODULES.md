@@ -14,7 +14,7 @@ Todos os módulos se registram no objeto global `window.Escala`. A ordem de carr
 | `js/core/regras/mensal.js` | `Escala.regras.mensal` | Escala mensal publicada | `datas`, `regrasBase` |
 | `js/core/escala.js` | `Escala.escala` | Situação do dia, ausências, próximas folgas, cobertura, alertas e validação dos dados | `dados`, `datas`, `regras` |
 | `js/core/repositorio.js` | `Escala.repositorio` | Carregar (exemplo ou navegador), alterar com transação, exportar, importar e restaurar | `dados`, `escala`, `documentos` |
-| `js/core/sessao.js` | `Escala.sessao` | Login simulado com perfis colaborador, supervisor, coordenador e gerente | `dados`, `escala` |
+| `js/core/sessao.js` | `Escala.sessao` | Login simulado com duas visões: colaborador e liderança (alcance pelos CDDs acompanhados) | `dados`, `escala` |
 | `js/ui/componentes.js` | `Escala.ui` | Peças de HTML: chips, indicadores, avisos, faixa da unidade, linha de pessoa, calendário, painel mensal | `datas`, `escala` |
 | `js/ui/layout.js` | `Escala.ui.layout` | Moldura da área logada | `ui`, `escala` |
 | `js/telas/login.js` | `Escala.telas.login` | Login com acessos de demonstração (um por perfil e tipo) | `ui`, `escala` |
@@ -54,7 +54,7 @@ Toda tela é um objeto com `render(estado)` que **devolve HTML** e não registra
 
 ## Testes
 
-`testes.html` carrega dados e núcleo (sem interface) e roda 29 testes: tipos de escala, regras comuns, login, PIS/CPF e cadastro. Usa uma chave de armazenamento própria, então nunca mexe no que o usuário cadastrou. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.
+`testes.html` carrega dados e núcleo (sem interface) e roda 31 testes: tipos de escala, regras comuns, login e visões, PIS/CPF e cadastro. Usa uma chave de armazenamento própria, então nunca mexe no que o usuário cadastrou. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.
 
 ## Funções principais de `Escala.repositorio`
 

@@ -80,16 +80,24 @@ Assim os dados nunca ficam num estado inválido. Na carga, se o que está salvo 
 
 > **Para aprender:** transação é o "tudo ou nada" dos bancos de dados. Ou a alteração inteira entra, ou nada muda.
 
-## Perfis
+## Visões (perfis)
 
-| Perfil | Unidades visíveis | Origem |
+Só existem **duas visões**:
+
+| Visão | O que vê | Origem |
 |---|---|---|
-| colaborador | a sua (só a própria escala) | `equipe` de cada CDD |
-| supervisor | o seu CDD | `supervisor` de cada CDD |
-| coordenador | o grupo em `liderancas[].unidades` | `dados/geral.js` |
-| gerente | todas | `dados/geral.js` |
+| `colaborador` | a própria escala | `equipe` de cada CDD |
+| `lideranca` | telas de gestão dos CDDs que acompanha | `liderancas` em `dados/geral.js` |
+
+Cada líder tem `cargo` (só texto: Supervisor, Coordenador, Gerente) e `unidades` (lista de CDDs ou `"todas"`). O alcance vem da lista, não do cargo. Com mais de um CDD, a tela ganha a aba "Visão geral" e o seletor de unidade. Limitar os CDDs por pessoa segue o princípio da LGPD de acesso só ao necessário.
+
+> **Decisão (02/10/2026):** antes eram 3 perfis (supervisor, coordenador, gerente) com as mesmas telas. Juntamos em "Liderança" porque o que os diferenciava era só o alcance, e isso já é um dado do cadastro.
 
 A sessão é relida a cada carga: quem foi desligado ou excluído é deslogado.
+
+## Versão nos endereços dos arquivos
+
+No `index.html` e no `testes.html`, todo CSS e JS é carregado com `?v=<versão>` (ex.: `css/base.css?v=0.6`). **A cada publicação, troque o número em todos.** Sem isso, o navegador do time pode reaproveitar arquivos antigos guardados em cache e misturar versões. Isso aconteceu nos testes da v0.6.
 
 A semana vai de segunda a domingo. Contas de dias usam UTC para não sofrer com fuso horário.
 

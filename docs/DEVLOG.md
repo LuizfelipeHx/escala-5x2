@@ -1,5 +1,21 @@
 # Devlog
 
+## 02/10/2026: v0.6, duas visões (Liderança e Colaborador)
+
+**Decisão:** supervisor, coordenador e gerente viam as mesmas telas; a diferença era só quantos CDDs cada um acompanha. Viraram uma visão só, **Liderança**, e o cargo passou a ser apenas um rótulo.
+
+**Feito**
+- Todos os líderes em `dados/geral.js` com `cargo` e `unidades` (lista ou `"todas"`); o campo `supervisor` saiu dos arquivos dos CDDs.
+- "Visão geral" e seletor de unidade aparecem sozinhos para quem acompanha mais de um CDD.
+- Cartão do CDD mostra a "liderança local" (quem acompanha só aquele CDD).
+- Login com os acessos de demonstração agrupados em Liderança e Colaborador.
+- **Versão nos endereços dos arquivos** (`?v=0.6`): durante o teste, o navegador usou um CSS antigo do cache. O mesmo aconteceria com o time depois de cada publicação.
+
+**Validado**
+- 31 de 31 testes (2 novos: cargo como rótulo e liderança local; validação de líder sem CDD ou com CDD inexistente).
+- Supervisora (1 CDD) entra sem "Visão geral" e sem seletor; coordenador SP/ES vê só Mauá e Vitória, com a liderança local de cada um.
+- Nenhum erro no console.
+
 ## 02/10/2026: v0.5, cadastro (Etapa 1 do plano de absenteísmo)
 
 **Pedido:** cadastro do time e da escala, tipo de jornada por CDD, e base para a análise de absenteísmo com AFDT (próximas etapas).

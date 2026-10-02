@@ -10,13 +10,17 @@ Escala.dados = {
   // Senha única de demonstração (login simulado, sem servidor).
   senhaDemo: "1234",
 
-  // Liderança acima do supervisor (o supervisor fica no arquivo de cada CDD).
-  // perfil "coordenador": vê as unidades listadas em "unidades".
-  // perfil "gerente": vê todas as unidades.
+  // LIDERANÇA: todos veem as mesmas telas. O que muda é só quais CDDs
+  // cada pessoa acompanha ("unidades": lista de ids ou "todas").
+  // "cargo" é apenas o texto exibido no site.
   liderancas: [
-    { matricula: "80001", nome: "Sérgio Antunes",    funcao: "Coordenador SP/ES", perfil: "coordenador", unidades: ["maua", "vitoria"] },
-    { matricula: "80002", nome: "Aline Kowalski",    funcao: "Coordenadora PR",   perfil: "coordenador", unidades: ["paranagua", "curitiba"] },
-    { matricula: "90000", nome: "Patrícia Nogueira", funcao: "Gerente regional",  perfil: "gerente" },
+    { matricula: "90000", nome: "Patrícia Nogueira", cargo: "Gerente regional",  unidades: "todas" },
+    { matricula: "80001", nome: "Sérgio Antunes",    cargo: "Coordenador SP/ES", unidades: ["maua", "vitoria"] },
+    { matricula: "80002", nome: "Aline Kowalski",    cargo: "Coordenadora PR",   unidades: ["paranagua", "curitiba"] },
+    { matricula: "91001", nome: "Renata Alves",      cargo: "Supervisora",       unidades: ["maua"] },
+    { matricula: "92001", nome: "Márcio Lopes",      cargo: "Supervisor",        unidades: ["vitoria"] },
+    { matricula: "93001", nome: "Juliana Prates",    cargo: "Supervisora",       unidades: ["paranagua"] },
+    { matricula: "94001", nome: "Cristiano Reis",    cargo: "Supervisor",        unidades: ["curitiba"] },
   ],
 
   // Feriados nacionais (informativos: não mudam a escala).

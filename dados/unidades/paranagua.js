@@ -14,7 +14,6 @@ Escala.dados.unidades.push({
   uf: "PR",
   tipoEscala: "mensal",
   coberturaMinima: { Motorista: 2, Ajudante: 2 },
-  supervisor: { matricula: "93001", nome: "Juliana Prates", funcao: "Supervisora" },
 
   equipe: [
     { matricula: "30001", pis: "17028222134", nome: "Eduardo Farias", funcao: "Motorista", rota: "Rota 301" },

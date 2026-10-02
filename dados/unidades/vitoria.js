@@ -12,7 +12,6 @@ Escala.dados.unidades.push({
   uf: "ES",
   tipoEscala: "fixa",
   coberturaMinima: { Motorista: 2, Ajudante: 2 },
-  supervisor: { matricula: "92001", nome: "Márcio Lopes", funcao: "Supervisor" },
 
   equipe: [
     { matricula: "20001", pis: "10387722120", nome: "Bruno Teixeira", funcao: "Motorista", rota: "Rota 201", folgas: [6, 0] },

@@ -7,9 +7,9 @@
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23f5b800%27/%3E%3Ctext x=%2732%27 y=%2742%27 font-family=%27Arial%27 font-size=%2724%27 font-weight=%27bold%27 text-anchor=%27middle%27 fill=%27%230d1b2e%27%3E5x2%3C/text%3E%3C/svg%3E">
   <title>Escala 5x2 - Consulta da equipe</title>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/componentes.css">
-  <link rel="stylesheet" href="css/telas.css">
+  <link rel="stylesheet" href="css/base.css?v=0.6">
+  <link rel="stylesheet" href="css/componentes.css?v=0.6">
+  <link rel="stylesheet" href="css/telas.css?v=0.6">
 </head>
 <body>
   <div id="app"></div>
@@ -17,31 +17,33 @@
 
   <noscript><p style="padding:20px">Ative o JavaScript para usar a consulta de escala.</p></noscript>
 
-  <!-- A ordem importa: dados > núcleo > interface > telas > app. Ver docs/ARCHITECTURE.md -->
-  <script src="dados/geral.js"></script>
-  <script src="dados/unidades/maua.js"></script>
-  <script src="dados/unidades/vitoria.js"></script>
-  <script src="dados/unidades/paranagua.js"></script>
-  <script src="dados/unidades/curitiba.js"></script>
-  <script src="js/core/datas.js"></script>
-  <script src="js/core/documentos.js"></script>
-  <script src="js/core/regras/base.js"></script>
-  <script src="js/core/regras/fixa.js"></script>
-  <script src="js/core/regras/rotativa.js"></script>
-  <script src="js/core/regras/mensal.js"></script>
-  <script src="js/core/escala.js"></script>
-  <script src="js/core/repositorio.js"></script>
-  <script src="js/core/sessao.js"></script>
-  <script src="js/ui/componentes.js"></script>
-  <script src="js/ui/layout.js"></script>
-  <script src="js/telas/login.js"></script>
-  <script src="js/telas/colaborador.js"></script>
-  <script src="js/telas/hoje.js"></script>
-  <script src="js/telas/semana.js"></script>
-  <script src="js/telas/cobertura.js"></script>
-  <script src="js/telas/individual.js"></script>
-  <script src="js/telas/geral.js"></script>
-  <script src="js/telas/cadastro.js"></script>
-  <script src="js/app.js"></script>
+  <!-- A ordem importa: dados > núcleo > interface > telas > app. Ver docs/ARCHITECTURE.md
+       "?v=" é a versão publicada: troque em todos os arquivos a cada publicação
+       para o navegador do time não misturar arquivos novos com antigos. -->
+  <script src="dados/geral.js?v=0.6"></script>
+  <script src="dados/unidades/maua.js?v=0.6"></script>
+  <script src="dados/unidades/vitoria.js?v=0.6"></script>
+  <script src="dados/unidades/paranagua.js?v=0.6"></script>
+  <script src="dados/unidades/curitiba.js?v=0.6"></script>
+  <script src="js/core/datas.js?v=0.6"></script>
+  <script src="js/core/documentos.js?v=0.6"></script>
+  <script src="js/core/regras/base.js?v=0.6"></script>
+  <script src="js/core/regras/fixa.js?v=0.6"></script>
+  <script src="js/core/regras/rotativa.js?v=0.6"></script>
+  <script src="js/core/regras/mensal.js?v=0.6"></script>
+  <script src="js/core/escala.js?v=0.6"></script>
+  <script src="js/core/repositorio.js?v=0.6"></script>
+  <script src="js/core/sessao.js?v=0.6"></script>
+  <script src="js/ui/componentes.js?v=0.6"></script>
+  <script src="js/ui/layout.js?v=0.6"></script>
+  <script src="js/telas/login.js?v=0.6"></script>
+  <script src="js/telas/colaborador.js?v=0.6"></script>
+  <script src="js/telas/hoje.js?v=0.6"></script>
+  <script src="js/telas/semana.js?v=0.6"></script>
+  <script src="js/telas/cobertura.js?v=0.6"></script>
+  <script src="js/telas/individual.js?v=0.6"></script>
+  <script src="js/telas/geral.js?v=0.6"></script>
+  <script src="js/telas/cadastro.js?v=0.6"></script>
+  <script src="js/app.js?v=0.6"></script>
 </body>
 </html>

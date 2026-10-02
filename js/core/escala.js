@@ -45,6 +45,12 @@
   const todasFuncoes = () => [...new Set(unidades().flatMap(funcoes))];
   const feriado = (d) => E.dados.feriados.find((f) => f.data === D.iso(d)) || null;
 
+  /* ---------- Liderança ---------- */
+  // Ids dos CDDs que um líder acompanha ("todas" vira a lista completa).
+  const unidadesDoLider = (l) => (l.unidades === "todas" ? unidades().map((u) => u.id) : [...l.unidades]);
+  // Líderes que acompanham só este CDD (a liderança local, ex.: supervisão).
+  const liderancaLocal = (u) => E.dados.liderancas.filter((l) => l.unidades !== "todas" && l.unidades.length === 1 && l.unidades[0] === u.id);
+
   /* ---------- Quadro ativo (admissão e desligamento) ---------- */
   function ativoEm(p, d) {
     const dia = D.iso(d);
@@ -153,15 +159,15 @@
 
     E.dados.liderancas.forEach((l) => {
       registrar(l.matricula);
-      if (!["coordenador", "gerente"].includes(l.perfil)) erros.push(`${l.nome}: perfil "${l.perfil}" inválido.`);
-      (l.unidades || []).forEach((id) => { if (!unidade(id)) erros.push(`${l.nome}: unidade "${id}" não existe.`); });
+      if (!l.cargo) erros.push(`${l.nome}: informe o cargo.`);
+      if (l.unidades === "todas") return;
+      if (!Array.isArray(l.unidades) || !l.unidades.length) { erros.push(`${l.nome}: informe os CDDs que acompanha.`); return; }
+      l.unidades.forEach((id) => { if (!unidade(id)) erros.push(`${l.nome}: unidade "${id}" não existe.`); });
     });
 
     unidades().forEach((u) => {
       const prefixo = (msg) => `${u.nome}: ${msg}`;
       if (!regraDe(u)) { erros.push(prefixo(`tipo de escala "${u.tipoEscala}" não existe.`)); return; }
-      if (!u.supervisor) erros.push(prefixo("sem supervisor."));
-      else registrar(u.supervisor.matricula);
       Object.entries(u.coberturaMinima).forEach(([f, n]) => {
         if (!Number.isInteger(n) || n < 0) erros.push(prefixo(`cobertura mínima de ${f} inválida.`));
       });
@@ -200,6 +206,7 @@
   E.escala = Object.freeze({
     SITUACOES, AUSENCIAS, JUSTIFICADAS, SEMANAS_DOMINGO,
     unidades, unidade, porMatricula, unidadeDe, reindexar, tipoDe, funcoes, todasFuncoes, parceiroDeRota, feriado,
+    unidadesDoLider, liderancaLocal,
     ativoEm, equipeAtiva,
     situacaoNaEscala, ausencia, situacao, trabalha,
     proximaFolga, proximoRetorno, proximoDomingoDeFolga, resumoMes, descreverRegra, publicacao,

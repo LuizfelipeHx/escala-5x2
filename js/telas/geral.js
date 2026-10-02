@@ -34,7 +34,7 @@
 
       const cartoes = resumos.map(({ u, r }) => `<div class="cdd">
         <div class="cdd-topo">
-          <div><h3>${U.esc(u.nome)} <small>${U.esc(u.uf)}</small></h3><span class="sub">Supervisão: ${U.esc(u.supervisor.nome)}</span></div>
+          <div><h3>${U.esc(u.nome)} <small>${U.esc(u.uf)}</small></h3><span class="sub">Liderança local: ${U.esc(R.liderancaLocal(u).map((l) => l.nome).join(", ") || "não definida")}</span></div>
           ${U.chipTipo(u)}
         </div>
         ${linha("Em operação hoje", `${r.emOperacao} de ${r.ativos}`, false)}

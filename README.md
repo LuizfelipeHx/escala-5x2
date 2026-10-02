@@ -27,21 +27,23 @@ Funciona no celular e no computador. Testes automáticos: https://luizfelipehx.g
 
 A senha de todos é **1234**. Na tela de login também dá para clicar direto num dos acessos.
 
-| Perfil | Matrícula | Vê |
-|---|---|---|
-| Gerente regional | 90000 | Os 4 CDDs |
-| Coordenador(a) | 80001 (Mauá e Vitória), 80002 (Paranaguá e Curitiba) | O seu grupo de CDDs |
-| Supervisor(a) | 91001 Mauá, 92001 Vitória, 93001 Paranaguá, 94001 Curitiba | Só a própria unidade |
-| Colaborador | 10001 a 10006 Mauá, 20001 a 20006 Vitória, 30001 a 30006 Paranaguá, 40001 a 40006 Curitiba | Só a própria escala |
+O site tem **duas visões**: **Liderança** e **Colaborador**. Na liderança, todos veem as mesmas telas; o que muda é quais CDDs cada pessoa acompanha. O cargo é só um rótulo.
+
+| Visão | Matrícula | Cargo | CDDs que acompanha |
+|---|---|---|---|
+| Liderança | 90000 | Gerente regional | Os 4 |
+| Liderança | 80001 / 80002 | Coordenação | Mauá e Vitória / Paranaguá e Curitiba |
+| Liderança | 91001 / 92001 / 93001 / 94001 | Supervisão | Mauá / Vitória / Paranaguá / Curitiba |
+| Colaborador | 10001 a 10006 Mauá, 20001 a 20006 Vitória, 30001 a 30006 Paranaguá, 40001 a 40006 Curitiba | Motorista ou ajudante | Só a própria escala |
 
 > O login é **simulado**, só para mostrar o fluxo. Ele não protege os dados.
 
-## O que cada perfil vê
+## O que cada visão mostra
 
 **Colaborador:** se trabalha ou folga hoje, a próxima folga, o próximo domingo de folga, como está o parceiro de rota e o calendário do mês.
 
-**Liderança (supervisor, coordenador e gerente):**
-- **Visão geral** (coordenador e gerente): um cartão por CDD com operação de hoje, alertas de cobertura, pessoas sem domingo de folga e publicação da escala do próximo mês.
+**Liderança:**
+- **Visão geral** (quando acompanha mais de um CDD): um cartão por CDD com operação de hoje, alertas de cobertura, pessoas sem domingo de folga e publicação da escala do próximo mês.
 - **Hoje:** quem está em operação e quem está fora, com alerta se faltar gente.
 - **Semana:** grade da equipe de segunda a domingo, com o total por função.
 - **Cobertura:** 28 dias à frente, dias abaixo do mínimo, dias a publicar e quem folga nos próximos domingos.
@@ -62,7 +64,7 @@ A senha de todos é **1234**. Na tela de login também dá para clicar direto nu
 
 Os dados de exemplo ficam na pasta `dados/`:
 
-- `dados/geral.js`: senha de demonstração, coordenação, gerência e feriados.
+- `dados/geral.js`: senha de demonstração, liderança (cargo e CDDs que acompanha) e feriados.
 - `dados/unidades/<cdd>.js`: um arquivo por CDD, com equipe, ocorrências e as regras daquele tipo de escala. Cada arquivo explica no topo como preencher.
 
 Depois de editar, abra `testes.html` para conferir as regras. Se algo estiver errado nos dados, o próprio site mostra um aviso vermelho dizendo o CDD e a pessoa.
@@ -71,7 +73,7 @@ Depois de editar, abra `testes.html` para conferir as regras. Se algo estiver er
 
 ```
 index.html              página do site
-testes.html             testes automáticos (29 testes)
+testes.html             testes automáticos (31 testes)
 dados/geral.js          dados comuns de exemplo
 dados/unidades/         um arquivo de exemplo por CDD
 css/                    estilos (base, componentes, telas)

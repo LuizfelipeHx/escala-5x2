@@ -17,7 +17,6 @@ Escala.dados.unidades.push({
   tipoEscala: "rotativa",
   inicioCiclo: "2026-01-05", // precisa ser uma segunda-feira
   coberturaMinima: { Motorista: 2, Ajudante: 2 },
-  supervisor: { matricula: "91001", nome: "Renata Alves", funcao: "Supervisora" },
 
   equipe: [
     { matricula: "10001", pis: "14087560224", nome: "Carlos Mendes",   funcao: "Motorista", rota: "Rota 101", posicaoInicial: 0 },

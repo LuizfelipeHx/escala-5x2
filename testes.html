@@ -28,20 +28,20 @@
   <div id="lista"></div>
 </main>
 
-<script src="dados/geral.js"></script>
-<script src="dados/unidades/maua.js"></script>
-<script src="dados/unidades/vitoria.js"></script>
-<script src="dados/unidades/paranagua.js"></script>
-<script src="dados/unidades/curitiba.js"></script>
-<script src="js/core/datas.js"></script>
-<script src="js/core/documentos.js"></script>
-<script src="js/core/regras/base.js"></script>
-<script src="js/core/regras/fixa.js"></script>
-<script src="js/core/regras/rotativa.js"></script>
-<script src="js/core/regras/mensal.js"></script>
-<script src="js/core/escala.js"></script>
-<script src="js/core/repositorio.js"></script>
-<script src="js/core/sessao.js"></script>
+<script src="dados/geral.js?v=0.6"></script>
+<script src="dados/unidades/maua.js?v=0.6"></script>
+<script src="dados/unidades/vitoria.js?v=0.6"></script>
+<script src="dados/unidades/paranagua.js?v=0.6"></script>
+<script src="dados/unidades/curitiba.js?v=0.6"></script>
+<script src="js/core/datas.js?v=0.6"></script>
+<script src="js/core/documentos.js?v=0.6"></script>
+<script src="js/core/regras/base.js?v=0.6"></script>
+<script src="js/core/regras/fixa.js?v=0.6"></script>
+<script src="js/core/regras/rotativa.js?v=0.6"></script>
+<script src="js/core/regras/mensal.js?v=0.6"></script>
+<script src="js/core/escala.js?v=0.6"></script>
+<script src="js/core/repositorio.js?v=0.6"></script>
+<script src="js/core/sessao.js?v=0.6"></script>
 <script>
 (function () {
   "use strict";
@@ -228,15 +228,30 @@
   const senha = () => dados().senhaDemo;
   teste("Recusa senha errada e matrícula inexistente", () =>
     (!!S.entrar("10001", "senha-errada").erro && !!S.entrar("99999", senha()).erro) || "aceitou acesso inválido");
-  teste("Cada perfil enxerga as unidades certas", () => {
+  teste("Duas visões: colaborador e liderança, cada uma com os CDDs certos", () => {
     const vis = (m) => S.entrar(m, senha()).usuario;
-    const c = vis("10001"), s = vis("92001"), co = vis("80002"), g = vis("90000");
+    const c = vis("10001"), sup = vis("92001"), coord = vis("80002"), ger = vis("90000");
     S.sair();
     const ok = c.perfil === "colaborador" && c.unidadeIds.join() === "maua" &&
-               s.perfil === "supervisor" && s.unidadeIds.join() === "vitoria" &&
-               co.perfil === "coordenador" && co.unidadeIds.join() === "paranagua,curitiba" &&
-               g.perfil === "gerente" && g.unidadeIds.length === R.unidades().length;
-    return ok || JSON.stringify({ c, s, co, g });
+               [sup, coord, ger].every((l) => l.perfil === "lideranca") &&
+               sup.unidadeIds.join() === "vitoria" &&
+               coord.unidadeIds.join() === "paranagua,curitiba" &&
+               ger.unidadeIds.length === R.unidades().length;
+    return ok || JSON.stringify({ c, sup, coord, ger });
+  });
+  teste("Cargo é só rótulo e a liderança local de cada CDD é encontrada", () => {
+    const ger = S.entrar("90000", senha()).usuario;
+    S.sair();
+    return (ger.funcao === "Gerente regional" &&
+            R.unidades().every((u) => R.liderancaLocal(u).length === 1)) || "liderança local ausente";
+  });
+  teste("Líder sem CDD ou com CDD inexistente é recusado na validação", () => {
+    const original = JSON.stringify(dados().liderancas);
+    dados().liderancas.push({ matricula: "70001", nome: "Sem Unidade", cargo: "Supervisor", unidades: [] });
+    dados().liderancas.push({ matricula: "70002", nome: "Unidade Errada", cargo: "Supervisor", unidades: ["xyz"] });
+    const erros = R.validarDados();
+    dados().liderancas = JSON.parse(original);
+    return (erros.length === 2) || erros.join(" | ");
   });
 
   /* ---------- Documentos ---------- */

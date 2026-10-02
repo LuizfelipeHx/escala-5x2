@@ -17,12 +17,7 @@
     { id: "cadastro", rotulo: "Cadastro", tela: "cadastro" },
   ];
   const ABA_GERAL = { id: "geral", rotulo: "Visão geral", tela: "geral", semFaixa: true };
-  const ABAS = {
-    colaborador: [{ id: "minha", rotulo: "Minha escala", tela: "colaborador" }],
-    supervisor: ABAS_UNIDADE,
-    coordenador: [ABA_GERAL, ...ABAS_UNIDADE],
-    gerente: [ABA_GERAL, ...ABAS_UNIDADE],
-  };
+  const ABAS_COLABORADOR = [{ id: "minha", rotulo: "Minha escala", tela: "colaborador" }];
 
   const estado = {
     usuario: null,
@@ -36,7 +31,11 @@
     funcao: "",
   };
 
-  const abas = () => ABAS[estado.usuario.perfil];
+  // Liderança com mais de um CDD ganha a "Visão geral" consolidada.
+  function abas() {
+    if (!E.sessao.ehLideranca(estado.usuario)) return ABAS_COLABORADOR;
+    return estado.usuario.unidadeIds.length > 1 ? [ABA_GERAL, ...ABAS_UNIDADE] : ABAS_UNIDADE;
+  }
   const abaAtual = () => abas().find((a) => a.id === estado.aba) || abas()[0];
   const unidadeAtual = () => R.unidade(estado.unidadeId);
 
@@ -105,7 +104,7 @@
     const antes = estado.usuario;
     if (!E.sessao.atual() || !R.unidade(estado.unidadeId)) return montar();
     estado.usuario = E.sessao.atual();
-    if (antes.perfil !== estado.usuario.perfil) return montar();
+    if (antes.perfil !== estado.usuario.perfil || antes.unidadeIds.join() !== estado.usuario.unidadeIds.join()) return montar();
     if (!R.unidade(estado.unidadeId).equipe.some((p) => p.matricula === estado.pessoaMatricula)) {
       estado.pessoaMatricula = R.unidade(estado.unidadeId).equipe[0]?.matricula || null;
     }

@@ -14,7 +14,7 @@ Plano aprovado em 02/10/2026, entregue por etapas com aprovação entre elas.
 
 | Etapa | Entrega | Situação |
 |---|---|---|
-| 1. Cadastro | Jornada do CDD, equipe com PIS/CPF, escala por pessoa, ocorrências, perfis supervisor/coordenador/gerente | ✅ v0.5 |
+| 1. Cadastro | Jornada do CDD, equipe com PIS/CPF, escala por pessoa, ocorrências, visões Liderança e Colaborador | ✅ v0.5 e v0.6 |
 | 2. Importação do AFDT | Ler arquivos de ponto (layout oficial, PIS ou CPF) e classificar cada dia: presença, falta, folga, ausência justificada, falha de registro. AFDTs fictícios de jul/2025 a set/2026 | ⏳ |
 | 3. Análise histórica | Ausência por dia da semana (seg a sáb) e por semana do mês; meses anteriores; mesmo mês do ano anterior; faltas e % sobre os previstos | ⏳ |
 | 4. Calendário de risco e por funcionário | Mês futuro com dias verde/amarelo/vermelho e o histórico que sustenta cada sinal; recorrência por pessoa (% + Bradford), sempre como sinal para acompanhamento | ⏳ |
