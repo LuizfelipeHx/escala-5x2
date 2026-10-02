@@ -16,11 +16,8 @@
     <header class="topo">
       <div class="topo-in">
         <div class="marca">
-          <div class="logo">5x2</div>
-          <div>
-            <h1>Consulta de Escala</h1>
-            <p>Equipe de Entrega <span class="selo">Protótipo</span></p>
-          </div>
+          <h1>Consulta de Escala</h1>
+          <p>Equipe de Entrega <span class="selo">Protótipo</span></p>
         </div>
         <div class="usuario">
           ${U.avatar(usuario.nome)}

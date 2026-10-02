@@ -1,5 +1,22 @@
 # Devlog
 
+## 02/10/2026: v0.7, login novo e marca limpa
+
+**Pedido:** foto da Corona no login (pedido do próprio time Ambev), sem o texto "CORONA"; tirar o quadrado amarelo "5x2"; tirar a lista de acessos de demonstração da tela.
+
+**Feito**
+- Foto recortada acima do texto "CORONA" (sem retoque) e sem os cantos arredondados; otimizada para 65 KB em `img/login-fundo.webp`.
+- Login em tela dividida no computador (foto inteira à esquerda, login à direita) e foto no topo com o cartão por cima no celular.
+- Marca só tipográfica: "Consulta de Escala" com filete dourado, no login e no cabeçalho. Novo ícone de aba (calendário) em `img/icone.svg`.
+- Login sem a lista de acessos; os acessos ficam no README. Código e estilos da lista removidos.
+
+**Validado**
+- 31 de 31 testes; login de liderança (90000 e 91001) pelo formulário; computador 1280 px e celular 390 px sem rolagem lateral; nenhum erro no console.
+
+**Aprendizados**
+- No celular, `aspect-ratio` junto com `max-height` fez o navegador calcular uma largura mínima maior que a tela (457 px em 390). Troquei por altura direta e coluna `minmax(0, 1fr)`.
+- O cache do navegador voltou a enganar o teste com arquivos `?v=0.7` antigos. Para o time não acontece porque a versão só é publicada uma vez; em desenvolvimento, forçar a atualização dos arquivos antes de conferir.
+
 ## 02/10/2026: v0.6, duas visões (Liderança e Colaborador)
 
 **Decisão:** supervisor, coordenador e gerente viam as mesmas telas; a diferença era só quantos CDDs cada um acompanha. Viraram uma visão só, **Liderança**, e o cargo passou a ser apenas um rótulo.

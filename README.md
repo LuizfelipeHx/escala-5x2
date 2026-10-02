@@ -36,7 +36,9 @@ O site tem **duas visões**: **Liderança** e **Colaborador**. Na liderança, to
 | Liderança | 91001 / 92001 / 93001 / 94001 | Supervisão | Mauá / Vitória / Paranaguá / Curitiba |
 | Colaborador | 10001 a 10006 Mauá, 20001 a 20006 Vitória, 30001 a 30006 Paranaguá, 40001 a 40006 Curitiba | Motorista ou ajudante | Só a própria escala |
 
-> O login é **simulado**, só para mostrar o fluxo. Ele não protege os dados.
+> O login é **simulado**, só para mostrar o fluxo. Ele não protege os dados. A tela de login não lista os acessos (para ter a aparência da versão final): repasse ao time os acessos desta tabela.
+
+> **Imagem do login:** foto da marca Corona, usada a pedido do time Ambev, para quem o projeto é feito. Uso interno do protótipo; não reutilizar fora dele.
 
 ## O que cada visão mostra
 
@@ -77,6 +79,7 @@ testes.html             testes automáticos (31 testes)
 dados/geral.js          dados comuns de exemplo
 dados/unidades/         um arquivo de exemplo por CDD
 css/                    estilos (base, componentes, telas)
+img/                    foto do login e ícone da aba
 js/core/datas.js        utilitários de data
 js/core/documentos.js   validação de PIS e CPF
 js/core/regras/         uma regra por tipo de escala (fixa, rotativa, mensal)

@@ -8,7 +8,7 @@
 
 - [ ] Revisar os nomes fictícios dos 4 CDDs em `dados/unidades/`
 - [ ] Testar no navegador e no celular usados na apresentação
-- [ ] Identidade visual: logo própria do projeto (entra na Etapa 5)
+- [x] Identidade visual do login (foto cedida pelo time Ambev, marca tipográfica)
 
 ## Pendências de negócio
 

@@ -1,7 +1,7 @@
 /* =====================================================================
    DADOS GERAIS DO PROTÓTIPO (FICTÍCIOS)
    Cada CDD tem o seu arquivo em dados/unidades/. Este arquivo guarda o
-   que vale para todos: senha de demonstração, gestores e feriados.
+   que vale para todos: senha de demonstração, liderança e feriados.
    ===================================================================== */
 
 window.Escala = window.Escala || {};

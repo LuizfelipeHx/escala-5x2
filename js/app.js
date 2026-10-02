@@ -180,7 +180,6 @@
     const alvo = e.target;
     const acao = alvo.closest("[data-acao]");
 
-    if (acao?.dataset.acao === "demo") return entrar(acao.dataset.matricula, E.dados.senhaDemo);
     if (acao?.dataset.acao === "sair") { E.sessao.sair(); return montar(); }
 
     const aba = alvo.closest(".aba");
