@@ -1,5 +1,10 @@
 # Devlog
 
+## 02/10/2026: v0.8.1, login mais enxuto
+
+- Removido o subtítulo "Equipe de Entrega · 4 CDDs" do cartão de login, a pedido. Ficam só o título e "Faça login para continuar".
+- Validado: 31 de 31 testes; computador e celular sem rolagem lateral; nenhum erro no console.
+
 ## 02/10/2026: v0.8, login no estilo do LogOn
 
 **Pedido:** imagem na tela toda com o login flutuando por cima, como no LogOn da Ambev, e o texto "Faça login para continuar".

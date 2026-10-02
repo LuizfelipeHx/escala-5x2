@@ -33,7 +33,6 @@
         <div class="login-card">
           <div class="login-marca">
             <h1>Consulta de Escala</h1>
-            <p>Equipe de Entrega · ${E.escala.unidades().length} CDDs</p>
           </div>
           <p class="login-chamada">Faça login para continuar</p>
 

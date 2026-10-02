@@ -16,7 +16,7 @@
 .login-foto { position: fixed; inset: 0; overflow: hidden; }
 .login-foto::before, .login-foto::after {
   content: ""; position: absolute;
-  background-image: url("../img/login-fundo.webp?v=0.8");
+  background-image: url("../img/login-fundo.webp?v=0.8.1");
   background-repeat: no-repeat;
 }
 .login-foto::before {
@@ -42,8 +42,7 @@
   content: ""; display: block; width: 44px; height: 4px; border-radius: 2px;
   background: var(--gold); margin: 0 auto 14px;
 }
-.login-marca p { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; }
-.login-chamada { text-align: center; color: var(--texto); font-size: 15.5px; margin: 22px 0 20px; }
+.login-chamada { text-align: center; color: var(--muted); font-size: 15.5px; margin: 10px 0 24px; }
 
 /* Campo com ícone à esquerda (e o olho da senha à direita). */
 .campo-icone {
@@ -182,7 +181,7 @@ td em { font-style: normal; color: var(--muted); font-size: 12.5px; }
     position: relative; inset: auto; justify-self: stretch; height: min(84vw, 60vh);
     background:
       linear-gradient(180deg, rgba(13, 27, 46, 0) 55%, var(--navy)),
-      url("../img/login-fundo.webp?v=0.8") center 30% / cover no-repeat;
+      url("../img/login-fundo.webp?v=0.8.1") center 30% / cover no-repeat;
   }
   .login-foto::before, .login-foto::after { display: none; }
   .login-card { width: calc(100% - 24px); align-self: start; margin: -56px 0 24px; padding: 26px 20px 22px; }
