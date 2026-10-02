@@ -79,6 +79,20 @@ O resultado fica em cache e é refeito quando os dados mudam: `escala.versaoDado
 
 > **Para aprender:** "determinístico" quer dizer que a mesma entrada sempre dá a mesma saída. O histórico inventado não muda a cada vez que a página abre, então os números da apresentação são reproduzíveis.
 
+### Por colaborador: decisões de estatística
+
+| Decisão | Por quê |
+|---|---|
+| Só entra quem está ativo no fim do período e foi admitido antes do início | Comparar só quem tem o período inteiro, como pede o item 4 do MBL |
+| Sinal nos últimos 90 dias, **relativo à equipe** (1,5× e 2×) e com mínimo de 3 faltas | Limite fixo (3%/5%) em 90 dias transformava 2 faltas em alerta: 17 de 24 pessoas ficavam em atenção |
+| Fator de Bradford **sempre em 90 dias** | As faixas de referência (50 e 125) valem para janela curta; em 15 meses todo mundo passava de 125 |
+| Episódio = faltas em dias **previstos** seguidos (folga no meio não quebra) | É assim que o fator de Bradford conta "ausências" |
+| Padrão comparado com o **restante da equipe** (sem a pessoa) | As faltas da própria pessoa inflavam a taxa da equipe e escondiam o padrão (caso do Ricardo) |
+| Padrão só com **teste binomial < 0,5%** | 24 pessoas × 19 recortes geram falsos padrões por acaso; o limite baixo compensa os muitos testes |
+| Padrão de mês exige faltas em **2 anos ou mais** | Um único mês ruim não é recorrência; por isso o histórico fictício começa em jul/2024 |
+
+> **Para aprender:** o teste binomial responde "se essa pessoa faltasse na mesma taxa que o resto da equipe, qual a chance de ver tantas faltas?". Quando essa chance é muito pequena, o padrão provavelmente é real. Quanto mais recortes testamos, mais "achados" aparecem por acaso, por isso o limite precisa ser mais rigoroso.
+
 **Limitação conhecida:** o passado é calculado com a jornada **atual** do CDD. Se um CDD mudou de jornada, o histórico antigo seria recalculado com a regra de hoje (ver TODO).
 
 ## Repositório e transação

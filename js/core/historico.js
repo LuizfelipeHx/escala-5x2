@@ -205,6 +205,145 @@
     };
   }
 
+  /* ---------- Por colaborador ---------- */
+  const MIN_PREVISTOS_PESSOA = 40;   // abaixo disso: "poucos dados"
+  const DIAS_RECENTES = 90;
+  // Fator de Bradford (S² × D): faixas de ACOMPANHAMENTO, não disciplinares.
+  const FAIXAS_BRADFORD = { atencao: 50, alto: 125 };
+  // Absenteísmo da pessoa comparado com a equipe nos mesmos 90 dias.
+  // Abaixo de 3 faltas não vira alerta (1 ou 2 faltas isoladas são ruído).
+  const RELATIVO_EQUIPE = { atencao: 1.5, alto: 2 };
+  const MIN_FALTAS_SINAL = 3;
+  const ordemNivel = { normal: 0, atencao: 1, alto: 2 };
+  function faixaRelativa(r, taxaEquipe) {
+    if (r.faltas < MIN_FALTAS_SINAL || !taxaEquipe || r.taxa == null) return "normal";
+    const razao = r.taxa / taxaEquipe;
+    return razao >= RELATIVO_EQUIPE.alto ? "alto" : razao >= RELATIVO_EQUIPE.atencao ? "atencao" : "normal";
+  }
+
+  // Episódio = faltas em dias previstos seguidos (folga no meio não quebra).
+  function episodios(listaPessoa) {
+    const ordenada = [...listaPessoa].sort((a, b) => a.data - b.data);
+    const lista = [];
+    let atual = null;
+    ordenada.forEach((x) => {
+      if (x.tipo === "falta") {
+        if (atual) { atual.fim = x.data; atual.dias++; } else { atual = { inicio: x.data, fim: x.data, dias: 1 }; lista.push(atual); }
+      } else {
+        atual = null;
+      }
+    });
+    return lista;
+  }
+  const bradford = (eps) => eps.length ** 2 * eps.reduce((t, e) => t + e.dias, 0);
+  const janelaRecente = () => ({ inicio: D.addDias(periodo().fim, -(DIAS_RECENTES - 1)), fim: periodo().fim });
+  const faixaBradford = (b) => (b >= FAIXAS_BRADFORD.alto ? "alto" : b >= FAIXAS_BRADFORD.atencao ? "atencao" : "normal");
+
+  // Chance de ver k ou mais faltas em n dias se a pessoa faltasse na taxa p
+  // da equipe (cauda da distribuição binomial). Quanto menor, menos provável
+  // que o padrão seja acaso.
+  function caudaBinomial(k, n, p) {
+    if (k <= 0) return 1;
+    if (p <= 0) return 0;
+    if (p >= 1) return 1;
+    let termo = Math.pow(1 - p, n); // P(X = 0)
+    let acumulado = 0;
+    for (let i = 0; i < k; i++) {
+      acumulado += termo;
+      termo *= ((n - i) / (i + 1)) * (p / (1 - p));
+    }
+    return Math.max(0, 1 - acumulado);
+  }
+
+  // Um padrão só é apontado se for pouco provável que seja acaso. O limite é
+  // baixo porque testamos 7 dias e 12 meses por pessoa (muitos testes = mais alarme falso).
+  const LIMITE_ACASO = 0.005;
+  const MIN_FALTAS_PADRAO = 3;
+
+  // Compara a pessoa com o RESTANTE da equipe (sem ela) no MESMO recorte (dia da
+  // semana ou mês). Sem ela, porque as faltas dela inflariam a taxa da equipe e
+  // esconderiam o próprio padrão; no mesmo recorte, para a sazonalidade de todos
+  // não virar "padrão" de alguém.
+  function testarRecorte(daPessoa, daEquipe) {
+    const r = resumir(daPessoa);
+    const equipe = resumir(daEquipe).taxa;
+    if (r.faltas < MIN_FALTAS_PADRAO || !equipe || r.taxa < 2 * equipe) return null;
+    const acaso = caudaBinomial(r.faltas, r.previstos, equipe);
+    return acaso < LIMITE_ACASO ? { faltas: r.faltas, previstos: r.previstos, taxa: r.taxa, equipe, acaso } : null;
+  }
+
+  // Padrões de RECORRÊNCIA da pessoa no histórico inteiro (só dados; o texto é da tela).
+  //   { tipo: "dia", dia, ... }  dia da semana bem acima da equipe naquele dia
+  //   { tipo: "mes", mes, anos, ... }  mês do ano bem acima da equipe, com faltas em 2 anos ou mais
+  function padroes(listaPessoa, listaUnidade) {
+    const achados = [];
+    if (!listaPessoa.length) return achados;
+    const matricula = listaPessoa[0].matricula;
+    listaUnidade = listaUnidade.filter((x) => x.matricula !== matricula); // restante da equipe
+    [1, 2, 3, 4, 5, 6, 0].forEach((dia) => {
+      const t = testarRecorte(listaPessoa.filter((x) => x.dia === dia), listaUnidade.filter((x) => x.dia === dia));
+      if (t) achados.push({ tipo: "dia", dia, ...t });
+    });
+    for (let m = 0; m < 12; m++) {
+      const doMes = listaPessoa.filter((x) => x.data.getMonth() === m);
+      const anos = new Set(doMes.filter((x) => x.tipo === "falta").map((x) => x.data.getFullYear())).size;
+      const t = anos >= 2 && testarRecorte(doMes, listaUnidade.filter((x) => x.data.getMonth() === m));
+      if (t) achados.push({ tipo: "mes", mes: m, anos, ...t });
+    }
+    return achados;
+  }
+
+  // Quem continua no CDD (ativo no fim do período) e já estava na operação no início.
+  function elegivelNoPeriodo(p, j) {
+    return R.ativoEm(p, j.fim) && (!p.admissao || p.admissao <= D.iso(j.inicio));
+  }
+
+  // filtro: { dia: 0-6 | null, mes: 0-11 | null } para responder "quem falta às segundas / em novembro".
+  function porColaborador(u, j, filtro = {}) {
+    const todos = registros(u);
+    const recentes = janelaRecente();
+    const taxaEquipe90 = resumir(dentro(todos, recentes)).taxa;
+    const elegiveis = u.equipe.filter((p) => elegivelNoPeriodo(p, j));
+    const pessoas = elegiveis.map((p) => {
+      const daPessoa = todos.filter((x) => x.matricula === p.matricula);
+      const noPeriodo = dentro(daPessoa, j);
+      const r = resumir(noPeriodo);
+      const recentesPessoa = dentro(daPessoa, recentes);
+      const r90 = resumir(recentesPessoa);
+      // Bradford sempre nos últimos 90 dias: as faixas de referência valem para janela curta.
+      const b = bradford(episodios(recentesPessoa));
+      const filtrados = noPeriodo.filter((x) => (filtro.dia == null || x.dia === filtro.dia) && (filtro.mes == null || x.data.getMonth() === filtro.mes));
+      const poucos = r.previstos < MIN_PREVISTOS_PESSOA;
+      const pior = [faixaRelativa(r90, taxaEquipe90), faixaBradford(b)].reduce((a, c) => ((ordemNivel[c] ?? 0) > (ordemNivel[a] ?? 0) ? c : a), "normal");
+      return {
+        pessoa: p, ...r, taxa90: r90.taxa, previstos90: r90.previstos,
+        episodios: episodios(noPeriodo).length, bradford: b, filtro: resumir(filtrados),
+        padroes: padroes(daPessoa, todos), nivel: poucos ? "poucos-dados" : pior,
+      };
+    });
+    return { pessoas, foraDaAnalise: u.equipe.length - elegiveis.length, taxaEquipe90 };
+  }
+
+  // Detalhe de uma pessoa no histórico inteiro.
+  function detalheColaborador(u, matricula) {
+    const todos = registros(u);
+    const daPessoa = todos.filter((x) => x.matricula === matricula);
+    const meses = [];
+    for (let m = D.inicioDoMes(periodo().inicio); m <= periodo().fim; m = D.addMeses(m, 1)) {
+      meses.push({ mes: m, ...resumir(daPessoa.filter((x) => x.mes === D.chaveMes(m))) });
+    }
+    const eps = episodios(daPessoa);
+    return {
+      ...resumir(daPessoa),
+      meses,
+      porDia: [1, 2, 3, 4, 5, 6, 0].map((dia) => ({ dia, ...resumir(daPessoa.filter((x) => x.dia === dia)) })).filter((x) => x.previstos > 0),
+      episodios: eps, padroes: padroes(daPessoa, todos),
+      bradford90: bradford(episodios(dentro(daPessoa, janelaRecente()))),
+      atestados: daPessoa.filter((x) => x.tipo === "atestado").map((x) => x.data),
+      inicio: daPessoa.length ? daPessoa.reduce((a, b) => (b.data < a ? b.data : a), daPessoa[0].data) : null,
+    };
+  }
+
   function riscoDoMes(u, mesRef) {
     return Array.from({ length: D.diasNoMes(mesRef) }, (_, i) =>
       riscoDoDia(u, new Date(mesRef.getFullYear(), mesRef.getMonth(), i + 1)));
@@ -214,5 +353,7 @@
     MIN_PREVISTOS, MESES_RECENTES, MESES_BASE, PESOS, LIMITES, FAIXAS, faixa,
     semanaDoMes, periodo, janela, ocorrencias, registros, resumir,
     resumoPeriodo, porDiaSemana, porSemanaDoMes, porMes, riscoDoDia, riscoDoMes,
+    MIN_PREVISTOS_PESSOA, DIAS_RECENTES, FAIXAS_BRADFORD, RELATIVO_EQUIPE, MIN_FALTAS_SINAL,
+    episodios, bradford, padroes, porColaborador, detalheColaborador, caudaBinomial, LIMITE_ACASO,
   });
 })(window.Escala);

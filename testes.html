@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/svg+xml" href="img/icone.svg?v=0.9">
+  <link rel="icon" type="image/svg+xml" href="img/icone.svg?v=0.10">
   <title>Consulta de Escala - Testes automáticos</title>
   <style>
     body { font-family: "Segoe UI", system-ui, Arial, sans-serif; background: #f3f5f9; color: #17212f; margin: 0; padding: 24px; }
@@ -28,22 +28,22 @@
   <div id="lista"></div>
 </main>
 
-<script src="dados/geral.js?v=0.9"></script>
-<script src="dados/unidades/maua.js?v=0.9"></script>
-<script src="dados/unidades/vitoria.js?v=0.9"></script>
-<script src="dados/unidades/paranagua.js?v=0.9"></script>
-<script src="dados/unidades/curitiba.js?v=0.9"></script>
-<script src="dados/historico-ficticio.js?v=0.9"></script>
-<script src="js/core/datas.js?v=0.9"></script>
-<script src="js/core/documentos.js?v=0.9"></script>
-<script src="js/core/regras/base.js?v=0.9"></script>
-<script src="js/core/regras/fixa.js?v=0.9"></script>
-<script src="js/core/regras/rotativa.js?v=0.9"></script>
-<script src="js/core/regras/mensal.js?v=0.9"></script>
-<script src="js/core/escala.js?v=0.9"></script>
-<script src="js/core/historico.js?v=0.9"></script>
-<script src="js/core/repositorio.js?v=0.9"></script>
-<script src="js/core/sessao.js?v=0.9"></script>
+<script src="dados/geral.js?v=0.10"></script>
+<script src="dados/unidades/maua.js?v=0.10"></script>
+<script src="dados/unidades/vitoria.js?v=0.10"></script>
+<script src="dados/unidades/paranagua.js?v=0.10"></script>
+<script src="dados/unidades/curitiba.js?v=0.10"></script>
+<script src="dados/historico-ficticio.js?v=0.10"></script>
+<script src="js/core/datas.js?v=0.10"></script>
+<script src="js/core/documentos.js?v=0.10"></script>
+<script src="js/core/regras/base.js?v=0.10"></script>
+<script src="js/core/regras/fixa.js?v=0.10"></script>
+<script src="js/core/regras/rotativa.js?v=0.10"></script>
+<script src="js/core/regras/mensal.js?v=0.10"></script>
+<script src="js/core/escala.js?v=0.10"></script>
+<script src="js/core/historico.js?v=0.10"></script>
+<script src="js/core/repositorio.js?v=0.10"></script>
+<script src="js/core/sessao.js?v=0.10"></script>
 <script>
 (function () {
   "use strict";
@@ -254,15 +254,15 @@
     (H.semanaDoMes(D.deIso("2026-11-01")) === 1 && H.semanaDoMes(D.deIso("2026-11-07")) === 1 &&
      H.semanaDoMes(D.deIso("2026-11-08")) === 2 && H.semanaDoMes(D.deIso("2026-11-29")) === 5) || "semana errada");
   teste("O padrão inventado aparece na análise (segunda pior que quarta em Mauá)", () => {
-    const dias = H.porDiaSemana(R.unidade("maua"), H.janela(15));
+    const dias = H.porDiaSemana(R.unidade("maua"), H.janela(24));
     const seg = dias.find((x) => x.dia === 1).taxa, qua = dias.find((x) => x.dia === 3).taxa;
     return seg > qua || `segunda ${seg} x quarta ${qua}`;
   });
   teste("Comparação com o mesmo mês do ano anterior só existe quando há os dois meses", () => {
     const meses = H.porMes(R.unidade("vitoria"));
     const set26 = meses.find((m) => D.chaveMes(m.mes) === "2026-09");
-    const out25 = meses.find((m) => D.chaveMes(m.mes) === "2025-10");
-    return (set26.varAnoAnterior != null && out25.varAnoAnterior == null && out25.varMesAnterior != null) || "comparação errada";
+    const out24 = meses.find((m) => D.chaveMes(m.mes) === "2024-10"); // primeiro ano do histórico: sem ano anterior
+    return (set26.varAnoAnterior != null && out24.varAnoAnterior == null && out24.varMesAnterior != null) || "comparação errada";
   });
   teste("Risco usa só sinais com dados suficientes e marca 'sem dados' sem nenhum", () => {
     const u = R.unidade("curitiba");
@@ -274,6 +274,68 @@
   teste("Risco de novembro em Paranaguá funciona com a escala ainda a publicar", () => {
     const r = H.riscoDoDia(R.unidade("paranagua"), D.deIso("2026-11-16"));
     return (r.escalados === null && r.estimativa != null) || JSON.stringify({ escalados: r.escalados, estimativa: r.estimativa });
+  });
+
+  /* ---------- Por colaborador ---------- */
+  secao("Absenteísmo por colaborador");
+  const reg = (iso, tipo) => ({ data: D.deIso(iso), tipo });
+  teste("Faltas em dias previstos seguidos são 1 episódio, mesmo com folga no meio", () => {
+    // sábado e segunda previstos (domingo de folga não aparece na lista), depois presença, depois falta
+    const eps = H.episodios([reg("2026-09-05", "falta"), reg("2026-09-07", "falta"), reg("2026-09-08", "presenca"), reg("2026-09-09", "falta")]);
+    return (eps.length === 2 && eps[0].dias === 2 && eps[1].dias === 1) || JSON.stringify(eps);
+  });
+  teste("Fator de Bradford = episódios² × dias (3 faltas soltas valem mais que 3 seguidas)", () => {
+    const soltas = H.bradford([{ dias: 1 }, { dias: 1 }, { dias: 1 }]);
+    const seguidas = H.bradford([{ dias: 3 }]);
+    return (soltas === 27 && seguidas === 3) || `${soltas} e ${seguidas}`;
+  });
+  teste("Só entra quem continua no CDD e já estava na operação no início do período", () => {
+    const u = R.unidade("maua");
+    u.equipe.push({ matricula: "19999", pis: "52998224725", nome: "Temporário", funcao: "Ajudante", rota: "Rota 199", posicaoInicial: 0, admissao: "2026-08-01" });
+    R.reindexar();
+    const r = H.porColaborador(u, H.janela(6));
+    u.equipe.pop();
+    R.reindexar();
+    const entrou = r.pessoas.some((x) => x.pessoa.matricula === "19999");
+    return (!entrou && r.foraDaAnalise === 1 && r.pessoas.length === 6) || JSON.stringify({ entrou, fora: r.foraDaAnalise, n: r.pessoas.length });
+  });
+  teste("Filtro por dia da semana conta só aquele dia", () => {
+    const u = R.unidade("maua");
+    const j = H.janela(24);
+    const x = H.porColaborador(u, j, { dia: 1 }).pessoas.find((p) => p.pessoa.matricula === "10005");
+    const segundas = H.registros(u).filter((r) => r.matricula === "10005" && r.dia === 1 && r.data >= j.inicio && r.data <= j.fim);
+    return (x.filtro.previstos === segundas.length && x.filtro.faltas === segundas.filter((r) => r.tipo === "falta").length) || JSON.stringify(x.filtro);
+  });
+  teste("Reincidentes inventados são encontrados (Thiago às segundas, Igor em novembro)", () => {
+    const thiago = H.detalheColaborador(R.unidade("maua"), "10005").padroes;
+    const igor = H.detalheColaborador(R.unidade("curitiba"), "40005").padroes;
+    return (thiago.some((p) => p.tipo === "dia" && p.dia === 1) && igor.some((p) => p.tipo === "mes" && p.mes === 10)) ||
+      JSON.stringify({ thiago, igor });
+  });
+  teste("Conta binomial: 8 ou mais caras em 10 moedas = 56/1024", () => {
+    const v = H.caudaBinomial(8, 10, 0.5);
+    return Math.abs(v - 56 / 1024) < 1e-9 || v;
+  });
+  teste("Padrão exige o dobro da equipe, chance de acaso abaixo do limite e (no mês) 2 anos", () => {
+    for (const u of R.unidades()) for (const p of u.equipe) {
+      const ruim = H.detalheColaborador(u, p.matricula).padroes.find((pd) =>
+        pd.taxa < 2 * pd.equipe || pd.faltas < 3 || pd.acaso >= H.LIMITE_ACASO || (pd.tipo === "mes" && pd.anos < 2));
+      if (ruim) return `${p.nome}: ${JSON.stringify(ruim)}`;
+    }
+    return true;
+  });
+  teste("Todos os reincidentes programados aparecem e o acaso não vira padrão", () => {
+    const esperados = { "10005": "dia", "20005": "dia", "30005": "dia", "40003": "dia", "40005": "mes" };
+    const achados = R.unidades().flatMap((u) => u.equipe.flatMap((p) =>
+      H.detalheColaborador(u, p.matricula).padroes.map((pd) => ({ matricula: p.matricula, tipo: pd.tipo }))));
+    const faltando = Object.entries(esperados).filter(([m, t]) => !achados.some((a) => a.matricula === m && a.tipo === t));
+    const inesperados = achados.filter((a) => !(a.matricula in esperados));
+    return (!faltando.length && inesperados.length <= 1) || JSON.stringify({ faltando, inesperados });
+  });
+  teste("Nem todo mundo vira alerta: o sinal separa os colaboradores", () => {
+    const niveis = R.unidades().flatMap((u) => H.porColaborador(u, H.janela(12)).pessoas.map((x) => x.nivel));
+    const normais = niveis.filter((n) => n === "normal").length;
+    return (normais >= niveis.length / 3 && niveis.some((n) => n === "alto")) || `${normais} normais de ${niveis.length}: ${niveis.join(",")}`;
   });
 
   /* ---------- Login ---------- */

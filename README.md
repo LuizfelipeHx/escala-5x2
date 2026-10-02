@@ -51,6 +51,7 @@ O site tem **duas visões**: **Liderança** e **Colaborador**. Na liderança, to
 - **Cobertura:** 28 dias à frente, dias abaixo do mínimo, dias a publicar e quem folga nos próximos domingos.
 - **Absenteísmo › Histórico:** faltas e % de absenteísmo por dia da semana, por semana do mês e mês a mês, com comparação contra o mês anterior e o mesmo mês do ano anterior. Mostra também atestados e falhas de registro, que não contam como falta.
 - **Absenteísmo › Calendário de risco:** cada dia do mês em Normal, Atenção ou Alta atenção, com o histórico que sustenta a estimativa ao clicar no dia.
+- **Absenteísmo › Por colaborador:** quem continua no CDD e já estava na operação no período, com faltas, %, episódios, fator de Bradford e padrões de recorrência. Filtros por dia da semana e mês respondem "quem falta às segundas?" ou "quem falta em novembro?". Ao clicar na pessoa: faltas mês a mês, por dia da semana e as datas de cada falta.
 - **Escala individual:** o calendário de qualquer colaborador. Também abre ao clicar no nome.
 - **Cadastro:** tipo de jornada do CDD, equipe (com PIS/CPF, admissão e desligamento), escala de cada pessoa e ocorrências.
 
@@ -66,11 +67,13 @@ O site tem **duas visões**: **Liderança** e **Colaborador**. Na liderança, to
 
 ## Absenteísmo (histórico fictício)
 
-Enquanto o arquivo de ponto (AFDT) não é importado, o site **gera um histórico fictício** de jul/2025 a set/2026, sempre igual, a partir de `dados/historico-ficticio.js`. Ele só cria ocorrência em dia em que a pessoa estava escalada e tem padrões de propósito (mais faltas às segundas, em novembro e dezembro, e algumas pessoas reincidentes).
+Enquanto o arquivo de ponto (AFDT) não é importado, o site **gera um histórico fictício** de jul/2024 a set/2026, sempre igual, a partir de `dados/historico-ficticio.js`. Ele só cria ocorrência em dia em que a pessoa estava escalada e tem padrões de propósito (mais faltas às segundas, em novembro e dezembro, e cinco reincidentes: Thiago e Caio às segundas, Paulo e Ricardo às sextas, Igor em novembro).
 
 - **Absenteísmo** = faltas injustificadas ÷ pessoas-dia previstas. Folga, férias e afastamento não entram na conta.
 - **Risco de um dia** = média ponderada de 3 sinais: o mesmo dia da semana nos últimos 3 meses (40%), a mesma semana do mês (30%) e o mesmo dia da semana no mesmo mês do ano anterior (30%). Comparado à média da unidade: **Atenção** a partir de 15% acima, **Alta atenção** a partir de 40% acima. Sinal com menos de 15 pessoas-dia previstas é ignorado; sem nenhum, o dia fica "Sem dados".
-- É um **sinal para planejamento**, não uma previsão de quem vai faltar.
+- **Sinal por colaborador** (últimos 90 dias) = o pior entre: absenteísmo da pessoa comparado com o da equipe (atenção a partir de 1,5×, alta a partir de 2×, com pelo menos 3 faltas) e o fator de Bradford (episódios² × dias; atenção a partir de 50, alta a partir de 125). Menos de 40 dias previstos no período: "poucos dados".
+- **Padrão de recorrência** (dia da semana ou mês) só aparece se a pessoa faltar pelo menos o dobro do **restante da equipe** no mesmo recorte e a chance de ser acaso (teste binomial) ficar abaixo de 0,5%. Num mês, também precisa ter faltas em pelo menos 2 anos.
+- É um **sinal para planejamento e acompanhamento**, não uma previsão de quem vai faltar. Só a liderança vê.
 
 ## Como alterar os dados de exemplo
 
@@ -85,7 +88,7 @@ Depois de editar, abra `testes.html` para conferir as regras. Se algo estiver er
 
 ```
 index.html              página do site
-testes.html             testes automáticos (40 testes)
+testes.html             testes automáticos (49 testes)
 dados/geral.js          dados comuns de exemplo
 dados/unidades/         um arquivo de exemplo por CDD
 dados/historico-ficticio.js  parâmetros do histórico de ponto fictício

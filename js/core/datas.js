@@ -36,13 +36,14 @@
 
   // [6, 0] -> "Sábado e Domingo" (sempre na ordem de segunda a domingo).
   const NOMES_DIA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+  const DIAS_PLURAL = ["domingos", "segundas", "terças", "quartas", "quintas", "sextas", "sábados"];
   function nomesDias(dias) {
     const nomes = [...dias].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)).map((d) => NOMES_DIA[d]);
     return nomes.length > 1 ? `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}` : nomes.join("");
   }
 
   E.datas = Object.freeze({
-    DIAS, DIAS_LONGO, MESES, NOMES_DIA,
+    DIAS, DIAS_LONGO, MESES, NOMES_DIA, DIAS_PLURAL,
     hoje, addDias, addMeses, inicioDoMes, diasNoMes, mesmoDia, segundaDaSemana,
     iso, deIso, diasEntre, curto, rotulo, extenso, mesAno, chaveMes, nomesDias,
   });

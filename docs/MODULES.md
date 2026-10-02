@@ -26,7 +26,7 @@ Todos os módulos se registram no objeto global `window.Escala`. A ordem de carr
 | `js/telas/cobertura.js` | `Escala.telas.cobertura` | 28 dias de cobertura, alertas e domingos | `ui`, `escala`, `datas` |
 | `js/telas/individual.js` | `Escala.telas.individual` | Escala do mês de qualquer pessoa da unidade | `ui`, `escala`, `datas` |
 | `js/telas/geral.js` | `Escala.telas.geral` | Visão consolidada dos CDDs (coordenador e gerente) | `ui`, `escala`, `datas`, `regras` |
-| `js/telas/absenteismo.js` | `Escala.telas.absenteismo` | Histórico (gráficos e tabela mensal) e calendário de risco com o histórico de cada dia | `ui`, `historico`, `datas` |
+| `js/telas/absenteismo.js` | `Escala.telas.absenteismo` | Histórico (gráficos e tabela mensal), calendário de risco e visão por colaborador com detalhe da pessoa | `ui`, `historico`, `datas` |
 | `js/telas/cadastro.js` | `Escala.telas.cadastro` | Cadastro do CDD, equipe e ocorrências; formulários e leitura deles | `ui`, `escala`, `datas`, `regras`, `repositorio` |
 | `js/app.js` | nada | Estado, abas por perfil, unidade selecionada, ações e eventos | todos |
 
@@ -57,7 +57,18 @@ Toda tela é um objeto com `render(estado)` que **devolve HTML** e não registra
 
 ## Testes
 
-`testes.html` carrega dados e núcleo (sem interface) e roda 40 testes: tipos de escala, regras comuns, histórico e risco, login e visões, PIS/CPF e cadastro. Usa uma chave de armazenamento própria, então nunca mexe no que o usuário cadastrou. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.
+`testes.html` carrega dados e núcleo (sem interface) e roda 49 testes: tipos de escala, regras comuns, histórico e risco, absenteísmo por colaborador (episódios, Bradford, teste binomial, reincidentes e controle de acaso), login e visões, PIS/CPF e cadastro.
+
+## Funções principais de `Escala.historico`
+
+| Função | Retorna |
+|---|---|
+| `registros(unidade)` | Dias previstos apurados: presença, falta, atestado ou falha de registro |
+| `resumoPeriodo`, `porDiaSemana`, `porSemanaDoMes`, `porMes` | Agrupamentos com previstos, faltas e taxa |
+| `riscoDoDia`, `riscoDoMes` | Nível, estimativa, média da unidade e os 3 sinais |
+| `porColaborador(unidade, janela, { dia, mes })` | Por pessoa: taxa, taxa 90 dias, episódios, Bradford 90 dias, filtro, padrões e sinal |
+| `detalheColaborador(unidade, matricula)` | Histórico inteiro da pessoa: meses, dias da semana, episódios, atestados e padrões |
+| `episodios`, `bradford`, `caudaBinomial`, `padroes` | Peças das contas (testadas isoladamente) | Usa uma chave de armazenamento própria, então nunca mexe no que o usuário cadastrou. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.
 
 ## Funções principais de `Escala.repositorio`
 

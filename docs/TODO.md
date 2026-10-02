@@ -2,7 +2,8 @@
 
 ## Próximo passo
 
-- [ ] **Item 4:** cruzamento do histórico por funcionário (aguardando aprovação)
+- [x] **Item 4:** cruzamento do histórico por funcionário (v0.10)
+- [ ] Validar com o RH as faixas do sinal por pessoa (1,5× e 2× a equipe; Bradford 50 e 125) e o uso do fator de Bradford
 - [ ] Decidir se o calendário de risco destaca os dias **dentro do mês** (hoje compara com a média dos 12 meses; em mês de pico quase todos os dias ficam destacados, como novembro em Curitiba)
 - [ ] Importação do AFDT real
 

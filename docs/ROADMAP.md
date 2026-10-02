@@ -17,7 +17,7 @@ Pedido do MBL (02/10/2026), entregue por etapas com aprovação entre elas.
 | 1. Tipo de jornada por CDD | Cadastro do CDD, equipe com PIS/CPF, escala por pessoa, ocorrências | ✅ v0.5 e v0.6 |
 | 2. Análise histórica | Dia da semana, semana do mês, meses anteriores, mesmo mês do ano anterior, faltas e % sobre os previstos | ✅ v0.9 (histórico fictício) |
 | 3. Calendário de risco | Dias em Normal/Atenção/Alta atenção com o histórico que sustenta cada um | ✅ v0.9 |
-| 4. Cruzamento por funcionário | Recorrência por pessoa (dia da semana, mês), períodos e quantidade de dados, como sinal para acompanhamento | ⏳ próximo |
+| 4. Cruzamento por funcionário | Recorrência por pessoa (dia da semana, mês), períodos e quantidade de dados, como sinal para acompanhamento | ✅ v0.10 |
 | 5. Distinguir falta de folga, férias, afastamento e falha de registro | Cadastro e apuração já separam; a falha de registro real depende do AFDT | 🟡 parcial |
 | Importação do AFDT | Ler arquivos de ponto (layout oficial, PIS ou CPF) e substituir o histórico fictício | ⏳ |
 | Visual | Ícones, barra inferior no celular, mini gráficos, modo escuro e transições | ⏳ |

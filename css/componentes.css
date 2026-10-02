@@ -90,6 +90,10 @@
 .coluna { width: 20px; background: var(--serie-claro); border-radius: 4px 4px 0 0; min-height: 2px; }
 .coluna-destaque { background: var(--serie); }
 .coluna-rotulo { font-size: 11px; color: var(--muted); padding: 6px 0 4px; white-space: nowrap; }
+.colunas-denso { gap: 3px; }
+.colunas-denso .coluna-item { flex-basis: 20px; }
+.colunas-denso .coluna { width: 14px; }
+.colunas-denso .coluna-item:nth-child(even) .coluna-rotulo { visibility: hidden; }
 
 .tabela-numeros td { font-variant-numeric: tabular-nums; }
 .sobe { color: var(--atestado); font-weight: 700; }
@@ -99,7 +103,7 @@
 .r-normal    { --rc: #1e7a4e; --rbg: var(--trabalho-bg); }
 .r-atencao   { --rc: #7a5600; --rbg: #ffefc2; }
 .r-alto      { --rc: #a32b1f; --rbg: var(--atestado-bg); }
-.r-sem-dados { --rc: var(--muted); --rbg: #eceff4; }
+.r-sem-dados, .r-poucos-dados { --rc: var(--muted); --rbg: #eceff4; }
 .selo-risco {
   display: inline-flex; align-items: center; gap: 5px; vertical-align: middle;
   padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
@@ -120,7 +124,8 @@
 .aviso-info { background: #eceff4; border-color: #9aa5b5; color: #3c4656; }
 
 /* ---------- Listas de pessoas ---------- */
-.colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.colunas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.colunas > * { min-width: 0; } /* conteúdo largo rola dentro do bloco, não estica a página */
 .painel { background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra); padding: 16px; }
 .painel h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
 .pessoa {

@@ -1,5 +1,6 @@
 /* =====================================================================
    HISTÓRICO DE PONTO FICTÍCIO (para demonstrar a análise de absenteísmo)
+   Período: jul/2024 a set/2026.
 
    Enquanto não importamos o AFDT real, o sistema GERA um histórico de
    ocorrências de ponto a partir destes parâmetros. A geração é
@@ -18,7 +19,9 @@
 window.Escala = window.Escala || {};
 
 Escala.configHistorico = {
-  inicio: "2025-07-01",
+  // Dois anos e pouco: permite comparar com o mesmo mês do ano anterior e
+  // achar recorrência em um mês (ex.: novembro de 2024 e de 2025).
+  inicio: "2024-07-01",
   fim: "2026-09-30",
   semente: 2026,
 
@@ -40,7 +43,7 @@ Escala.configHistorico = {
     "10005": { diaSemana: 1, fator: 3 },   // Thiago (Mauá): segundas
     "20005": { diaSemana: 5, fator: 3 },   // Paulo (Vitória): sextas
     "30005": { diaSemana: 1, fator: 3 },   // Caio (Paranaguá): segundas
-    "40003": { diaSemana: 5, fator: 2.5 }, // Ricardo (Curitiba): sextas
-    "40005": { mes: 11, fator: 3 },        // Igor (Curitiba): novembro
+    "40003": { diaSemana: 5, fator: 7 },   // Ricardo (Curitiba): sextas (folga muito na sexta, precisa de sinal forte)
+    "40005": { mes: 11, fator: 8 },        // Igor (Curitiba): novembro
   },
 };

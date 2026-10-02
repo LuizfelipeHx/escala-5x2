@@ -1,5 +1,25 @@
 # Devlog
 
+## 02/10/2026: v0.10, absenteísmo por colaborador (item 4)
+
+**Feito**
+- Visão **Por colaborador** na aba Absenteísmo: tabela com dias previstos (dados disponíveis), faltas, %, episódios, % e Bradford dos últimos 90 dias, padrões e sinal; filtros por dia da semana e mês com coluna destacada; detalhe da pessoa com faltas por mês, por dia da semana, datas de cada falta e atestados.
+- Só entra quem continua no CDD e já estava na operação no início do período; o resto vira contagem "fora da análise".
+- Histórico fictício estendido para jul/2024 (dois novembros e dois dezembros), com escala mensal de jul/2024 a jun/2025 em Paranaguá e Curitiba. Períodos do histórico: 3, 6, 12 ou 24 meses.
+- Tecla Enter/espaço abre a linha da tabela (acessibilidade).
+
+**Problemas encontrados pelos testes e corrigidos antes de publicar**
+1. Todo mundo em "Alta atenção": Bradford calculado no período inteiro. Agora sempre em 90 dias.
+2. 17 de 24 em alerta: limite fixo de 3%/5% em 90 dias (2 faltas já viravam atenção). Agora relativo à equipe, com mínimo de 3 faltas.
+3. Padrões falsos ("março acima do normal" por um único mês ruim; dezembro para quase todos). Agora: restante da equipe no mesmo recorte, 2 anos para mês e teste binomial abaixo de 0,5%.
+4. Reincidente programado não aparecia: a taxa da equipe incluía a própria pessoa. Agora compara com o restante da equipe.
+5. Gráfico de 27 meses esticava a página no detalhe da pessoa. Colunas da grade não crescem além do espaço e o gráfico fica compacto com muitos meses.
+
+**Validado**
+- 49 de 49 testes (servidor local e abrindo pelo arquivo); os 5 reincidentes programados aparecem e nenhum padrão aparece por acaso.
+- Curitiba com filtro "novembro": Igor no topo (9 faltas em 2 anos, 20,9% contra 2,8% do restante da equipe). Ricardo: recorrência às sextas (17 faltas, 22,1% contra 5,1%).
+- Computador e celular sem rolagem lateral; nenhum erro no console.
+
 ## 02/10/2026: v0.9, análise histórica e calendário de risco
 
 **Pedido:** itens 2 e 3 do texto do MBL, com histórico inventado para ficar visível (a importação do AFDT fica para depois).

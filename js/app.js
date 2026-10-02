@@ -30,8 +30,9 @@
     inicioCobertura: D.hoje(),
     busca: "",
     funcao: "",
-    // Absenteísmo: visão (histórico ou risco), período do histórico e mês/dia do calendário.
-    abs: { visao: "historico", meses: 6, mesRisco: D.addMeses(D.hoje(), 1), diaRisco: null },
+    // Absenteísmo: visão, período, mês/dia do calendário de risco e,
+    // na visão por colaborador, filtros (dia da semana, mês) e pessoa aberta.
+    abs: { visao: "historico", meses: 6, mesRisco: D.addMeses(D.hoje(), 1), diaRisco: null, dia: null, mes: null, pessoa: null },
   };
 
   // Liderança com mais de um CDD ganha a "Visão geral" consolidada.
@@ -46,6 +47,7 @@
     const u = R.unidade(id);
     Object.assign(estado, { unidadeId: id, pessoaMatricula: u.equipe[0]?.matricula || null, busca: "", funcao: "" });
     estado.abs.diaRisco = null;
+    estado.abs.pessoa = null;
     const busca = $("#f-busca"), funcao = $("#f-funcao");
     if (busca) busca.value = "";
     if (funcao) funcao.value = "";
@@ -149,6 +151,12 @@
     "risco-prox": () => { estado.abs.mesRisco = D.addMeses(estado.abs.mesRisco, 1); estado.abs.diaRisco = null; },
     "risco-hoje": () => { estado.abs.mesRisco = D.addMeses(D.hoje(), 1); estado.abs.diaRisco = null; },
     "risco-dia":  (el) => { estado.abs.diaRisco = el.dataset.dia; },
+    "abs-pessoa": (el) => {
+      estado.abs.pessoa = el.dataset.matricula;
+      atualizar();
+      document.querySelector("#detalhe-pessoa")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return false;
+    },
 
     // Cadastro: estas ações cuidam do próprio redesenho.
     "nova-pessoa":     () => { abrirDialogo(C.formPessoa(unidadeAtual(), null)); return false; },
@@ -237,8 +245,18 @@
     else if (id === "unidade-sel") selecionarUnidade(value);
     else if (id === "f-funcao") estado.funcao = value;
     else if (id === "abs-periodo") estado.abs.meses = Number(value);
+    else if (id === "abs-dia") estado.abs.dia = value === "" ? null : Number(value);
+    else if (id === "abs-mes") estado.abs.mes = value === "" ? null : Number(value);
     else return;
     atualizar();
+  });
+
+  // Teclado: Enter ou espaço numa linha clicável (que não é botão) age como clique.
+  document.addEventListener("keydown", (e) => {
+    const alvo = e.target.closest("tr[data-acao]");
+    if (!alvo || (e.key !== "Enter" && e.key !== " ")) return;
+    e.preventDefault();
+    alvo.click();
   });
 
   document.addEventListener("input", (e) => {

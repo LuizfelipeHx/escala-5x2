@@ -16,7 +16,7 @@
 .login-foto { position: fixed; inset: 0; overflow: hidden; }
 .login-foto::before, .login-foto::after {
   content: ""; position: absolute;
-  background-image: url("../img/login-fundo.webp?v=0.9");
+  background-image: url("../img/login-fundo.webp?v=0.10");
   background-repeat: no-repeat;
 }
 .login-foto::before {
@@ -108,7 +108,37 @@
   font-weight: 700; color: var(--muted); cursor: pointer;
 }
 .alternador-op.ativo { background: var(--gold); color: var(--navy); }
-#abs-periodo { padding: 9px 12px; border: 1px solid var(--linha); border-radius: 10px; background: var(--card); font-weight: 600; }
+#abs-periodo, #abs-dia, #abs-mes { padding: 9px 12px; border: 1px solid var(--linha); border-radius: 10px; background: var(--card); font-weight: 600; }
+
+/* Por colaborador */
+.tabela-colaboradores { min-width: 980px; }
+.tabela-colaboradores td small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+.tabela-colaboradores td:first-child { min-width: 170px; }
+.tabela-colaboradores td:nth-last-child(2) { min-width: 220px; }
+.barras-estreitas { max-width: 620px; }
+.linha-clicavel { cursor: pointer; }
+.linha-clicavel:hover td { background: var(--fundo); }
+.linha-clicavel:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
+.linha-clicavel.selecionada td { background: var(--gold-soft); }
+th.col-filtro { background: var(--gold); color: var(--navy); }
+td.col-filtro { background: #fffaf0; }
+.tag-padrao {
+  display: inline-block; margin: 2px 4px 2px 0; padding: 2px 8px; border-radius: 6px;
+  background: var(--azul-claro); color: var(--azul); font-size: 11.5px; font-weight: 600;
+}
+.detalhe-pessoa { margin-top: 16px; }
+.detalhe-pessoa h3 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 4px; font-size: 18px; }
+.detalhe-pessoa h3 small { color: var(--muted); font-size: 13px; font-weight: 600; }
+.detalhe-pessoa h4 { margin: 18px 0 8px; font-size: 14px; }
+.detalhe-pessoa .colunas { margin-top: 4px; }
+.padroes { margin: 0; padding-left: 20px; font-size: 14px; }
+.padroes li { margin: 3px 0; }
+.periodos { display: flex; flex-wrap: wrap; gap: 6px; }
+.periodo {
+  padding: 4px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600;
+  background: var(--falta-bg); color: var(--falta); font-variant-numeric: tabular-nums;
+}
+.periodo-neutro { background: var(--atestado-bg); color: var(--atestado); }
 
 .cal-risco .risco-dia {
   min-height: 74px; border: 2px solid transparent; border-radius: 10px; padding: 6px 8px;
@@ -209,7 +239,7 @@ td em { font-style: normal; color: var(--muted); font-size: 12.5px; }
     position: relative; inset: auto; justify-self: stretch; height: min(84vw, 60vh);
     background:
       linear-gradient(180deg, rgba(13, 27, 46, 0) 55%, var(--navy)),
-      url("../img/login-fundo.webp?v=0.9") center 30% / cover no-repeat;
+      url("../img/login-fundo.webp?v=0.10") center 30% / cover no-repeat;
   }
   .login-foto::before, .login-foto::after { display: none; }
   .login-card { width: calc(100% - 24px); align-self: start; margin: -56px 0 24px; padding: 26px 20px 22px; }
@@ -222,7 +252,7 @@ td em { font-style: normal; color: var(--muted); font-size: 12.5px; }
   .resumo-3 .kpi:first-child { grid-column: 1 / -1; }
   .kpi { padding: 10px 12px; }
   .kpi b { font-size: 21px; }
-  .colunas { grid-template-columns: 1fr; }
+  .colunas { grid-template-columns: minmax(0, 1fr); }
   .aba { font-size: 13px; padding: 10px 4px; }
   .titulo-data { font-size: 17px; width: 100%; }
   .ctrl-botoes { width: 100%; }

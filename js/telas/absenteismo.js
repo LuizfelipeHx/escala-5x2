@@ -8,8 +8,10 @@
     atencao:     { rotulo: "Atenção",       icone: "▲" },
     alto:        { rotulo: "Alta atenção",  icone: "◆" },
     "sem-dados": { rotulo: "Sem dados",     icone: "○" },
+    "poucos-dados": { rotulo: "Poucos dados", icone: "○" },
   };
-  const PERIODOS = [3, 6, 12, 15];
+  const dataCompleta = (d) => `${E.datas.curto(d)}/${d.getFullYear()}`;
+  const PERIODOS = [3, 6, 12, 24];
   const MESES_CURTOS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
   const mesCurto = (d) => `${MESES_CURTOS[d.getMonth()]}/${String(d.getFullYear()).slice(2)}`;
 
@@ -19,8 +21,12 @@
   function alternador(estado) {
     const botao = (visao, texto) =>
       `<button class="alternador-op${estado.abs.visao === visao ? " ativo" : ""}" data-acao="abs-visao" data-visao="${visao}">${texto}</button>`;
-    return `<div class="alternador" role="tablist">${botao("historico", "Histórico")}${botao("risco", "Calendário de risco")}</div>`;
+    return `<div class="alternador" role="tablist">${botao("historico", "Histórico")}${botao("risco", "Calendário de risco")}${botao("colaboradores", "Por colaborador")}</div>`;
   }
+
+  const seletorPeriodo = (estado) =>
+    `<select id="abs-periodo" aria-label="Período">${PERIODOS.map((n) =>
+      `<option value="${n}"${n === estado.abs.meses ? " selected" : ""}>Últimos ${n} meses</option>`).join("")}</select>`;
 
   function notaFonte() {
     const H = E.historico, D = E.datas;
@@ -35,7 +41,8 @@
     const ultimo = meses[meses.length - 1];
     const maior = meses.reduce((a, b) => ((b.taxa ?? -1) > (a.taxa ?? -1) ? b : a), meses[0]);
     const U = E.ui;
-    return `<div class="colunas-grafico" role="figure" aria-label="Absenteísmo por mês">
+    // Com muitos meses, colunas mais finas e rótulo de um mês sim, outro não (o valor de cada mês fica na dica e na tabela).
+    return `<div class="colunas-grafico${meses.length > 16 ? " colunas-denso" : ""}" role="figure" aria-label="Absenteísmo por mês">
       ${meses.map((m) => {
         const rotular = m === ultimo || m === maior;
         return `<div class="coluna-item" title="${U.esc(`${E.datas.mesAno(m.mes)}: ${U.pct(m.taxa)} (${m.faltas} faltas em ${m.previstos} previstos)`)}">
@@ -64,7 +71,6 @@
     const H = E.historico, U = E.ui, D = E.datas;
     const j = H.janela(estado.abs.meses);
     const r = H.resumoPeriodo(u, j);
-    const opcoes = PERIODOS.map((n) => `<option value="${n}"${n === estado.abs.meses ? " selected" : ""}>Últimos ${n} meses</option>`).join("");
 
     const dias = H.porDiaSemana(u, j).map((x) => ({ rotulo: D.DIAS[x.dia], valor: x.taxa, detalhe: `${x.faltas} de ${U.numero(x.previstos)}` }));
     const semanas = H.porSemanaDoMes(u, j).map((x) => ({
@@ -76,7 +82,7 @@
     return `
       <div class="ctrl">
         <h2 class="titulo-data">Absenteísmo de ${D.mesAno(j.inicio).toLowerCase()} a ${D.mesAno(j.fim).toLowerCase()}</h2>
-        <div class="ctrl-botoes"><select id="abs-periodo" aria-label="Período">${opcoes}</select></div>
+        <div class="ctrl-botoes">${seletorPeriodo(estado)}</div>
       </div>
       <div class="resumo resumo-5">
         ${U.kpi("Pessoas-dia previstas", U.numero(r.previstos))}
@@ -159,10 +165,117 @@
       ${selecionado ? evidencia(u, selecionado) : ""}`;
   }
 
+  /* ---------- Por colaborador ---------- */
+  function textoPadrao(pd) {
+    const U = E.ui, D = E.datas;
+    if (pd.tipo === "dia") return `Recorrência às ${D.DIAS_PLURAL[pd.dia]} (${pd.faltas} faltas; ${U.pct(pd.taxa)} contra ${U.pct(pd.equipe)} do restante da equipe nesse dia)`;
+    return `Recorrência em ${D.MESES[pd.mes].toLowerCase()} (${pd.faltas} faltas em ${pd.anos} anos; ${U.pct(pd.taxa)} contra ${U.pct(pd.equipe)} do restante da equipe no mesmo mês)`;
+  }
+
+  function rotuloFiltro(f) {
+    const D = E.datas;
+    if (f.dia != null && f.mes != null) return `às ${D.DIAS_PLURAL[f.dia]} de ${D.MESES[f.mes].toLowerCase()}`;
+    if (f.dia != null) return `às ${D.DIAS_PLURAL[f.dia]}`;
+    if (f.mes != null) return `em ${D.MESES[f.mes].toLowerCase()}`;
+    return "";
+  }
+
+  function detalhePessoa(u, p) {
+    const H = E.historico, U = E.ui, D = E.datas;
+    const det = H.detalheColaborador(u, p.matricula);
+    const nivel = det.previstos < H.MIN_PREVISTOS_PESSOA ? "poucos-dados" : null;
+    const periodos = det.episodios.length
+      ? det.episodios.map((e) => `<span class="periodo">${e.dias === 1
+          ? `${D.DIAS[e.inicio.getDay()]}, ${dataCompleta(e.inicio)}`
+          : `${dataCompleta(e.inicio)} a ${dataCompleta(e.fim)} · ${e.dias} dias previstos`}</span>`).join("")
+      : '<span class="apagado">Nenhuma falta no histórico.</span>';
+    const atestados = det.atestados.length ? det.atestados.map((d) => `<span class="periodo periodo-neutro">${dataCompleta(d)}</span>`).join("") : '<span class="apagado">Nenhum.</span>';
+    const dias = det.porDia.map((x) => ({ rotulo: D.DIAS[x.dia], valor: x.taxa, detalhe: `${x.faltas} de ${U.numero(x.previstos)}` }));
+
+    return `<div class="painel detalhe-pessoa" id="detalhe-pessoa">
+      <h3>${U.esc(p.nome)} <small>${U.esc(p.funcao)} · ${U.esc(p.rota)}</small>${nivel ? selo(nivel) : ""}</h3>
+      <p class="nota">Histórico inteiro: <b>${U.numero(det.previstos)} dias previstos</b>${det.inicio ? ` desde ${dataCompleta(det.inicio)}` : ""}. Só faltas injustificadas contam.</p>
+      <div class="resumo resumo-4">
+        ${U.kpi("Faltas", det.faltas, "k-falta")}
+        ${U.kpi("Absenteísmo", U.pct(det.taxa))}
+        ${U.kpi("Episódios", det.episodios.length, "", '<small class="kpi-nota">faltas seguidas contam como 1</small>')}
+        ${U.kpi(`Bradford (${H.DIAS_RECENTES} dias)`, U.numero(det.bradford90), "", '<small class="kpi-nota">episódios² × dias</small>')}
+      </div>
+      <h4>Padrões encontrados</h4>
+      ${det.padroes.length ? `<ul class="padroes">${det.padroes.map((pd) => `<li>${U.esc(textoPadrao(pd))}</li>`).join("")}</ul>` : '<p class="apagado">Nenhum padrão de recorrência encontrado.</p>'}
+      <p class="nota">Um padrão só aparece quando a pessoa falta pelo menos o dobro do restante da equipe naquele dia ou mês e a chance de ser acaso (teste binomial) fica abaixo de ${U.numero(H.LIMITE_ACASO * 100, 1)}%. Num mês, também precisa ter faltas em pelo menos 2 anos.</p>
+      <h4>Faltas por mês</h4>${colunasMensais(det.meses)}
+      <h4>Por dia da semana</h4><div class="barras-estreitas">${U.barras(dias, `Faltas de ${p.nome} por dia da semana`)}</div>
+      <h4>Períodos das faltas</h4><div class="periodos">${periodos}</div>
+      <h4>Atestados (não pontuam)</h4><div class="periodos">${atestados}</div>
+      <p class="nota">É um sinal para acompanhamento e conversa com a pessoa, não uma afirmação de que ela vai faltar.</p>
+    </div>`;
+  }
+
+  function colaboradores(estado, u) {
+    const H = E.historico, U = E.ui, D = E.datas;
+    const j = H.janela(estado.abs.meses);
+    const filtro = { dia: estado.abs.dia, mes: estado.abs.mes };
+    const temFiltro = filtro.dia != null || filtro.mes != null;
+    const { pessoas, foraDaAnalise, taxaEquipe90 } = H.porColaborador(u, j, filtro);
+    const ordem = { alto: 0, atencao: 1, normal: 2, "poucos-dados": 3 };
+    pessoas.sort((a, b) => (temFiltro
+      ? b.filtro.faltas - a.filtro.faltas || (b.filtro.taxa ?? 0) - (a.filtro.taxa ?? 0)
+      : ordem[a.nivel] - ordem[b.nivel] || (b.taxa ?? 0) - (a.taxa ?? 0)));
+    const conta = (n) => pessoas.filter((x) => x.nivel === n).length;
+    const opcoesDia = [1, 2, 3, 4, 5, 6, 0].map((d) => `<option value="${d}"${filtro.dia === d ? " selected" : ""}>${D.NOMES_DIA[d]}</option>`).join("");
+    const opcoesMes = D.MESES.map((m, i) => `<option value="${i}"${filtro.mes === i ? " selected" : ""}>${m}</option>`).join("");
+    const selecionada = pessoas.find((x) => x.pessoa.matricula === estado.abs.pessoa)?.pessoa;
+
+    const linhas = pessoas.map((x) => `<tr class="linha-clicavel${x.pessoa === selecionada ? " selecionada" : ""}" data-acao="abs-pessoa" data-matricula="${U.esc(x.pessoa.matricula)}" tabindex="0">
+      <td class="esquerda"><b>${U.esc(x.pessoa.nome)}</b><small>${U.esc(x.pessoa.funcao)} · ${U.esc(x.pessoa.rota)}</small></td>
+      <td>${U.numero(x.previstos)}</td>
+      <td>${x.faltas}</td>
+      <td><b>${U.pct(x.taxa)}</b></td>
+      <td>${x.episodios}</td>
+      <td>${U.pct(x.taxa90)}</td>
+      <td>${U.numero(x.bradford)}</td>
+      ${temFiltro ? `<td class="col-filtro"><b>${x.filtro.faltas}</b> de ${U.numero(x.filtro.previstos)}<small>${U.pct(x.filtro.taxa)}</small></td>` : ""}
+      <td class="esquerda">${x.padroes.length ? x.padroes.map((pd) => `<span class="tag-padrao">${U.esc(textoPadrao(pd))}</span>`).join("") : '<span class="apagado">-</span>'}</td>
+      <td>${selo(x.nivel)}</td>
+    </tr>`).join("");
+
+    return `
+      <div class="ctrl">
+        <h2 class="titulo-data">Colaboradores de ${D.mesAno(j.inicio).toLowerCase()} a ${D.mesAno(j.fim).toLowerCase()}</h2>
+        <div class="ctrl-botoes">
+          ${seletorPeriodo(estado)}
+          <select id="abs-dia" aria-label="Dia da semana"><option value="">Todos os dias</option>${opcoesDia}</select>
+          <select id="abs-mes" aria-label="Mês do ano"><option value="">Todos os meses</option>${opcoesMes}</select>
+        </div>
+      </div>
+      <p class="nota">Entram só os colaboradores que <b>continuam no CDD</b> e <b>já estavam na operação</b> no início do período.
+        O sinal olha os <b>últimos ${H.DIAS_RECENTES} dias</b> e é o pior entre dois critérios:
+        o absenteísmo da pessoa comparado com o da equipe (${U.pct(taxaEquipe90)} no mesmo período; atenção a partir de ${U.numero(H.RELATIVO_EQUIPE.atencao, 1)}×, alta a partir de ${H.RELATIVO_EQUIPE.alto}×, com pelo menos ${H.MIN_FALTAS_SINAL} faltas)
+        e o fator de Bradford, que mede a concentração de episódios (atenção a partir de ${H.FAIXAS_BRADFORD.atencao}, alta a partir de ${H.FAIXAS_BRADFORD.alto}).
+        Com menos de ${H.MIN_PREVISTOS_PESSOA} dias previstos no período: poucos dados.
+        ${temFiltro ? `<br>Filtro ativo: a coluna destacada mostra as faltas <b>${rotuloFiltro(filtro)}</b>, e a lista está ordenada por ela.` : ""}</p>
+      <div class="resumo resumo-4">
+        ${U.kpi("Colaboradores analisados", pessoas.length)}
+        ${U.kpi("Em alta atenção", conta("alto"), conta("alto") ? "k-atestado" : "")}
+        ${U.kpi("Em atenção", conta("atencao"), conta("atencao") ? "k-folga" : "")}
+        ${U.kpi("Fora da análise", foraDaAnalise, "k-pendente", '<small class="kpi-nota">desligados ou admitidos no período</small>')}
+      </div>
+      <div class="tabela-wrap"><table class="tabela-numeros tabela-colaboradores">
+        <thead><tr><th class="esquerda">Colaborador</th><th>Dias previstos</th><th>Faltas</th><th>Absenteísmo</th><th>Episódios</th><th>Absenteísmo ${H.DIAS_RECENTES} dias</th><th>Bradford ${H.DIAS_RECENTES} dias</th>
+          ${temFiltro ? `<th class="col-filtro">Faltas ${U.esc(rotuloFiltro(filtro))}</th>` : ""}<th class="esquerda">Padrões</th><th>Sinal</th></tr></thead>
+        <tbody>${linhas || `<tr><td colspan="10">${U.vazio("Nenhum colaborador com histórico no período.")}</td></tr>`}</tbody>
+      </table></div>
+      <p class="nota">Clique num colaborador para ver o histórico completo.</p>
+      ${selecionada ? detalhePessoa(u, selecionada) : ""}`;
+  }
+
+  const VISOES = { historico, risco, colaboradores };
+
   E.telas.absenteismo = {
     render(estado) {
       const u = E.ui.unidadeAtual(estado);
-      return `${alternador(estado)}${notaFonte()}${estado.abs.visao === "risco" ? risco(estado, u) : historico(estado, u)}`;
+      return `${alternador(estado)}${notaFonte()}${(VISOES[estado.abs.visao] || historico)(estado, u)}`;
     },
   };
 })(window.Escala);
