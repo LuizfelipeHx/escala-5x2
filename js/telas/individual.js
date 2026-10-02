@@ -9,7 +9,7 @@
       const p = u.equipe.find((x) => x.matricula === estado.pessoaMatricula) || u.equipe[0];
       const s = R.situacao(p, D.hoje());
       const opcoes = u.equipe.map((x) =>
-        `<option value="${U.esc(x.matricula)}"${x.matricula === p.matricula ? " selected" : ""}>${U.esc(x.nome)} (${U.esc(x.funcao)})</option>`).join("");
+        `<option value="${U.esc(x.matricula)}"${x.matricula === p.matricula ? " selected" : ""}>${U.esc(x.nome)} (${U.esc(x.funcao)})${x.desligamento ? " · desligado" : ""}</option>`).join("");
 
       return `
         <div class="seletor-pessoa">

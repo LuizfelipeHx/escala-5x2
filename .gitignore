@@ -1,0 +1,13 @@
+# Arquivos de ponto REAIS nunca vão para o repositório: têm PIS/CPF e
+# horários de pessoas reais, e o repositório é público.
+# Exemplos fictícios ficam em exemplos/ e são liberados abaixo.
+*.txt
+*.afd
+*.afdt
+!exemplos/**/*.txt
+
+# Exportações de dados feitas pelo site (podem ter dados reais).
+escala5x2-dados-*.json
+
+# Ferramentas locais
+.playwright-mcp/

@@ -10,9 +10,13 @@ Escala.dados = {
   // Senha única de demonstração (login simulado, sem servidor).
   senhaDemo: "1234",
 
-  // Gestores enxergam todas as unidades.
-  gestores: [
-    { matricula: "90000", nome: "Patrícia Nogueira", funcao: "Gestora regional" },
+  // Liderança acima do supervisor (o supervisor fica no arquivo de cada CDD).
+  // perfil "coordenador": vê as unidades listadas em "unidades".
+  // perfil "gerente": vê todas as unidades.
+  liderancas: [
+    { matricula: "80001", nome: "Sérgio Antunes",    funcao: "Coordenador SP/ES", perfil: "coordenador", unidades: ["maua", "vitoria"] },
+    { matricula: "80002", nome: "Aline Kowalski",    funcao: "Coordenadora PR",   perfil: "coordenador", unidades: ["paranagua", "curitiba"] },
+    { matricula: "90000", nome: "Patrícia Nogueira", funcao: "Gerente regional",  perfil: "gerente" },
   ],
 
   // Feriados nacionais (informativos: não mudam a escala).

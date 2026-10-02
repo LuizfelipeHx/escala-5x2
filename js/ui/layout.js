@@ -7,9 +7,10 @@
   E.ui.layout = function (usuario, abas, errosDados) {
     const U = E.ui;
     const R = E.escala;
-    const onde = usuario.perfil === "gestor"
-      ? `${R.unidades().length} CDDs`
-      : R.unidade(usuario.unidadeId).nome;
+    const onde = usuario.unidadeIds.length > 1
+      ? `${usuario.unidadeIds.length} CDDs`
+      : R.unidade(usuario.unidadeIds[0]).nome;
+    const avisoCarga = E.repositorio.avisoCarga();
 
     return `
     <header class="topo">
@@ -30,6 +31,7 @@
     </header>
     <main>
       ${errosDados.length ? `<div class="aviso aviso-erro"><b>Revise os arquivos da pasta dados/</b>${errosDados.map((e) => `<span>${U.esc(e)}</span>`).join("")}</div>` : ""}
+      ${avisoCarga ? `<div class="aviso aviso-atencao"><b>Dados de exemplo restaurados</b><span>${U.esc(avisoCarga)}</span></div>` : ""}
       ${abas.length > 1 ? `<nav class="abas" aria-label="Visões">${abas.map((a) => `<button class="aba" data-aba="${a.id}">${a.rotulo}</button>`).join("")}</nav>` : ""}
       <div id="faixa-unidade"></div>
       <div class="filtros oculto" id="filtros">

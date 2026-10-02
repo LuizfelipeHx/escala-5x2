@@ -1,12 +1,18 @@
 /* Login SIMULADO para apresentação. Não há segurança real aqui:
    na versão com servidor, só este arquivo precisa ser trocado.
-   Perfis: colaborador (própria escala), supervisor (sua unidade),
-   gestor (todas as unidades). */
+
+   Perfis:
+     colaborador  própria escala
+     supervisor   o seu CDD
+     coordenador  um grupo de CDDs
+     gerente      todos os CDDs
+   O usuário guarda "unidadeIds": as unidades que ele pode ver. */
 (function (E) {
   "use strict";
 
   const CHAVE = "escala5x2.sessao";
   const ERRO = "Matrícula ou senha incorretas.";
+  const PERFIS_LIDERANCA = ["supervisor", "coordenador", "gerente"];
 
   // O navegador pode bloquear o armazenamento (aba anônima, por exemplo).
   const guardar = (valor) => { try { sessionStorage.setItem(CHAVE, JSON.stringify(valor)); } catch (_) { /* segue sem lembrar */ } };
@@ -16,15 +22,19 @@
   let atualEmMemoria = null;
 
   function buscarUsuario(matricula) {
-    const p = E.escala.porMatricula(matricula);
+    const R = E.escala;
+    const p = R.porMatricula(matricula);
     if (p) {
-      return { matricula, nome: p.nome, funcao: p.funcao, rota: p.rota, perfil: "colaborador", unidadeId: E.escala.unidadeDe(p).id };
+      if (!R.ativoEm(p, E.datas.hoje())) return null;
+      return { matricula, nome: p.nome, funcao: p.funcao, rota: p.rota, perfil: "colaborador", unidadeIds: [R.unidadeDe(p).id] };
     }
-    const u = E.escala.unidades().find((x) => x.supervisor?.matricula === matricula);
-    if (u) return { matricula, nome: u.supervisor.nome, funcao: u.supervisor.funcao, perfil: "supervisor", unidadeId: u.id };
+    const u = R.unidades().find((x) => x.supervisor?.matricula === matricula);
+    if (u) return { matricula, nome: u.supervisor.nome, funcao: u.supervisor.funcao, perfil: "supervisor", unidadeIds: [u.id] };
 
-    const g = E.dados.gestores.find((x) => x.matricula === matricula);
-    return g ? { matricula, nome: g.nome, funcao: g.funcao, perfil: "gestor", unidadeId: null } : null;
+    const l = E.dados.liderancas.find((x) => x.matricula === matricula);
+    if (!l) return null;
+    const unidadeIds = l.perfil === "gerente" ? R.unidades().map((x) => x.id) : [...l.unidades];
+    return { matricula, nome: l.nome, funcao: l.funcao, perfil: l.perfil, unidadeIds };
   }
 
   function entrar(matricula, senha) {
@@ -40,7 +50,18 @@
     apagar();
   }
 
-  const atual = () => atualEmMemoria || (atualEmMemoria = ler());
+  // Relê o usuário a partir dos dados atuais: se ele foi desligado ou excluído
+  // no cadastro, a sessão é encerrada.
+  function atual() {
+    const salvo = atualEmMemoria || ler();
+    if (!salvo) return null;
+    const usuario = buscarUsuario(salvo.matricula);
+    if (!usuario) { sair(); return null; }
+    atualEmMemoria = usuario;
+    return usuario;
+  }
 
-  E.sessao = Object.freeze({ entrar, sair, atual });
+  const ehLideranca = (usuario) => !!usuario && PERFIS_LIDERANCA.includes(usuario.perfil);
+
+  E.sessao = Object.freeze({ entrar, sair, atual, ehLideranca });
 })(window.Escala);

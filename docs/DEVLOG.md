@@ -1,5 +1,25 @@
 # Devlog
 
+## 02/10/2026: v0.5, cadastro (Etapa 1 do plano de absenteísmo)
+
+**Pedido:** cadastro do time e da escala, tipo de jornada por CDD, e base para a análise de absenteísmo com AFDT (próximas etapas).
+
+**Feito**
+- Tela **Cadastro** para a liderança: tipo de jornada e cobertura mínima do CDD; equipe com PIS/CPF, admissão e desligamento; escala de cada pessoa conforme o tipo; ocorrências (férias, atestado, afastamento, falta).
+- **Repositório** com transação: alteração inválida é desfeita e os erros aparecem no formulário. Dados salvos no navegador, com exportar, importar e restaurar exemplo.
+- **Quadro ativo:** desligar não apaga a pessoa nem o histórico; contratado novo não precisa de escala antes da admissão.
+- **Perfis:** supervisor (1 CDD), coordenador (grupo de CDDs) e gerente (todos), no lugar do "gestor".
+- Novas situações: falta (só em dia de trabalho), afastamento e fora do quadro.
+- Dados de exemplo com PIS fictícios válidos, histórico de faltas de jul a set/2026 e meses de jul e ago nas escalas mensais.
+- `.gitignore` bloqueando arquivos de ponto reais.
+
+**Validado**
+- 29 de 29 testes passando, incluindo os 9 novos de cadastro, PIS/CPF e perfis.
+- Na tela: PIS inválido mostra erro sem fechar o formulário; cadastro válido aparece na lista e continua lá depois de recarregar a página; falta salva em dia de trabalho; coordenadora PR vê só Paranaguá e Curitiba; formulário mensal mostra os meses publicados e não deixa marcar 3 dias; formulário no celular sem rolagem lateral.
+- Nenhum erro no console.
+
+**Correções nos próprios testes:** `12345678900` é um PIS válido por coincidência (troquei o exemplo de inválido), e o teste de desligamento usava data futura.
+
 ## 02/10/2026: v0.4, 4 CDDs com 3 tipos de escala
 
 **Pedido:** Mauá com escala rotativa (muda toda semana), Vitória com escala fixa e Paranaguá e Curitiba com escala mensal.

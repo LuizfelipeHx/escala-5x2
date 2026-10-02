@@ -1,36 +1,41 @@
 # Roadmap
 
-## Fase 0: Esboço (atual)
+## Fase 0: Esboço (feito)
 
-- [x] Consulta de escala com dados fictícios, abrindo por duplo clique
-- [x] Login simulado com perfis colaborador e supervisor
-- [x] Regra 5x2 com rodízio de domingo
-- [x] Férias, atestados e feriados
-- [x] Alerta de cobertura mínima por função
+- [x] Consulta de escala com dados fictícios, publicada no GitHub Pages
+- [x] 4 CDDs com 3 tipos de escala (rotativa, fixa, mensal)
+- [x] Login simulado com perfis
+- [x] Férias, atestados e feriados; alerta de cobertura e de domingo
 - [x] Testes automáticos das regras
-- [x] Publicado no GitHub Pages para o time testar (dados fictícios)
-- [x] 4 CDDs com 3 tipos de escala (rotativa, fixa, mensal) e visão do gestor
-- [ ] Apresentação para o time Ambev
 
-## Fase 1: Validação com a operação
+## Fase 1: Absenteísmo (em andamento)
 
-- Confirmar a regra real de folga e o rodízio de domingo com o RH e o jurídico
-- Definir a quantidade real da equipe e a cobertura mínima por função e por dia
-- Decidir se a cobertura muda por dia da semana (ex.: sábado com menos rotas)
-- Coletar opinião de motoristas e ajudantes sobre o que mais consultam
+Plano aprovado em 02/10/2026, entregue por etapas com aprovação entre elas.
+
+| Etapa | Entrega | Situação |
+|---|---|---|
+| 1. Cadastro | Jornada do CDD, equipe com PIS/CPF, escala por pessoa, ocorrências, perfis supervisor/coordenador/gerente | ✅ v0.5 |
+| 2. Importação do AFDT | Ler arquivos de ponto (layout oficial, PIS ou CPF) e classificar cada dia: presença, falta, folga, ausência justificada, falha de registro. AFDTs fictícios de jul/2025 a set/2026 | ⏳ |
+| 3. Análise histórica | Ausência por dia da semana (seg a sáb) e por semana do mês; meses anteriores; mesmo mês do ano anterior; faltas e % sobre os previstos | ⏳ |
+| 4. Calendário de risco e por funcionário | Mês futuro com dias verde/amarelo/vermelho e o histórico que sustenta cada sinal; recorrência por pessoa (% + Bradford), sempre como sinal para acompanhamento | ⏳ |
+| 5. Visual | Ícones e logo própria, barra inferior no celular, mini gráficos, modo escuro e transições | ⏳ |
+
+Regras já decididas:
+- Só falta injustificada pontua no risco. Férias, atestado e afastamento aparecem no histórico, mas não pontuam.
+- Risco por pessoa = % de ausência nos últimos 90 dias + fator de Bradford.
+- Dias sem escala conhecida ficam fora das contas (não viram falta).
+- AFDT é lido só no navegador; arquivo real nunca vai para o repositório.
 
 ## Fase 2: Piloto
 
-- Publicar o site (ex.: GitHub Pages ou hospedagem da empresa)
-- Login real por matrícula e PIN (ex.: Firebase ou Supabase) ou pela conta corporativa
-- Supervisor editando a escala e as ausências pelo próprio site (na mensal: montar e publicar o mês)
-- Instalar no celular como aplicativo (PWA) e funcionar sem internet
-- Exportar a escala do mês em PDF para o mural
+- Validar o leitor de AFDT com um arquivo real dos relógios dos CDDs
+- Banco de dados compartilhado (ex.: Supabase) e login real por matrícula
+- Supervisor montando e publicando a escala mensal pelo site
+- Instalar no celular como aplicativo (PWA)
 
 ## Fase 3: Produção
 
-- Integração com o sistema de RH/ponto (férias e atestados automáticos)
-- Pedido de troca de folga com aprovação do supervisor
-- Aviso da próxima folga e de mudanças na escala (notificação ou WhatsApp)
-- Registro de quem alterou o quê (auditoria)
-- Adequação à LGPD: cada colaborador vê só os próprios dados e os do parceiro de rota
+- Integração automática com o sistema de ponto e de RH
+- Pedido de troca de folga com aprovação
+- Avisos de próxima folga e de mudança de escala
+- Auditoria de alterações e adequação completa à LGPD

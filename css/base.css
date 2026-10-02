@@ -17,6 +17,8 @@
   --folga: #0d1b2e;      --folga-bg: #f5b800;
   --ferias: #1f5fbf;     --ferias-bg: #e4eefc;
   --atestado: #c0392b;   --atestado-bg: #fde3e0;
+  --afastamento: #0e7c86; --afastamento-bg: #dcf3f4;
+  --falta: #a8410a;      --falta-bg: #fde4cf;
   --feriado: #7b3fbf;
 
   --raio: 14px;
@@ -86,17 +88,21 @@ main { max-width: 1100px; margin: 0 auto; padding: 18px 20px 40px; }
 .btn-primario { background: var(--gold); border-color: var(--gold); color: var(--navy); }
 .btn-primario:hover { filter: brightness(0.96); border-color: var(--gold); }
 .btn-largo { width: 100%; padding: 12px; font-size: 16px; }
+.btn-mini { padding: 5px 10px; font-size: 12.5px; }
+.btn-perigo { color: var(--atestado); border-color: var(--atestado-bg); }
+.btn-perigo:hover { border-color: var(--atestado); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 
 /* ---------- Abas ---------- */
 .abas {
-  display: flex; gap: 6px;
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
   background: var(--card); padding: 6px;
   border-radius: var(--raio); box-shadow: var(--sombra);
   margin-bottom: 14px;
 }
 .aba {
-  flex: 1; border: 0; background: transparent;
+  flex: 1 0 auto; border: 0; background: transparent; white-space: nowrap;
   padding: 11px 8px; border-radius: 10px;
   font-weight: 600; color: var(--muted); cursor: pointer;
 }

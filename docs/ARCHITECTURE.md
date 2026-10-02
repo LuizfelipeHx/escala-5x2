@@ -15,6 +15,8 @@ O protótipo precisa funcionar **publicado no GitHub Pages e também aberto por 
 | **Uma regra por tipo de escala (padrão Strategy)** | Cada CDD pode ter um tipo diferente sem `if` espalhado pelas telas | Um contrato a respeitar (ver abaixo) |
 | Um arquivo de dados por CDD | Cada supervisão mexe só no seu arquivo; menos conflito | Um `<script>` a mais por unidade |
 | Login simulado em `sessionStorage` | É um esboço; segurança real exige servidor | Não protege nada (avisado na tela) |
+| **Repositório** como única porta para alterar dados, salvando no `localStorage` | Cadastro funciona sem servidor; trocar por banco de dados depois mexe em um arquivo só | Cada navegador tem os seus dados (avisado na tela) |
+| Desligar = data de desligamento, não apagar | Preserva o histórico de faltas para as análises | Telas filtram quem está "no quadro" em cada dia |
 
 > **Para aprender:** *Strategy* é quando várias formas de fazer a mesma coisa seguem o mesmo "formato de tomada". Aqui, fixa, rotativa e mensal respondem à mesma pergunta ("esta pessoa trabalha neste dia?"). O resto do sistema só faz a pergunta, sem saber qual regra respondeu. Um tipo novo, como 12x36, é só um arquivo novo.
 
@@ -25,8 +27,10 @@ dados/geral.js + dados/unidades/*     DADOS
             │
 js/core/datas.js                      utilitários de data
 js/core/regras/*                      uma regra por tipo de escala
-js/core/escala.js                     ausências, cobertura, alertas (comum a todos)
-js/core/sessao.js                     login simulado
+js/core/documentos.js                 validação de PIS e CPF
+js/core/escala.js                     quadro ativo, ausências, cobertura, alertas (comum a todos)
+js/core/repositorio.js                carregar, alterar (com transação), exportar e importar
+js/core/sessao.js                     login simulado e perfis
             │
 js/ui/*                               peças de HTML reaproveitadas
             │
@@ -57,8 +61,35 @@ Cada arquivo em `js/core/regras/` registra `Escala.regras[tipo]` com:
 
 ## Situação de uma pessoa num dia
 
-1. **Ausência** (férias ou atestado) cadastrada na unidade para a data.
-2. Senão, a **regra da unidade** decide entre trabalho, folga ou pendente.
+1. **Fora do quadro** (`inativo`) se o dia é antes da admissão ou depois do desligamento.
+2. **Ocorrência** lançada para a data: férias, atestado, afastamento (justificadas) ou falta (injustificada).
+3. Senão, a **regra da unidade** decide entre trabalho, folga ou pendente.
+
+Só a **falta** é absenteísmo. Uma falta só pode ser lançada em dia de trabalho da escala, o que impede contar folga como falta.
+
+## Repositório e transação
+
+Toda alteração passa por `js/core/repositorio.js`, dentro de uma **transação**:
+
+1. Guarda uma cópia dos dados.
+2. Aplica a alteração.
+3. Roda `escala.validarDados()`.
+4. Se aparecer qualquer erro, volta à cópia e devolve os erros para o formulário. Se não, grava no `localStorage`.
+
+Assim os dados nunca ficam num estado inválido. Na carga, se o que está salvo no navegador estiver corrompido ou inválido, o site volta para os dados de exemplo e avisa.
+
+> **Para aprender:** transação é o "tudo ou nada" dos bancos de dados. Ou a alteração inteira entra, ou nada muda.
+
+## Perfis
+
+| Perfil | Unidades visíveis | Origem |
+|---|---|---|
+| colaborador | a sua (só a própria escala) | `equipe` de cada CDD |
+| supervisor | o seu CDD | `supervisor` de cada CDD |
+| coordenador | o grupo em `liderancas[].unidades` | `dados/geral.js` |
+| gerente | todas | `dados/geral.js` |
+
+A sessão é relida a cada carga: quem foi desligado ou excluído é deslogado.
 
 A semana vai de segunda a domingo. Contas de dias usam UTC para não sofrer com fuso horário.
 

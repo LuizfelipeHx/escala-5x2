@@ -35,17 +35,20 @@
 
   const unidadeAtual = (estado) => R.unidade(estado.unidadeId);
 
-  function filtrarEquipe(estado) {
+  // "dias": se informado, só quem está no quadro em pelo menos um desses dias.
+  function filtrarEquipe(estado, dias = null) {
     const q = estado.busca.trim().toLowerCase();
     return unidadeAtual(estado).equipe.filter((p) =>
+      (!dias || dias.some((d) => R.ativoEm(p, d))) &&
       (!estado.funcao || p.funcao === estado.funcao) &&
       (!q || p.nome.toLowerCase().includes(q) || p.rota.toLowerCase().includes(q) || p.matricula.includes(q)));
   }
 
   /* ---------- Faixa da unidade (nome + tipo de escala) ---------- */
-  function faixaUnidade(u, podeTrocar) {
-    const nome = podeTrocar
-      ? `<select id="unidade-sel" aria-label="Unidade">${R.unidades().map((x) =>
+  // "visiveis": ids das unidades que o usuário pode ver (seletor se houver mais de uma).
+  function faixaUnidade(u, visiveis) {
+    const nome = visiveis.length > 1
+      ? `<select id="unidade-sel" aria-label="Unidade">${R.unidades().filter((x) => visiveis.includes(x.id)).map((x) =>
           `<option value="${x.id}"${x.id === u.id ? " selected" : ""}>${esc(x.nome)} (${esc(x.uf)})</option>`).join("")}</select>`
       : `<b class="faixa-nome">${esc(u.nome)} <small>${esc(u.uf)}</small></b>`;
     return `<div class="faixa">${nome}${chipTipo(u)}<span class="faixa-resumo">${esc(R.tipoDe(u).resumo)}</span></div>`;
@@ -79,6 +82,7 @@
   function detalheSituacao(p, d, s) {
     if (s === "trabalho") return `Próxima folga: ${D.rotulo(R.proximaFolga(p, d))}`;
     if (s === "pendente") return "Escala a publicar";
+    if (s === "inativo") return "Fora do quadro";
     return `Volta em: ${D.rotulo(R.proximoRetorno(p, d))}`;
   }
 
@@ -93,7 +97,7 @@
 
   /* ---------- Calendário e painel mensal ---------- */
   function legenda(u) {
-    const situacoes = ["trabalho", "folga", "ferias", "atestado"].concat(u.tipoEscala === "mensal" ? ["pendente"] : []);
+    const situacoes = ["trabalho", "folga", "ferias", "atestado", "afastamento", "falta"].concat(u.tipoEscala === "mensal" ? ["pendente"] : []);
     return `<div class="legenda">
       ${situacoes.map(chip).join("")}
       <span><i class="marca-feriado"></i> Feriado</span>
@@ -132,7 +136,7 @@
       <div class="resumo resumo-4">
         ${kpi("Dias de trabalho", r.trabalho, "k-trabalho")}
         ${kpi("Folgas", r.folga, "k-folga")}
-        ${kpi("Férias / atestado", r.ferias + r.atestado, "k-ferias")}
+        ${kpi("Ausências", r.ferias + r.atestado + r.afastamento + r.falta, "k-ferias")}
         ${r.pendente ? kpi("A publicar", r.pendente, "k-pendente") : kpi("Domingos de folga", r.domingos, "k-folga")}
       </div>
       ${calendario(p, mesRef)}

@@ -5,7 +5,10 @@
 .s-folga    { --sc: var(--folga);    --sbg: var(--folga-bg);    --sdot: var(--folga-bg); }
 .s-ferias   { --sc: var(--ferias);   --sbg: var(--ferias-bg);   --sdot: var(--ferias); }
 .s-atestado { --sc: var(--atestado); --sbg: var(--atestado-bg); --sdot: var(--atestado); }
+.s-afastamento { --sc: var(--afastamento); --sbg: var(--afastamento-bg); --sdot: var(--afastamento); }
+.s-falta    { --sc: var(--falta);    --sbg: var(--falta-bg);    --sdot: var(--falta); }
 .s-pendente { --sc: var(--muted);    --sbg: #eceff4;            --sdot: #9aa5b5; }
+.s-inativo  { --sc: #9aa5b5;         --sbg: #f6f7fa;            --sdot: #c5ccd6; }
 .s-neutro   { --sc: var(--navy);     --sbg: var(--gold-soft);   --sdot: var(--navy); }
 
 /* ---------- Tipo de escala ---------- */

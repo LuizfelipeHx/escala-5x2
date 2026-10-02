@@ -9,6 +9,7 @@
     const dias = Array.from({ length: DIAS_ANALISADOS }, (_, i) => D.addDias(hoje, i));
     const status = dias.map((d) => R.statusDia(u, d));
     return {
+      ativos: R.equipeAtiva(u, hoje).length,
       emOperacao: u.equipe.filter((p) => R.trabalha(p, hoje)).length,
       alertas: status.filter((s) => s === "baixa").length,
       aPublicar: status.filter((s) => s === "pendente").length,
@@ -18,12 +19,12 @@
   }
 
   E.telas.geral = {
-    render() {
+    render(estado) {
       const D = E.datas, R = E.escala, U = E.ui;
       const hoje = D.hoje();
-      const unidades = R.unidades();
+      const unidades = R.unidades().filter((u) => estado.usuario.unidadeIds.includes(u.id));
       const resumos = unidades.map((u) => ({ u, r: resumoUnidade(u, hoje) }));
-      const total = unidades.reduce((n, u) => n + u.equipe.length, 0);
+      const total = resumos.reduce((n, x) => n + x.r.ativos, 0);
       const emOperacao = resumos.reduce((n, x) => n + x.r.emOperacao, 0);
       const comAlerta = resumos.filter((x) => x.r.alertas || x.r.semDomingo || (x.r.proximoMes && !x.r.proximoMes.publicada)).length;
       const nomeProxMes = D.MESES[D.addMeses(hoje, 1).getMonth()].toLowerCase();
@@ -36,7 +37,7 @@
           <div><h3>${U.esc(u.nome)} <small>${U.esc(u.uf)}</small></h3><span class="sub">Supervisão: ${U.esc(u.supervisor.nome)}</span></div>
           ${U.chipTipo(u)}
         </div>
-        ${linha("Em operação hoje", `${r.emOperacao} de ${u.equipe.length}`, false)}
+        ${linha("Em operação hoje", `${r.emOperacao} de ${r.ativos}`, false)}
         ${linha(`Dias abaixo do mínimo (${DIAS_ANALISADOS} dias)`, r.alertas, r.alertas > 0)}
         ${linha(`Sem domingo de folga (${R.SEMANAS_DOMINGO} semanas)`, r.semDomingo, r.semDomingo > 0)}
         ${r.proximoMes ? linha(`Escala de ${nomeProxMes}`, r.proximoMes.publicada ? `publicada em ${D.curto(r.proximoMes.publicadaEm)}` : "aguardando publicação", !r.proximoMes.publicada) : ""}

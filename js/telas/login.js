@@ -13,10 +13,15 @@
       const p = u && u.equipe[0];
       return p && { matricula: p.matricula, nome: p.nome, detalhe: `${p.funcao} · ${u.nome}`, tipo: R.tipoDe(u).nome };
     };
-    const g = E.dados.gestores[0];
+    const lideranca = (perfil, rotulo) => {
+      const l = E.dados.liderancas.find((x) => x.perfil === perfil);
+      const onde = perfil === "gerente" ? "todos os CDDs" : (l?.unidades || []).map((id) => R.unidade(id).nome.replace("CDD ", "")).join(" e ");
+      return l && { matricula: l.matricula, nome: l.nome, detalhe: `${l.funcao} · ${onde}`, tipo: rotulo };
+    };
     const sup = R.unidades()[0];
     return [
-      g && { matricula: g.matricula, nome: g.nome, detalhe: `${g.funcao} · todos os CDDs`, tipo: "Visão geral" },
+      lideranca("gerente", "Gerência"),
+      lideranca("coordenador", "Coordenação"),
       sup && { matricula: sup.supervisor.matricula, nome: sup.supervisor.nome, detalhe: `${sup.supervisor.funcao} · ${sup.nome}`, tipo: "Supervisão" },
       colaborador("rotativa"),
       colaborador("fixa"),

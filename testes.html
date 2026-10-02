@@ -34,16 +34,22 @@
 <script src="dados/unidades/paranagua.js"></script>
 <script src="dados/unidades/curitiba.js"></script>
 <script src="js/core/datas.js"></script>
+<script src="js/core/documentos.js"></script>
 <script src="js/core/regras/base.js"></script>
 <script src="js/core/regras/fixa.js"></script>
 <script src="js/core/regras/rotativa.js"></script>
 <script src="js/core/regras/mensal.js"></script>
 <script src="js/core/escala.js"></script>
+<script src="js/core/repositorio.js"></script>
 <script src="js/core/sessao.js"></script>
 <script>
 (function () {
   "use strict";
-  const { datas: D, escala: R, sessao: S, regras, dados } = window.Escala;
+  const E = window.Escala;
+  // Chave própria: os testes nunca mexem nos dados que o usuário cadastrou.
+  E.repositorio.carregar({ chave: "escala5x2.testes", limpar: true });
+  const { datas: D, escala: R, sessao: S, regras, repositorio: Repo, documentos: Doc } = E;
+  const dados = () => E.dados;
   const grupos = [];
   let grupo = null;
 
@@ -219,17 +225,84 @@
 
   /* ---------- Login ---------- */
   secao("Login simulado");
+  const senha = () => dados().senhaDemo;
   teste("Recusa senha errada e matrícula inexistente", () =>
-    (!!S.entrar("10001", "senha-errada").erro && !!S.entrar("99999", dados.senhaDemo).erro) || "aceitou acesso inválido");
-  teste("Identifica colaborador, supervisor e gestor com a unidade certa", () => {
-    const c = S.entrar("10001", dados.senhaDemo).usuario;
-    const s = S.entrar("92001", dados.senhaDemo).usuario;
-    const g = S.entrar(dados.gestores[0].matricula, dados.senhaDemo).usuario;
+    (!!S.entrar("10001", "senha-errada").erro && !!S.entrar("99999", senha()).erro) || "aceitou acesso inválido");
+  teste("Cada perfil enxerga as unidades certas", () => {
+    const vis = (m) => S.entrar(m, senha()).usuario;
+    const c = vis("10001"), s = vis("92001"), co = vis("80002"), g = vis("90000");
     S.sair();
-    const ok = c.perfil === "colaborador" && c.unidadeId === "maua" &&
-               s.perfil === "supervisor" && s.unidadeId === "vitoria" &&
-               g.perfil === "gestor" && g.unidadeId === null;
-    return ok || JSON.stringify({ c, s, g });
+    const ok = c.perfil === "colaborador" && c.unidadeIds.join() === "maua" &&
+               s.perfil === "supervisor" && s.unidadeIds.join() === "vitoria" &&
+               co.perfil === "coordenador" && co.unidadeIds.join() === "paranagua,curitiba" &&
+               g.perfil === "gerente" && g.unidadeIds.length === R.unidades().length;
+    return ok || JSON.stringify({ c, s, co, g });
+  });
+
+  /* ---------- Documentos ---------- */
+  secao("PIS e CPF");
+  teste("Aceita PIS e CPF válidos e recusa dígito errado", () =>
+    (Doc.pisValido("14087560224") && !Doc.pisValido("14087560225") &&
+     Doc.cpfValido("52998224725") && !Doc.cpfValido("52998224726") &&
+     !Doc.pisOuCpfValido("11111111111")) || "validação de documento errada");
+
+  /* ---------- Cadastro (repositório) ---------- */
+  secao("Cadastro");
+  const novo = (extra = {}) => ({ nome: "Teste Silva", matricula: "29999", pis: "52998224725", funcao: "Motorista", rota: "Rota 299", folgas: [6, 0], ...extra });
+
+  teste("Cadastra colaborador novo na escala fixa", () => {
+    const r = Repo.salvarPessoa("vitoria", novo());
+    if (r.erros) return r.erros.join(" | ");
+    const p = R.porMatricula("29999");
+    return (p && R.situacao(p, D.deIso("2026-10-03")) === "folga" && R.situacao(p, D.deIso("2026-10-05")) === "trabalho") || "não entrou na escala";
+  });
+  teste("Recusa cadastro inválido e não altera nada", () => {
+    const antes = JSON.stringify(E.dados);
+    const casos = [
+      Repo.salvarPessoa("vitoria", novo({ matricula: "29998", pis: "11293438965" })), // PIS repetido
+      Repo.salvarPessoa("vitoria", novo({ matricula: "29998", pis: "12345678901" })), // PIS inválido
+      Repo.salvarPessoa("vitoria", novo({ matricula: "29998", folgas: [3, 3] })),     // folgas iguais
+      Repo.salvarPessoa("vitoria", novo({ pis: "39053344705" })),                     // matrícula repetida
+    ];
+    const aceitou = casos.findIndex((r) => !r.erros);
+    if (aceitou >= 0) return `caso ${aceitou + 1} foi aceito`;
+    return JSON.stringify(E.dados) === antes || "os dados mudaram mesmo com erro";
+  });
+  teste("Falta só é aceita em dia de trabalho da escala", () => {
+    // Folgas de sábado e domingo: 27/09 é domingo, 28/09 é segunda.
+    const folga = Repo.salvarOcorrencia("vitoria", { matricula: "29999", tipo: "falta", inicio: "2026-09-27", fim: "2026-09-27" });
+    const trabalho = Repo.salvarOcorrencia("vitoria", { matricula: "29999", tipo: "falta", inicio: "2026-09-28", fim: "2026-09-28" });
+    return (!!folga.erros && trabalho.ok && R.situacao(R.porMatricula("29999"), D.deIso("2026-09-28")) === "falta") || "regra da falta errada";
+  });
+  teste("Desligamento tira a pessoa do quadro, da cobertura e do login", () => {
+    const r = Repo.desligarPessoa("29999", "2026-09-30"); // data no passado
+    if (r.erros) return r.erros.join(" | ");
+    const p = R.porMatricula("29999");
+    const u = R.unidade("vitoria");
+    const fora = R.situacao(p, D.deIso("2026-10-01")) === "inativo" && !R.equipeAtiva(u, D.deIso("2026-10-01")).includes(p);
+    const dentro = R.situacao(p, D.deIso("2026-09-28")) === "falta"; // histórico preservado
+    return (fora && dentro && !!S.entrar("29999", senha()).erro) || "desligamento não aplicado";
+  });
+  teste("Contratado na mensal não precisa de folgas antes da admissão", () => {
+    const base = { nome: "Novo Mensal", matricula: "49999", pis: "39053344705", funcao: "Ajudante", rota: "Rota 499", admissao: "2026-10-01" };
+    const semOutubro = Repo.salvarPessoa("curitiba", { ...base, folgasMensais: { "2026-11": [2, 3] } });
+    const completo = Repo.salvarPessoa("curitiba", { ...base, folgasMensais: { "2026-10": [2, 3], "2026-11": [2, 3] } });
+    return (!!semOutubro.erros && completo.ok) || JSON.stringify({ semOutubro, completo });
+  });
+  teste("Troca de jornada do CDD mantém os dados válidos", () => {
+    const r = Repo.salvarUnidade("vitoria", { tipoEscala: "rotativa", inicioCiclo: "2026-01-05", coberturaMinima: { Motorista: 2, Ajudante: 2 } });
+    const volta = Repo.salvarUnidade("vitoria", { tipoEscala: "fixa", coberturaMinima: { Motorista: 2, Ajudante: 2 } });
+    return (r.ok && volta.ok && R.porMatricula("20001").folgas.join() === "6,0") || JSON.stringify({ r, volta });
+  });
+  teste("Exportar e importar devolvem os mesmos dados; arquivo inválido é recusado", () => {
+    const texto = Repo.exportar();
+    const lixo = Repo.importar("isto não é json");
+    const ok = Repo.importar(texto);
+    return (!!lixo.erros && ok.ok && Repo.exportar().includes('"49999"')) || "exportação/importação falhou";
+  });
+  teste("Restaurar exemplo apaga as alterações", () => {
+    Repo.restaurarExemplo();
+    return (!R.porMatricula("29999") && !R.porMatricula("49999") && !Repo.personalizado()) || "exemplo não restaurado";
   });
 
   /* ---------- Resultado ---------- */

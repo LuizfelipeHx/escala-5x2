@@ -9,7 +9,7 @@
       const seg = D.segundaDaSemana(estado.data);
       const dias = Array.from({ length: 7 }, (_, i) => D.addDias(seg, i));
       const hoje = D.hoje();
-      const lista = U.filtrarEquipe(estado);
+      const lista = U.filtrarEquipe(estado, dias);
       const classeHoje = (d) => (D.mesmoDia(d, hoje) ? "hoje" : "");
 
       const cabecalho = dias.map((d) => {

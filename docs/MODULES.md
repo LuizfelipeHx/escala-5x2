@@ -7,12 +7,14 @@ Todos os módulos se registram no objeto global `window.Escala`. A ordem de carr
 | `dados/geral.js` | `Escala.dados` | Senha de demonstração, gestores, feriados e a lista de unidades | nada |
 | `dados/unidades/*.js` | item em `Escala.dados.unidades` | Uma unidade: tipo de escala, cobertura mínima, supervisor, equipe, ausências e dados do tipo | `dados/geral.js` |
 | `js/core/datas.js` | `Escala.datas` | Criar, somar, comparar e formatar datas | nada |
+| `js/core/documentos.js` | `Escala.documentos` | Validação de PIS e CPF (dígito verificador) | nada |
 | `js/core/regras/base.js` | `Escala.regras`, `Escala.regrasBase` | Contrato das regras e validações comuns | nada |
 | `js/core/regras/fixa.js` | `Escala.regras.fixa` | Escala fixa | `datas`, `regrasBase` |
 | `js/core/regras/rotativa.js` | `Escala.regras.rotativa` | Escala rotativa semanal (também expõe `folgasDaSemana`) | `datas` |
 | `js/core/regras/mensal.js` | `Escala.regras.mensal` | Escala mensal publicada | `datas`, `regrasBase` |
 | `js/core/escala.js` | `Escala.escala` | Situação do dia, ausências, próximas folgas, cobertura, alertas e validação dos dados | `dados`, `datas`, `regras` |
-| `js/core/sessao.js` | `Escala.sessao` | Login simulado com perfis colaborador, supervisor e gestor | `dados`, `escala` |
+| `js/core/repositorio.js` | `Escala.repositorio` | Carregar (exemplo ou navegador), alterar com transação, exportar, importar e restaurar | `dados`, `escala`, `documentos` |
+| `js/core/sessao.js` | `Escala.sessao` | Login simulado com perfis colaborador, supervisor, coordenador e gerente | `dados`, `escala` |
 | `js/ui/componentes.js` | `Escala.ui` | Peças de HTML: chips, indicadores, avisos, faixa da unidade, linha de pessoa, calendário, painel mensal | `datas`, `escala` |
 | `js/ui/layout.js` | `Escala.ui.layout` | Moldura da área logada | `ui`, `escala` |
 | `js/telas/login.js` | `Escala.telas.login` | Login com acessos de demonstração (um por perfil e tipo) | `ui`, `escala` |
@@ -21,7 +23,8 @@ Todos os módulos se registram no objeto global `window.Escala`. A ordem de carr
 | `js/telas/semana.js` | `Escala.telas.semana` | Grade semanal e totais por função | `ui`, `escala`, `datas` |
 | `js/telas/cobertura.js` | `Escala.telas.cobertura` | 28 dias de cobertura, alertas e domingos | `ui`, `escala`, `datas` |
 | `js/telas/individual.js` | `Escala.telas.individual` | Escala do mês de qualquer pessoa da unidade | `ui`, `escala`, `datas` |
-| `js/telas/geral.js` | `Escala.telas.geral` | Visão consolidada dos CDDs (gestor) | `ui`, `escala`, `datas`, `regras` |
+| `js/telas/geral.js` | `Escala.telas.geral` | Visão consolidada dos CDDs (coordenador e gerente) | `ui`, `escala`, `datas`, `regras` |
+| `js/telas/cadastro.js` | `Escala.telas.cadastro` | Cadastro do CDD, equipe e ocorrências; formulários e leitura deles | `ui`, `escala`, `datas`, `regras`, `repositorio` |
 | `js/app.js` | nada | Estado, abas por perfil, unidade selecionada, ações e eventos | todos |
 
 ## Contrato das telas
@@ -51,4 +54,16 @@ Toda tela é um objeto com `render(estado)` que **devolve HTML** e não registra
 
 ## Testes
 
-`testes.html` carrega dados e núcleo (sem interface) e roda 20 testes agrupados por tipo de escala. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.
+`testes.html` carrega dados e núcleo (sem interface) e roda 29 testes: tipos de escala, regras comuns, login, PIS/CPF e cadastro. Usa uma chave de armazenamento própria, então nunca mexe no que o usuário cadastrou. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.
+
+## Funções principais de `Escala.repositorio`
+
+Todas devolvem `{ ok: true }` ou `{ erros: [...] }`.
+
+| Função | O que faz |
+|---|---|
+| `salvarUnidade(id, { tipoEscala, coberturaMinima, inicioCiclo })` | Tipo de jornada e cobertura do CDD |
+| `salvarPessoa(unidadeId, pessoa, matriculaOriginal)` | Inclui ou edita (renomeia a matrícula em todo o histórico) |
+| `desligarPessoa(matricula, data)` / `excluirPessoa(matricula)` | Desliga mantendo o histórico / apaga tudo |
+| `salvarOcorrencia(unidadeId, ocorrencia)` / `excluirOcorrencia(unidadeId, indice)` | Férias, atestado, afastamento, falta |
+| `exportar()` / `importar(texto)` / `restaurarExemplo()` | Backup em JSON e volta aos dados de exemplo |

@@ -7,7 +7,7 @@
       const D = E.datas, R = E.escala, U = E.ui;
       const u = U.unidadeAtual(estado);
       const d = estado.data;
-      const lista = U.filtrarEquipe(estado);
+      const lista = U.filtrarEquipe(estado, [d]);
       const emOperacao = lista.filter((p) => R.trabalha(p, d));
       const fora = lista.filter((p) => !R.trabalha(p, d));
       const contar = (tipos) => fora.filter((p) => tipos.includes(R.situacao(p, d))).length;
@@ -24,7 +24,7 @@
           ${U.kpi("Equipe", lista.length)}
           ${U.kpi("Em operação", emOperacao.length, "k-trabalho")}
           ${U.kpi("De folga", contar(["folga"]), "k-folga")}
-          ${U.kpi("Férias / atestado", contar(R.AUSENCIAS), "k-ferias")}
+          ${U.kpi("Ausências", contar(R.AUSENCIAS), "k-ferias")}
         </div>
         <div class="colunas">
           <div class="painel">
