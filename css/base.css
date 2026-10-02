@@ -1,0 +1,122 @@
+/* Base: cores, tipografia, cabeçalho, botões e estrutura da página. */
+:root {
+  --navy: #0d1b2e;
+  --navy-2: #16304f;
+  --gold: #f5b800;
+  --gold-soft: #fff4cc;
+  --fundo: #f3f5f9;
+  --card: #ffffff;
+  --texto: #17212f;
+  --muted: #667388;
+  --linha: #e1e6ee;
+  --azul-claro: #e4eefc;
+  --azul: #1f5fbf;
+
+  /* Cores das situações da escala */
+  --trabalho: #1e8e5a;   --trabalho-bg: #ddf3e8;
+  --folga: #0d1b2e;      --folga-bg: #f5b800;
+  --ferias: #1f5fbf;     --ferias-bg: #e4eefc;
+  --atestado: #c0392b;   --atestado-bg: #fde3e0;
+  --feriado: #7b3fbf;
+
+  --raio: 14px;
+  --sombra: 0 2px 10px rgba(13, 27, 46, 0.07);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+  line-height: 1.4;
+}
+button, input, select { font: inherit; color: inherit; }
+.oculto { display: none !important; }
+
+main { max-width: 1100px; margin: 0 auto; padding: 18px 20px 40px; }
+
+/* ---------- Cabeçalho ---------- */
+.topo {
+  background: linear-gradient(120deg, var(--navy), var(--navy-2));
+  color: #fff;
+  border-bottom: 4px solid var(--gold);
+}
+.topo-in {
+  max-width: 1100px; margin: 0 auto;
+  padding: 18px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.marca { display: flex; align-items: center; gap: 14px; }
+.logo {
+  width: 50px; height: 50px; border-radius: 14px; flex: none;
+  background: var(--gold); color: var(--navy);
+  display: grid; place-items: center;
+  font-weight: 800; font-size: 19px; letter-spacing: -1px;
+}
+.marca h1 { margin: 0; font-size: 21px; }
+.marca p { margin: 2px 0 0; font-size: 13px; opacity: 0.85; }
+.selo {
+  display: inline-block; margin-left: 6px;
+  border: 1px solid var(--gold); color: var(--gold);
+  padding: 1px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; vertical-align: 1px;
+}
+.usuario { display: flex; align-items: center; gap: 10px; }
+.usuario .avatar { background: var(--gold); color: var(--navy); }
+.usuario-info b { display: block; font-size: 14px; }
+.usuario-info small { font-size: 12px; opacity: 0.75; }
+.btn-sair {
+  margin-left: 6px;
+  background: transparent; color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 7px 14px; border-radius: 10px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.btn-sair:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ---------- Botões ---------- */
+.btn {
+  border: 1px solid var(--linha); background: var(--card);
+  padding: 9px 14px; border-radius: 10px;
+  font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.btn:hover { border-color: var(--navy); }
+.btn-primario { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+.btn-primario:hover { filter: brightness(0.96); border-color: var(--gold); }
+.btn-largo { width: 100%; padding: 12px; font-size: 16px; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- Abas ---------- */
+.abas {
+  display: flex; gap: 6px;
+  background: var(--card); padding: 6px;
+  border-radius: var(--raio); box-shadow: var(--sombra);
+  margin-bottom: 14px;
+}
+.aba {
+  flex: 1; border: 0; background: transparent;
+  padding: 11px 8px; border-radius: 10px;
+  font-weight: 600; color: var(--muted); cursor: pointer;
+}
+.aba:hover { background: var(--fundo); }
+.aba.ativa { background: var(--navy); color: #fff; }
+
+/* ---------- Filtros e controles de período ---------- */
+.filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.filtros input, .filtros select, .ctrl input, .seletor-pessoa select {
+  padding: 10px 12px; border: 1px solid var(--linha); border-radius: 10px; background: var(--card);
+}
+.filtros input { flex: 1; min-width: 200px; }
+
+.ctrl {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.ctrl-botoes { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.titulo-data { font-size: 20px; margin: 0; }
+
+.secao { font-size: 17px; margin: 26px 0 10px; }
+.nota { color: var(--muted); font-size: 13px; margin: 8px 0 12px; }
+.rodape { text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 30px; }
