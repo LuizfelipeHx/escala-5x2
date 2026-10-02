@@ -21,10 +21,10 @@
         ${U.avisoFeriado(d)}
         ${U.alertaCobertura(u, d)}
         <div class="resumo resumo-4">
-          ${U.kpi("Equipe", lista.length)}
-          ${U.kpi("Em operação", emOperacao.length, "k-trabalho")}
-          ${U.kpi("De folga", contar(["folga"]), "k-folga")}
-          ${U.kpi("Ausências", contar(R.AUSENCIAS), "k-ferias")}
+          ${U.kpi("Equipe", lista.length, "", "", "equipe")}
+          ${U.kpi("Em operação", emOperacao.length, "k-trabalho", "", "trabalho")}
+          ${U.kpi("De folga", contar(["folga"]), "k-folga", "", "folga")}
+          ${U.kpi("Ausências", contar(R.AUSENCIAS), "k-ferias", "", "ausencia")}
         </div>
         <div class="colunas">
           <div class="painel">

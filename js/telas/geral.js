@@ -52,12 +52,12 @@
       }).join("");
 
       return `
-        <div class="ctrl"><h2 class="titulo-data">Visão geral · ${D.extenso(hoje)}</h2></div>
+        ${U.barraAcoes(`${D.extenso(hoje)} · ${unidades.length} unidades acompanhadas`)}
         <div class="resumo resumo-4">
-          ${U.kpi("Unidades", unidades.length)}
-          ${U.kpi("Colaboradores", total)}
-          ${U.kpi("Em operação hoje", emOperacao, "k-trabalho")}
-          ${U.kpi("Unidades com atenção", comAlerta, comAlerta ? "k-atestado" : "k-trabalho")}
+          ${U.kpi("Unidades", unidades.length, "", "", "geral")}
+          ${U.kpi("Colaboradores", total, "", "", "equipe")}
+          ${U.kpi("Em operação hoje", emOperacao, "k-trabalho", "", "trabalho")}
+          ${U.kpi("Unidades com atenção", comAlerta, comAlerta ? "k-atestado" : "k-trabalho", "", "risco")}
         </div>
         <div class="cdds">${cartoes}</div>
         <h3 class="secao">Tipos de escala</h3>

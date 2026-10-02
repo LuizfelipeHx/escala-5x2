@@ -1,34 +1,24 @@
-/* Componentes reaproveitados entre telas. */
+/* Componentes reaproveitados entre telas. Só usa as variáveis de base.css. */
 
 /* ---------- Situações (cada classe s-* define as cores locais) ---------- */
-.s-trabalho { --sc: var(--trabalho); --sbg: var(--trabalho-bg); --sdot: var(--trabalho); }
-.s-folga    { --sc: var(--folga);    --sbg: var(--folga-bg);    --sdot: var(--folga-bg); }
-.s-ferias   { --sc: var(--ferias);   --sbg: var(--ferias-bg);   --sdot: var(--ferias); }
-.s-atestado { --sc: var(--atestado); --sbg: var(--atestado-bg); --sdot: var(--atestado); }
+.s-trabalho    { --sc: var(--trabalho);    --sbg: var(--trabalho-bg);    --sdot: var(--trabalho); }
+.s-folga       { --sc: var(--folga);       --sbg: var(--folga-bg);       --sdot: var(--folga-bg); }
+.s-ferias      { --sc: var(--ferias);      --sbg: var(--ferias-bg);      --sdot: var(--ferias); }
+.s-atestado    { --sc: var(--atestado);    --sbg: var(--atestado-bg);    --sdot: var(--atestado); }
 .s-afastamento { --sc: var(--afastamento); --sbg: var(--afastamento-bg); --sdot: var(--afastamento); }
-.s-falta    { --sc: var(--falta);    --sbg: var(--falta-bg);    --sdot: var(--falta); }
-.s-pendente { --sc: var(--muted);    --sbg: #eceff4;            --sdot: #9aa5b5; }
-.s-inativo  { --sc: #9aa5b5;         --sbg: #f6f7fa;            --sdot: #c5ccd6; }
-.s-neutro   { --sc: var(--navy);     --sbg: var(--gold-soft);   --sdot: var(--navy); }
+.s-falta       { --sc: var(--falta);       --sbg: var(--falta-bg);       --sdot: var(--falta); }
+.s-pendente    { --sc: var(--muted);       --sbg: var(--neutro-bg);      --sdot: var(--neutro); }
+.s-inativo     { --sc: var(--neutro);      --sbg: var(--inativo-bg);     --sdot: var(--neutro); }
+.s-neutro      { --sc: var(--tinta);       --sbg: var(--gold-soft);      --sdot: var(--tinta); }
 
 /* ---------- Tipo de escala ---------- */
 .chip-tipo {
-  display: inline-block; padding: 4px 10px; border-radius: 999px;
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
   font-size: 12px; font-weight: 700; white-space: nowrap;
 }
-.tipo-rotativa { background: #f1e8fb; color: var(--feriado); }
-.tipo-fixa     { background: var(--gold-soft); color: #8a6600; }
+.tipo-rotativa { background: var(--feriado-bg); color: var(--feriado); }
+.tipo-fixa     { background: var(--gold-soft); color: var(--ouro-texto); }
 .tipo-mensal   { background: var(--trabalho-bg); color: var(--trabalho); }
-
-.faixa {
-  display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap;
-  background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra);
-  padding: 12px 16px; margin-bottom: 14px;
-}
-.faixa-nome { font-size: 16px; }
-.faixa-nome small, .cdd h3 small { color: var(--muted); font-weight: 600; font-size: 12px; }
-.faixa select { padding: 8px 12px; border: 1px solid var(--linha); border-radius: 10px; background: var(--card); font-weight: 700; }
-.faixa-resumo { color: var(--muted); font-size: 13.5px; }
 
 .chip {
   display: inline-block; min-width: 70px; text-align: center;
@@ -37,39 +27,42 @@
   background: var(--sbg); color: var(--sc);
 }
 .avatar {
-  width: 40px; height: 40px; border-radius: 50%; flex: none;
+  width: 38px; height: 38px; border-radius: 50%; flex: none;
   display: grid; place-items: center;
-  font-weight: 700; font-size: 14px;
+  font-weight: 700; font-size: 13.5px;
   background: var(--sbg); color: var(--sc);
 }
 .ponto { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--sdot); }
 
 /* ---------- Indicadores ---------- */
-.resumo { display: grid; gap: 12px; margin-bottom: 14px; }
-.resumo-3 { grid-template-columns: repeat(3, 1fr); }
-.resumo-4 { grid-template-columns: repeat(4, 1fr); }
+.resumo { display: grid; gap: 12px; margin-bottom: 16px; }
+.resumo-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.resumo-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.resumo-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .kpi {
   background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra);
-  padding: 14px 16px; border-left: 5px solid var(--navy);
-  display: flex; flex-direction: column; gap: 4px;
+  padding: 14px 16px; border-top: 3px solid var(--linha);
+  display: flex; flex-direction: column; gap: 6px; min-width: 0;
 }
-.kpi small { color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-.kpi b { font-size: 26px; line-height: 1.15; }
+.kpi small {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--muted); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;
+}
+.kpi b { font-size: 26px; line-height: 1.1; color: var(--tinta); }
 .kpi .chip { font-size: 14px; }
-.kpi span { margin-top: 2px; }
-.k-trabalho { border-color: var(--trabalho); }
-.k-folga { border-color: var(--gold); }
-.k-ferias { border-color: var(--ferias); }
-.k-atestado { border-color: var(--atestado); }
-.k-pendente { border-color: #9aa5b5; }
-.k-falta { border-color: var(--falta); }
-.kpi .kpi-nota { color: var(--muted); font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
-.resumo-5 { grid-template-columns: repeat(5, 1fr); }
+.kpi > span { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.kpi .kpi-nota { display: inline; color: var(--muted); font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.k-destaque { border-top-color: var(--gold); }
+.k-trabalho { border-top-color: var(--trabalho); }
+.k-folga { border-top-color: var(--gold); }
+.k-ferias { border-top-color: var(--ferias); }
+.k-atestado { border-top-color: var(--atestado); }
+.k-pendente { border-top-color: var(--neutro); }
+.k-falta { border-top-color: var(--falta); }
 
-/* ---------- Gráficos (barras horizontais e colunas, uma série) ----------
+/* ---------- Gráficos (uma série) ----------
    Marcas finas, ponta arredondada só no fim do dado, grade discreta.
-   Texto sempre em cor de texto; a cor fica só na barra. */
-:root { --serie: #1f5fbf; --serie-claro: #a9c1ea; --grade: #e9edf3; }
+   Texto sempre em cor de texto; a cor fica só na marca. */
 .grafico { display: flex; flex-direction: column; gap: 10px; }
 .barra-linha { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px; }
 .barra-rotulo { font-size: 13px; font-weight: 700; color: var(--texto); }
@@ -95,17 +88,21 @@
 .colunas-denso .coluna { width: 14px; }
 .colunas-denso .coluna-item:nth-child(even) .coluna-rotulo { visibility: hidden; }
 
+/* Mini gráfico de tendência: linha no tom suave, último ponto no tom forte */
+.sparkline { color: var(--serie-claro); display: block; }
+.sparkline-fim { fill: var(--serie); }
+
 .tabela-numeros td { font-variant-numeric: tabular-nums; }
 .sobe { color: var(--atestado); font-weight: 700; }
 .desce { color: var(--trabalho); font-weight: 700; }
 
 /* ---------- Risco (semáforo sempre com ícone e texto, nunca só cor) ---------- */
-.r-normal    { --rc: #1e7a4e; --rbg: var(--trabalho-bg); }
-.r-atencao   { --rc: #7a5600; --rbg: #ffefc2; }
-.r-alto      { --rc: #a32b1f; --rbg: var(--atestado-bg); }
-.r-sem-dados, .r-poucos-dados { --rc: var(--muted); --rbg: #eceff4; }
+.r-normal    { --rc: var(--normal-texto);  --rbg: var(--trabalho-bg); }
+.r-atencao   { --rc: var(--atencao-texto); --rbg: var(--atencao-bg); }
+.r-alto      { --rc: var(--alto-texto);    --rbg: var(--atestado-bg); }
+.r-sem-dados, .r-poucos-dados { --rc: var(--muted); --rbg: var(--neutro-bg); }
 .selo-risco {
-  display: inline-flex; align-items: center; gap: 5px; vertical-align: middle;
+  display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; white-space: nowrap;
   padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
   background: var(--rbg); color: var(--rc);
 }
@@ -114,20 +111,35 @@
 /* ---------- Avisos ---------- */
 .aviso {
   display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline;
-  padding: 12px 16px; border-radius: 12px; margin-bottom: 14px; font-size: 14px;
+  padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 14px;
   border-left: 5px solid;
 }
 .aviso b { width: 100%; font-size: 14.5px; }
-.aviso-erro { background: var(--atestado-bg); border-color: var(--atestado); color: #7c2219; }
-.aviso-feriado { background: #f1e8fb; border-color: var(--feriado); color: #4b2577; }
-.aviso-atencao { background: #fff4d6; border-color: #e0a100; color: #6b4d00; }
-.aviso-info { background: #eceff4; border-color: #9aa5b5; color: #3c4656; }
+.aviso-erro { background: var(--atestado-bg); border-color: var(--atestado); color: var(--aviso-erro-texto); }
+.aviso-feriado { background: var(--feriado-bg); border-color: var(--feriado); color: var(--aviso-feriado-texto); }
+.aviso-atencao { background: var(--atencao-bg); border-color: var(--aviso-atencao-borda); color: var(--aviso-atencao-texto); }
+.aviso-info { background: var(--neutro-bg); border-color: var(--neutro); color: var(--aviso-info-texto); }
 
-/* ---------- Listas de pessoas ---------- */
+/* "Como calculamos": fechado por padrão, abre com um clique */
+.como-calculamos {
+  margin-top: 22px; background: var(--card); border: 1px solid var(--linha); border-radius: var(--raio);
+}
+.como-calculamos summary {
+  display: flex; align-items: center; gap: 8px; padding: 12px 16px;
+  font-weight: 700; font-size: 14px; color: var(--muted); cursor: pointer; list-style: none;
+}
+.como-calculamos summary::-webkit-details-marker { display: none; }
+.como-calculamos summary::after { content: "+"; margin-left: auto; font-size: 18px; line-height: 1; }
+.como-calculamos[open] summary::after { content: "−"; }
+.como-calculamos[open] summary { color: var(--tinta); border-bottom: 1px solid var(--linha); }
+.como-conteudo { padding: 4px 16px 10px; font-size: 13.5px; color: var(--texto); }
+.como-conteudo p { margin: 10px 0; }
+
+/* ---------- Painéis e listas de pessoas ---------- */
 .colunas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
 .colunas > * { min-width: 0; } /* conteúdo largo rola dentro do bloco, não estica a página */
-.painel { background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra); padding: 16px; }
-.painel h3 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.painel { background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra); padding: 18px; }
+.painel h3 { margin: 0 0 12px; font-size: 15px; display: flex; align-items: center; gap: 8px; color: var(--tinta); }
 .pessoa {
   display: flex; align-items: center; gap: 12px;
   padding: 10px 6px; margin: 0 -6px;
@@ -146,18 +158,20 @@
   background: var(--azul-claro); color: var(--azul);
 }
 .vazio { color: var(--muted); font-size: 14px; padding: 8px 0; }
+.apagado { color: var(--muted); }
 
 /* ---------- Tabelas ---------- */
 .tabela-wrap { background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra); overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; min-width: 680px; }
-th, td { padding: 10px 8px; text-align: center; border-bottom: 1px solid var(--linha); font-size: 14px; }
-th { background: var(--navy); color: #fff; font-size: 13px; font-weight: 600; vertical-align: top; }
+th, td { padding: 11px 10px; text-align: center; border-bottom: 1px solid var(--linha); font-size: 14px; }
+tbody tr:last-child td { border-bottom: 0; }
+th { background: var(--cabecalho-tabela); color: #fff; font-size: 12.5px; font-weight: 600; vertical-align: top; }
 th small { display: block; font-weight: 400; opacity: 0.75; }
 th small.marcador { opacity: 1; color: var(--gold); font-size: 11px; font-weight: 600; }
 th:first-child, td:first-child { text-align: left; padding-left: 16px; }
-th.hoje { background: var(--gold); color: var(--navy); }
-th.hoje small.marcador { color: var(--navy); }
-td.hoje { background: #fffaf0; }
+th.hoje { background: var(--gold); color: #0d1b2e; }
+th.hoje small.marcador { color: #0d1b2e; }
+td.hoje { background: var(--linha-destaque); }
 td.nome-col { font-weight: 600; cursor: pointer; }
 td.nome-col:hover { color: var(--azul); }
 td.nome-col small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
@@ -168,7 +182,7 @@ td.pend { color: var(--muted); font-weight: 600; font-style: italic; }
 
 /* ---------- Calendário ---------- */
 .cal {
-  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px;
   background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra); padding: 14px;
 }
 .cal-cab { text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); padding: 4px 0; }
@@ -179,11 +193,11 @@ td.pend { color: var(--muted); font-weight: 600; font-style: italic; }
   font-weight: 700;
 }
 .cal-dia small { font-size: 10.5px; letter-spacing: 0.4px; text-transform: uppercase; }
-.cal-dia.hoje { outline: 3px solid var(--navy); outline-offset: -3px; }
+.cal-dia.hoje { outline: 3px solid var(--tinta); outline-offset: -3px; }
 .cal-num { font-size: 15px; display: flex; align-items: center; gap: 4px; }
 
 .marca-feriado { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--feriado); }
-.marca-hoje { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 3px solid var(--navy); }
+.marca-hoje { display: inline-block; width: 14px; height: 14px; border-radius: 4px; border: 3px solid var(--tinta); }
 
 .legenda { display: flex; gap: 10px 16px; margin-top: 12px; font-size: 13px; color: var(--muted); flex-wrap: wrap; align-items: center; }
 .legenda span { display: inline-flex; align-items: center; gap: 6px; }
@@ -193,4 +207,4 @@ td.pend { color: var(--muted); font-weight: 600; font-style: italic; }
   background: var(--card); border-radius: 12px; box-shadow: var(--sombra);
   padding: 12px 16px; margin-bottom: 14px; font-size: 13.5px;
 }
-.regra b { color: var(--navy); }
+.regra b { color: var(--tinta); }

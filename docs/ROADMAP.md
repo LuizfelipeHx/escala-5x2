@@ -20,7 +20,7 @@ Pedido do MBL (02/10/2026), entregue por etapas com aprovação entre elas.
 | 4. Cruzamento por funcionário | Recorrência por pessoa (dia da semana, mês), períodos e quantidade de dados, como sinal para acompanhamento | ✅ v0.10 |
 | 5. Distinguir falta de folga, férias, afastamento e falha de registro | Cadastro e apuração já separam; a falha de registro real depende do AFDT | 🟡 parcial |
 | Importação do AFDT | Ler arquivos de ponto (layout oficial, PIS ou CPF) e substituir o histórico fictício | ⏳ |
-| Visual | Ícones, barra inferior no celular, mini gráficos, modo escuro e transições | ⏳ |
+| Visual e organização | Menu lateral agrupado, ícones, barra inferior no celular, mini gráficos, "Como calculamos", modo escuro e transições | ✅ v0.11 |
 
 Regras já decididas:
 - Só falta injustificada conta como absenteísmo. Atestado e falha de registro aparecem, mas não contam.

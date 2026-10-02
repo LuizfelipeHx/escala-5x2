@@ -1,5 +1,27 @@
 # Devlog
 
+## 02/10/2026: v0.11, nova organização e visual
+
+**Pedido:** melhorar visual e organização. Decisões do Luiz: menu lateral agrupado, explicações recolhidas, implementar direto.
+
+**Feito**
+- **Menu lateral** em 3 grupos (Operação, Absenteísmo, Gestão) com ícones e o seletor de CDD no topo. Substitui as abas, as sub-abas do absenteísmo e a faixa da unidade (eram 4 camadas antes do conteúdo).
+- **Cabeçalho padrão** em toda página (grupo, título, CDD, tipo de escala e o selo "Histórico fictício" no absenteísmo) e uma **barra de ações** com o período e os filtros numa linha.
+- **Celular:** barra inferior (Hoje, Semana, Absenteísmo, Mais) e gaveta com o menu completo.
+- **"Como calculamos"** recolhido no fim das telas de absenteísmo, no lugar dos parágrafos no topo.
+- **Ícones** desenhados para o projeto (`js/ui/icones.js`), usados no menu, nos indicadores e no login (o login tinha ícones próprios, agora centralizados).
+- **Mini gráfico** de tendência no indicador de absenteísmo e em cada linha da tabela por colaborador; tabela por colaborador de 10 para 6 colunas (detalhes no painel da pessoa).
+- **Modo escuro** automático: todas as cores viraram variáveis em `base.css` (antes havia cores soltas em 3 arquivos).
+- Transição curta ao trocar de tela, respeitando "reduzir movimento".
+- Ajustes: tabela mês a mês respeita o período escolhido; "−0,0 p.p." virou "0,0 p.p."; "1 faltas" virou "1 falta".
+
+**Validado**
+- 49 de 49 testes (os cálculos não mudaram).
+- Computador (1366 px): Visão geral, Histórico, Risco do mês, Por colaborador e Cadastro com a janela de edição; supervisora de 1 CDD sem "Visão geral" e sem seletor.
+- Celular (390 px): barra inferior, gaveta, sem rolagem lateral.
+- Modo escuro: login, risco do mês e tela do colaborador. Contraste dos textos de status medido acima de 4,5:1 nos dois temas.
+- Nenhum erro no console.
+
 ## 02/10/2026: v0.10, absenteísmo por colaborador (item 4)
 
 **Feito**

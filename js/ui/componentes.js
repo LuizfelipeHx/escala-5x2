@@ -21,7 +21,13 @@
   const numero = (n, casas = 0) => n.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
   const pct = (taxa) => (taxa == null ? "-" : `${numero(taxa * 100, 1)}%`);
   // Variação em pontos percentuais, com sinal: "+0,4 p.p."
-  const pp = (delta) => (delta == null ? "-" : `${delta > 0 ? "+" : delta < 0 ? "−" : ""}${numero(Math.abs(delta) * 100, 1)} p.p.`);
+  // Variação que arredonda para zero sai sem sinal ("0,0 p.p.", nunca "−0,0").
+  function pp(delta) {
+    if (delta == null) return "-";
+    const texto = numero(Math.abs(delta) * 100, 1);
+    const sinal = texto === numero(0, 1) ? "" : delta > 0 ? "+" : "−";
+    return `${sinal}${texto} p.p.`;
+  }
 
   /* ---------- Gráfico de barras horizontais (uma série) ----------
      itens: [{ rotulo, valor (0 a 1), detalhe }]. A maior barra fica em destaque;
@@ -38,9 +44,31 @@
     </div>`;
   }
 
-  // valorHtml e detalheHtml já devem vir escapados.
-  const kpi = (rotulo, valorHtml, variante = "", detalheHtml = "") =>
-    `<div class="kpi ${variante}"><small>${esc(rotulo)}</small><b>${valorHtml}</b>${detalheHtml ? `<span>${detalheHtml}</span>` : ""}</div>`;
+  /* ---------- Mini gráfico de linha (tendência) ----------
+     Linha fina no tom suave da série e o último ponto destacado. */
+  function sparkline(valores, rotulo) {
+    const v = valores.map((x) => x ?? 0);
+    if (v.length < 2) return "";
+    const L = 96, A = 28, m = 3;
+    const max = Math.max(...v, 0.0001);
+    const pontos = v.map((x, i) => [m + (i * (L - 2 * m)) / (v.length - 1), A - m - (x / max) * (A - 2 * m)]);
+    const [ux, uy] = pontos[pontos.length - 1];
+    return `<svg class="sparkline" viewBox="0 0 ${L} ${A}" width="${L}" height="${A}" role="img" aria-label="${esc(rotulo)}">
+      <polyline points="${pontos.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle class="sparkline-fim" cx="${ux.toFixed(1)}" cy="${uy.toFixed(1)}" r="2.8"/></svg>`;
+  }
+
+  // Bloco recolhível com a explicação dos cálculos (fechado por padrão).
+  const comoCalculamos = (conteudoHtml) =>
+    `<details class="como-calculamos"><summary>${E.ui.icone("info", 18)}<span>Como calculamos</span></summary><div class="como-conteudo">${conteudoHtml}</div></details>`;
+
+  // Linha de contexto + ações (filtros, botões) logo abaixo do cabeçalho da página.
+  const barraAcoes = (textoHtml, acoesHtml = "") =>
+    `<div class="barra-acoes"><p class="barra-texto">${textoHtml}</p>${acoesHtml ? `<div class="ctrl-botoes">${acoesHtml}</div>` : ""}</div>`;
+
+  // valorHtml e detalheHtml já devem vir escapados. "icone" é o nome de um ícone de icones.js.
+  const kpi = (rotulo, valorHtml, variante = "", detalheHtml = "", icone = "") =>
+    `<div class="kpi ${variante}"><small>${icone ? E.ui.icone(icone, 15) : ""}${esc(rotulo)}</small><b>${valorHtml}</b>${detalheHtml ? `<span>${detalheHtml}</span>` : ""}</div>`;
 
   function controlesPeriodo({ ant, prox, hoje, titulo, rotuloHoje = "Hoje", rotuloAnt = "‹", rotuloProx = "›", extra = "" }) {
     return `<div class="ctrl">
@@ -63,16 +91,6 @@
       (!dias || dias.some((d) => R.ativoEm(p, d))) &&
       (!estado.funcao || p.funcao === estado.funcao) &&
       (!q || p.nome.toLowerCase().includes(q) || p.rota.toLowerCase().includes(q) || p.matricula.includes(q)));
-  }
-
-  /* ---------- Faixa da unidade (nome + tipo de escala) ---------- */
-  // "visiveis": ids das unidades que o usuário pode ver (seletor se houver mais de uma).
-  function faixaUnidade(u, visiveis) {
-    const nome = visiveis.length > 1
-      ? `<select id="unidade-sel" aria-label="Unidade">${R.unidades().filter((x) => visiveis.includes(x.id)).map((x) =>
-          `<option value="${x.id}"${x.id === u.id ? " selected" : ""}>${esc(x.nome)} (${esc(x.uf)})</option>`).join("")}</select>`
-      : `<b class="faixa-nome">${esc(u.nome)} <small>${esc(u.uf)}</small></b>`;
-    return `<div class="faixa">${nome}${chipTipo(u)}<span class="faixa-resumo">${esc(R.tipoDe(u).resumo)}</span></div>`;
   }
 
   /* ---------- Avisos ---------- */
@@ -166,8 +184,8 @@
 
   E.ui = Object.assign(E.ui || {}, {
     esc, iniciais, primeiroNome, nomesCurtos, avatar, chip, chipTipo, vazio, kpi, controlesPeriodo,
-    numero, pct, pp, barras,
-    unidadeAtual, filtrarEquipe, faixaUnidade, alertaCobertura, avisoFeriado, avisoSemDomingo,
+    numero, pct, pp, barras, sparkline, comoCalculamos, barraAcoes,
+    unidadeAtual, filtrarEquipe, alertaCobertura, avisoFeriado, avisoSemDomingo,
     detalheSituacao, linhaPessoa, legenda, calendario, kpisProximas, painelMensal,
   });
 })(window.Escala);

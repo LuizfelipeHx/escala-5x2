@@ -1,11 +1,11 @@
-/* Estilos específicos de cada tela e ajustes para celular. */
+/* Estilos específicos de cada tela e ajustes para celular.
+   Só usa as variáveis de base.css (modo claro e escuro). */
 
 /* ---------- Login ---------- */
 /* Computador (inspirado no login do LogOn): a imagem cobre a tela toda e o
    cartão flutua à direita. Como a foto é quase quadrada e a tela é larga:
-     .login-foto          a própria foto, desfocada e escurecida, cobrindo tudo
+     .login-foto::before  a própria foto, desfocada e escurecida, cobrindo tudo
      .login-foto::after   a foto nítida e inteira à esquerda, esmaecendo à direita
-   Assim as garrafas aparecem inteiras e o cartão fica sobre o desfocado.
    "?v=" segue a versão publicada (ver index.html). */
 .login-pagina {
   position: relative; min-height: 100vh; display: grid;
@@ -16,7 +16,7 @@
 .login-foto { position: fixed; inset: 0; overflow: hidden; }
 .login-foto::before, .login-foto::after {
   content: ""; position: absolute;
-  background-image: url("../img/login-fundo.webp?v=0.10");
+  background-image: url("../img/login-fundo.webp?v=0.11");
   background-repeat: no-repeat;
 }
 .login-foto::before {
@@ -35,9 +35,8 @@
   background: var(--card); border-radius: 18px; padding: 34px 30px 26px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
 }
-/* Marca só tipográfica, centralizada, com filete dourado. */
 .login-marca { text-align: center; }
-.login-marca h1 { margin: 0; font-size: 27px; font-weight: 800; letter-spacing: -0.5px; color: var(--navy); }
+.login-marca h1 { margin: 0; font-size: 27px; font-weight: 800; letter-spacing: -0.5px; color: var(--tinta); }
 .login-marca h1::before {
   content: ""; display: block; width: 44px; height: 4px; border-radius: 2px;
   background: var(--gold); margin: 0 auto 14px;
@@ -48,23 +47,22 @@
 .campo-icone {
   position: relative; display: flex; align-items: center; margin-bottom: 14px;
   background: var(--fundo); border: 1px solid var(--linha); border-radius: 12px;
-  color: #8a96a8; transition: border-color 0.15s, box-shadow 0.15s;
+  color: var(--icone-campo); transition: border-color 0.15s, box-shadow 0.15s;
 }
-.campo-icone:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245, 184, 0, 0.25); color: var(--navy); }
+.campo-icone:focus-within { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245, 184, 0, 0.25); color: var(--tinta); }
 .campo-icone > svg { position: absolute; left: 14px; pointer-events: none; }
 .campo-icone input {
   flex: 1; min-width: 0; border: 0; background: transparent; outline: none;
   padding: 14px 14px 14px 46px; font-size: 16px; color: var(--texto);
 }
 .ver-senha {
-  border: 0; background: transparent; color: #8a96a8; cursor: pointer;
+  border: 0; background: transparent; color: var(--icone-campo); cursor: pointer;
   padding: 8px 12px; display: grid; place-items: center; border-radius: 10px;
 }
-.ver-senha:hover { color: var(--navy); }
+.ver-senha:hover { color: var(--tinta); }
 #form-login .btn-primario { margin-top: 8px; }
 .login-erro { color: var(--atestado); font-size: 13.5px; font-weight: 600; margin: 0 0 10px; text-align: center; }
 .login-erro:empty { display: none; }
-
 .login-nota { margin: 18px 0 0; font-size: 12px; color: var(--muted); text-align: center; }
 
 /* ---------- Colaborador ---------- */
@@ -75,23 +73,24 @@
   border-left: 8px solid var(--sdot);
 }
 .hero small { color: var(--muted); font-weight: 600; }
-.hero h2 { margin: 4px 0; font-size: 26px; }
+.hero h2 { margin: 4px 0; font-size: 26px; color: var(--tinta); }
 .hero p { margin: 0; font-size: 15px; }
 .hero .chip { font-size: 15px; padding: 8px 16px; }
 
 /* ---------- Escala individual ---------- */
-.seletor-pessoa { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
-.seletor-pessoa select { font-weight: 600; min-width: 240px; }
+.seletor-pessoa { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.seletor-pessoa select { font-weight: 600; min-width: 240px; padding: 9px 12px; border: 1px solid var(--linha); border-radius: 10px; background: var(--card); color: var(--texto); }
 
-/* ---------- Visão geral (gestor) ---------- */
-.cdds { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+/* ---------- Visão geral ---------- */
+.cdds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .cdd {
   background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra);
-  padding: 16px 18px; border-top: 4px solid var(--navy);
+  padding: 16px 18px; border-top: 3px solid var(--gold);
   display: flex; flex-direction: column; gap: 8px;
 }
 .cdd-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
-.cdd h3 { margin: 0; font-size: 17px; }
+.cdd h3 { margin: 0; font-size: 17px; color: var(--tinta); }
+.cdd h3 small { color: var(--muted); font-weight: 600; font-size: 12px; }
 .cdd-linha { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; padding: 6px 0; border-bottom: 1px solid var(--linha); }
 .cdd-linha span { color: var(--muted); }
 .cdd-linha b.ruim { color: var(--atestado); }
@@ -99,38 +98,27 @@
 .tabela-tipos { min-width: 560px; }
 
 /* ---------- Absenteísmo ---------- */
-.alternador {
-  display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 6px;
-  background: var(--card); border-radius: 12px; box-shadow: var(--sombra);
-}
-.alternador-op {
-  border: 0; background: transparent; padding: 9px 16px; border-radius: 9px;
-  font-weight: 700; color: var(--muted); cursor: pointer;
-}
-.alternador-op.ativo { background: var(--gold); color: var(--navy); }
-#abs-periodo, #abs-dia, #abs-mes { padding: 9px 12px; border: 1px solid var(--linha); border-radius: 10px; background: var(--card); font-weight: 600; }
-
 /* Por colaborador */
-.tabela-colaboradores { min-width: 980px; }
+.tabela-colaboradores { min-width: 820px; }
 .tabela-colaboradores td small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
-.tabela-colaboradores td:first-child { min-width: 170px; }
-.tabela-colaboradores td:nth-last-child(2) { min-width: 220px; }
+.tabela-colaboradores td:first-child { min-width: 190px; }
+.tabela-colaboradores td.col-tendencia .sparkline { margin: 0 auto; }
 .barras-estreitas { max-width: 620px; }
 .linha-clicavel { cursor: pointer; }
 .linha-clicavel:hover td { background: var(--fundo); }
 .linha-clicavel:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
 .linha-clicavel.selecionada td { background: var(--gold-soft); }
-th.col-filtro { background: var(--gold); color: var(--navy); }
-td.col-filtro { background: #fffaf0; }
+th.col-filtro { background: var(--gold); color: #0d1b2e; }
+td.col-filtro { background: var(--linha-destaque); }
 .tag-padrao {
   display: inline-block; margin: 2px 4px 2px 0; padding: 2px 8px; border-radius: 6px;
-  background: var(--azul-claro); color: var(--azul); font-size: 11.5px; font-weight: 600;
+  background: var(--azul-claro); color: var(--azul); font-size: 11.5px; font-weight: 700;
 }
-.detalhe-pessoa { margin-top: 16px; }
-.detalhe-pessoa h3 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 4px; font-size: 18px; }
-.detalhe-pessoa h3 small { color: var(--muted); font-size: 13px; font-weight: 600; }
-.detalhe-pessoa h4 { margin: 18px 0 8px; font-size: 14px; }
-.detalhe-pessoa .colunas { margin-top: 4px; }
+.detalhe-pessoa { margin-top: 18px; }
+.detalhe-topo { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.detalhe-topo .avatar { width: 46px; height: 46px; font-size: 16px; }
+.detalhe-pessoa h3 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0; font-size: 19px; }
+.detalhe-pessoa h4 { margin: 20px 0 8px; font-size: 14px; color: var(--tinta); }
 .padroes { margin: 0; padding-left: 20px; font-size: 14px; }
 .padroes li { margin: 3px 0; }
 .periodos { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -140,27 +128,29 @@ td.col-filtro { background: #fffaf0; }
 }
 .periodo-neutro { background: var(--atestado-bg); color: var(--atestado); }
 
+/* Calendário de risco */
 .cal-risco .risco-dia {
   min-height: 74px; border: 2px solid transparent; border-radius: 10px; padding: 6px 8px;
   display: flex; flex-direction: column; justify-content: space-between; text-align: left;
   background: var(--rbg); color: var(--rc); cursor: pointer; font: inherit; font-weight: 700;
+  transition: border-color 0.15s;
 }
 .cal-risco .risco-dia:hover { border-color: var(--rc); }
-.cal-risco .risco-dia.selecionado { border-color: var(--navy); box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--navy); }
+.cal-risco .risco-dia.selecionado { border-color: var(--tinta); box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--tinta); }
 .cal-risco .risco-dia.hoje .cal-num { text-decoration: underline; }
 .cal-risco .risco-dia small { font-size: 10.5px; letter-spacing: 0.2px; }
 .cal-risco .risco-dia small i { font-style: normal; }
 .risco-pct { font-size: 12px; color: var(--texto); font-weight: 600; font-variant-numeric: tabular-nums; }
-.evidencia { margin-top: 14px; }
+.evidencia { margin-top: 16px; }
 .evidencia h3 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 8px; font-size: 16px; }
 .evidencia p { margin: 6px 0; font-size: 14px; }
-.evidencia .tabela-wrap { box-shadow: none; border: 1px solid var(--linha); margin-top: 10px; }
+.evidencia .tabela-wrap { box-shadow: none; border: 1px solid var(--linha); margin-top: 12px; }
 
 /* ---------- Cadastro ---------- */
-.bloco { margin-bottom: 18px; }
-section.bloco.painel { padding: 16px 18px; }
-.bloco-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-.bloco-topo h3 { margin: 0; font-size: 16px; }
+.bloco { margin-bottom: 20px; }
+section.bloco.painel { padding: 18px; }
+.bloco-topo { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.bloco-topo h3 { margin: 0; font-size: 16px; color: var(--tinta); }
 .tabela-cadastro td small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
 .tabela-cadastro td:first-child { font-weight: 600; }
 .tabela-cadastro tr.apagado td { opacity: 0.6; }
@@ -174,11 +164,12 @@ td.acoes .btn + .btn { margin-left: 6px; }
 .dialogo {
   width: min(640px, calc(100vw - 24px)); max-height: calc(100vh - 32px);
   border: 0; border-radius: 18px; padding: 0;
+  background: var(--card); color: var(--texto);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
 }
-.dialogo::backdrop { background: rgba(13, 27, 46, 0.55); }
+.dialogo::backdrop { background: rgba(5, 10, 18, 0.55); }
 .form { padding: 22px 24px; }
-.form h2 { margin: 0 0 16px; font-size: 19px; }
+.form h2 { margin: 0 0 16px; font-size: 19px; color: var(--tinta); }
 .form h2 small { display: block; color: var(--muted); font-size: 13px; font-weight: 600; margin-top: 2px; }
 .form-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; margin-bottom: 14px; }
 .campo { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; color: var(--muted); }
@@ -199,7 +190,7 @@ fieldset.campo legend { padding: 0 6px; }
   padding: 7px 8px; border: 1px solid var(--linha); border-radius: 10px;
   font-size: 13px; font-weight: 700; color: var(--texto); background: var(--card);
 }
-.dia-op input:checked + span { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+.dia-op input:checked + span { background: var(--gold); border-color: var(--gold); color: #0d1b2e; }
 .dia-op input:focus-visible + span { outline: 3px solid var(--gold); outline-offset: 2px; }
 
 .form-erros { color: var(--atestado); font-size: 13.5px; font-weight: 600; display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
@@ -208,69 +199,69 @@ fieldset.campo legend { padding: 0 6px; }
 .form-acoes .espaco { flex: 1; }
 
 /* ---------- Cobertura ---------- */
-tr.linha-alerta td { background: #fff6f5; }
+tr.linha-alerta td { background: var(--linha-alerta); }
 .status { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .status-ok { background: var(--trabalho-bg); color: var(--trabalho); }
 .status-ruim { background: var(--atestado-bg); color: var(--atestado); }
-.status-pend { background: #eceff4; color: var(--muted); }
-.mini-tag { font-size: 10.5px; font-weight: 700; color: var(--feriado); background: #f1e8fb; padding: 1px 6px; border-radius: 6px; }
+.status-pend { background: var(--neutro-bg); color: var(--muted); }
+.mini-tag { font-size: 10.5px; font-weight: 700; color: var(--feriado); background: var(--feriado-bg); padding: 1px 6px; border-radius: 6px; }
 td em { font-style: normal; color: var(--muted); font-size: 12.5px; }
-.apagado { color: var(--muted); }
 
-.rodizio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.rodizio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .rodizio-item {
   background: var(--card); border-radius: 12px; box-shadow: var(--sombra);
   padding: 12px 14px; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: center;
 }
-.rodizio-data { grid-row: span 2; text-align: center; background: var(--gold); color: var(--navy); border-radius: 10px; padding: 6px 10px; }
+.rodizio-data { grid-row: span 2; text-align: center; background: var(--gold); color: #0d1b2e; border-radius: 10px; padding: 6px 10px; }
 .rodizio-data b { display: block; font-size: 16px; }
 .rodizio-data small { font-size: 10.5px; font-weight: 700; text-transform: uppercase; }
 .rodizio-grupo { font-weight: 700; }
 .rodizio-nomes { font-size: 13px; color: var(--muted); }
 
+/* ---------- Telas médias: indicadores em 2 colunas ---------- */
+@media (max-width: 1100px) {
+  .resumo-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 /* ---------- Celular ---------- */
 @media (max-width: 760px) {
-  /* Foto no topo, esmaecendo no azul, e o cartão logo abaixo. */
-  /* minmax(0, 1fr) e altura direta (sem aspect-ratio + max-height): essa
-     combinação fazia o navegador calcular uma largura mínima maior que a tela. */
-  /* No celular a tela é vertical: cobrir tudo cortaria as garrafas. */
+  /* Login: foto no topo (cobrir tudo cortaria as garrafas) e o cartão por cima.
+     minmax(0, 1fr) e altura direta: aspect-ratio + max-height criava largura
+     mínima maior que a tela. */
   .login-pagina { grid-template-columns: minmax(0, 1fr); align-content: start; justify-items: center; padding: 0; }
   .login-foto {
     position: relative; inset: auto; justify-self: stretch; height: min(84vw, 60vh);
     background:
       linear-gradient(180deg, rgba(13, 27, 46, 0) 55%, var(--navy)),
-      url("../img/login-fundo.webp?v=0.10") center 30% / cover no-repeat;
+      url("../img/login-fundo.webp?v=0.11") center 30% / cover no-repeat;
   }
   .login-foto::before, .login-foto::after { display: none; }
   .login-card { width: calc(100% - 24px); align-self: start; margin: -56px 0 24px; padding: 26px 20px 22px; }
   .login-marca h1 { font-size: 24px; }
-  main { padding: 14px 12px 30px; }
+
+  .principal-simples { padding: 14px 12px 30px; }
   .topo-in { padding: 14px 12px; }
-  .usuario-info small { display: none; }
+  .topo .usuario-info small { display: none; }
   .resumo { gap: 8px; }
-  .resumo-3, .resumo-4 { grid-template-columns: 1fr 1fr; }
-  .resumo-3 .kpi:first-child { grid-column: 1 / -1; }
-  .kpi { padding: 10px 12px; }
+  .resumo-3, .resumo-4, .resumo-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .resumo-3 .kpi:first-child, .resumo-5 .kpi:first-child { grid-column: 1 / -1; }
+  .kpi { padding: 11px 12px; }
   .kpi b { font-size: 21px; }
   .colunas { grid-template-columns: minmax(0, 1fr); }
-  .aba { font-size: 13px; padding: 10px 4px; }
   .titulo-data { font-size: 17px; width: 100%; }
   .ctrl-botoes { width: 100%; }
-  .ctrl-botoes input { flex: 1; min-width: 0; }
+  .ctrl-botoes input, .ctrl-botoes select { flex: 1; min-width: 0; }
   .cal { gap: 4px; padding: 8px; }
   .cal-dia { min-height: 46px; padding: 4px 5px; }
   .cal-dia small { display: none; }
   .hero { padding: 16px; flex-direction: column; align-items: flex-start; }
   .hero h2 { font-size: 21px; }
   .pessoa-dir .tag { white-space: normal; text-align: right; }
-  .rodizio, .cdds { grid-template-columns: 1fr; }
+  .rodizio, .cdds { grid-template-columns: minmax(0, 1fr); }
   .form-grade { grid-template-columns: 1fr; }
-  .resumo-5 { grid-template-columns: 1fr 1fr; }
-  .resumo-5 .kpi:nth-child(3) { grid-column: 1 / -1; }
   .cal-risco .risco-dia { min-height: 52px; padding: 4px 5px; }
   .cal-risco .risco-rotulo { display: none; } /* no celular fica só o ícone + a cor */
   .risco-pct { font-size: 10.5px; }
   .barra-valor { min-width: 70px; }
   .form { padding: 18px 16px; }
-  .faixa-resumo { width: 100%; }
 }

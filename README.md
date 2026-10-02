@@ -44,7 +44,14 @@ O site tem **duas visões**: **Liderança** e **Colaborador**. Na liderança, to
 
 **Colaborador:** se trabalha ou folga hoje, a próxima folga, o próximo domingo de folga, como está o parceiro de rota e o calendário do mês.
 
-**Liderança:**
+**Liderança:** menu lateral em três grupos (no celular, barra inferior com Hoje, Semana, Absenteísmo e "Mais"). O seletor de CDD fica no topo do menu.
+
+- **Operação:** Hoje, Semana, Cobertura e Escala individual.
+- **Absenteísmo:** Histórico, Risco do mês e Por colaborador.
+- **Gestão:** Visão geral e Cadastro.
+
+As explicações dos cálculos ficam recolhidas em **"Como calculamos"**, no fim de cada tela de absenteísmo. O site segue o **modo claro ou escuro** do aparelho.
+
 - **Visão geral** (quando acompanha mais de um CDD): um cartão por CDD com operação de hoje, alertas de cobertura, pessoas sem domingo de folga e publicação da escala do próximo mês.
 - **Hoje:** quem está em operação e quem está fora, com alerta se faltar gente.
 - **Semana:** grade da equipe de segunda a domingo, com o total por função.
@@ -101,7 +108,7 @@ js/core/escala.js       regras comuns: quadro ativo, ausências, cobertura, aler
 js/core/historico.js    histórico de ponto, análises de absenteísmo e risco por dia
 js/core/repositorio.js  leitura e gravação dos dados (hoje: navegador)
 js/core/sessao.js       login simulado e perfis
-js/ui/                  peças de interface reaproveitadas
+js/ui/                  ícones, componentes e moldura (menu, cabeçalho)
 js/telas/               uma tela por arquivo
 js/app.js               estado, navegação e cliques
 docs/                   documentação técnica

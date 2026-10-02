@@ -17,8 +17,9 @@ Todos os módulos se registram no objeto global `window.Escala`. A ordem de carr
 | `js/core/historico.js` | `Escala.historico` | Ocorrências de ponto, apuração dos dias previstos, análises e risco por dia | `datas`, `escala`, `configHistorico` |
 | `js/core/repositorio.js` | `Escala.repositorio` | Carregar (exemplo ou navegador), alterar com transação, exportar, importar e restaurar | `dados`, `escala`, `documentos` |
 | `js/core/sessao.js` | `Escala.sessao` | Login simulado com duas visões: colaborador e liderança (alcance pelos CDDs acompanhados) | `dados`, `escala` |
-| `js/ui/componentes.js` | `Escala.ui` | Peças de HTML: chips, indicadores, avisos, faixa da unidade, linha de pessoa, calendário, painel mensal | `datas`, `escala` |
-| `js/ui/layout.js` | `Escala.ui.layout` | Moldura da área logada | `ui`, `escala` |
+| `js/ui/icones.js` | `Escala.ui.icone` | Ícones SVG de traço desenhados para o projeto (menu, indicadores, login) | nada |
+| `js/ui/componentes.js` | `Escala.ui` | Peças de HTML: chips, indicadores (com ícone), barras, mini gráfico, "Como calculamos", barra de ações, avisos, linha de pessoa, calendário, painel mensal | `datas`, `escala`, `icone` |
+| `js/ui/layout.js` | `Escala.ui.layout`, `blocoCdd`, `cabecalhoPagina` | Moldura: menu lateral, gaveta e barra inferior (liderança) ou topo simples (colaborador); bloco do CDD; cabeçalho de página | `ui`, `escala`, `repositorio` |
 | `js/telas/login.js` | `Escala.telas.login` | Login com acessos de demonstração (um por perfil e tipo) | `ui`, `escala` |
 | `js/telas/colaborador.js` | `Escala.telas.colaborador` | Própria escala do colaborador | `ui`, `escala`, `datas` |
 | `js/telas/hoje.js` | `Escala.telas.hoje` | Em operação e fora num dia | `ui`, `escala`, `datas` |

@@ -1,59 +1,53 @@
-/* Liderança: análise histórica de absenteísmo e calendário de risco do mês.
+/* Liderança: absenteísmo em três visões, escolhidas pelo menu:
+   histórico, calendário de risco do mês e por colaborador.
    Só monta HTML; os números vêm de js/core/historico.js. */
 (function (E) {
   "use strict";
 
   const NIVEIS = {
-    normal:      { rotulo: "Normal",        icone: "●" },
-    atencao:     { rotulo: "Atenção",       icone: "▲" },
-    alto:        { rotulo: "Alta atenção",  icone: "◆" },
-    "sem-dados": { rotulo: "Sem dados",     icone: "○" },
+    normal:         { rotulo: "Normal",       icone: "●" },
+    atencao:        { rotulo: "Atenção",      icone: "▲" },
+    alto:           { rotulo: "Alta atenção", icone: "◆" },
+    "sem-dados":    { rotulo: "Sem dados",    icone: "○" },
     "poucos-dados": { rotulo: "Poucos dados", icone: "○" },
   };
-  const dataCompleta = (d) => `${E.datas.curto(d)}/${d.getFullYear()}`;
   const PERIODOS = [3, 6, 12, 24];
   const MESES_CURTOS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
   const mesCurto = (d) => `${MESES_CURTOS[d.getMonth()]}/${String(d.getFullYear()).slice(2)}`;
+  const dataCompleta = (d) => `${E.datas.curto(d)}/${d.getFullYear()}`;
+  const periodoTexto = (j) => `${E.datas.mesAno(j.inicio).toLowerCase()} a ${E.datas.mesAno(j.fim).toLowerCase()}`;
 
   const selo = (nivel) =>
     `<span class="selo-risco r-${nivel}"><i aria-hidden="true">${NIVEIS[nivel].icone}</i>${NIVEIS[nivel].rotulo}</span>`;
-
-  function alternador(estado) {
-    const botao = (visao, texto) =>
-      `<button class="alternador-op${estado.abs.visao === visao ? " ativo" : ""}" data-acao="abs-visao" data-visao="${visao}">${texto}</button>`;
-    return `<div class="alternador" role="tablist">${botao("historico", "Histórico")}${botao("risco", "Calendário de risco")}${botao("colaboradores", "Por colaborador")}</div>`;
-  }
 
   const seletorPeriodo = (estado) =>
     `<select id="abs-periodo" aria-label="Período">${PERIODOS.map((n) =>
       `<option value="${n}"${n === estado.abs.meses ? " selected" : ""}>Últimos ${n} meses</option>`).join("")}</select>`;
 
-  function notaFonte() {
-    const H = E.historico, D = E.datas;
-    const p = H.periodo();
-    return `<p class="nota">Histórico <b>fictício</b> de ${D.mesAno(p.inicio).toLowerCase()} a ${D.mesAno(p.fim).toLowerCase()}, no mesmo formato que a importação do AFDT vai gerar.
-      Absenteísmo = <b>faltas injustificadas ÷ pessoas-dia previstas</b>. Folga, férias e afastamento não entram; atestado e falha de registro aparecem, mas não contam como falta.</p>`;
+  // Explicação comum às três visões (vai dentro de "Como calculamos").
+  function baseDoCalculo() {
+    const p = E.historico.periodo();
+    return `<p><b>Fonte:</b> histórico <b>fictício</b> de ${periodoTexto(p)}, no mesmo formato que a importação do AFDT vai gerar.</p>
+      <p><b>Absenteísmo</b> = faltas injustificadas ÷ pessoas-dia previstas. Folga, férias e afastamento não entram na conta; atestado e falha de registro aparecem, mas não contam como falta.</p>`;
   }
 
-  /* ---------- Histórico ---------- */
+  /* ---------- Gráfico de colunas por mês ---------- */
   function colunasMensais(meses) {
+    const U = E.ui;
     const max = Math.max(...meses.map((m) => m.taxa ?? 0), 0.0001);
     const ultimo = meses[meses.length - 1];
     const maior = meses.reduce((a, b) => ((b.taxa ?? -1) > (a.taxa ?? -1) ? b : a), meses[0]);
-    const U = E.ui;
-    // Com muitos meses, colunas mais finas e rótulo de um mês sim, outro não (o valor de cada mês fica na dica e na tabela).
+    // Com muitos meses: colunas finas e rótulo de um mês sim, outro não (o valor fica na dica e na tabela).
     return `<div class="colunas-grafico${meses.length > 16 ? " colunas-denso" : ""}" role="figure" aria-label="Absenteísmo por mês">
-      ${meses.map((m) => {
-        const rotular = m === ultimo || m === maior;
-        return `<div class="coluna-item" title="${U.esc(`${E.datas.mesAno(m.mes)}: ${U.pct(m.taxa)} (${m.faltas} faltas em ${m.previstos} previstos)`)}">
-          <span class="coluna-valor">${rotular ? U.pct(m.taxa) : ""}</span>
+      ${meses.map((m) => `<div class="coluna-item" title="${U.esc(`${E.datas.mesAno(m.mes)}: ${U.pct(m.taxa)} (${m.faltas} faltas em ${m.previstos} previstos)`)}">
+          <span class="coluna-valor">${m === ultimo || m === maior ? U.pct(m.taxa) : ""}</span>
           <span class="coluna-trilho"><span class="coluna${m === ultimo ? " coluna-destaque" : ""}" style="height:${((m.taxa ?? 0) / max) * 100}%"></span></span>
           <span class="coluna-rotulo">${mesCurto(m.mes)}</span>
-        </div>`;
-      }).join("")}
+        </div>`).join("")}
     </div>`;
   }
 
+  /* ---------- Histórico ---------- */
   function tabelaMensal(meses) {
     const U = E.ui;
     const variacao = (v) => (v == null ? '<span class="apagado">-</span>' : `<span class="${v > 0 ? "sobe" : v < 0 ? "desce" : ""}">${U.pp(v)}</span>`);
@@ -63,33 +57,29 @@
         <td>${E.datas.mesAno(m.mes)}</td><td>${U.numero(m.previstos)}</td><td>${m.faltas}</td>
         <td><b>${U.pct(m.taxa)}</b></td><td>${variacao(m.varMesAnterior)}</td><td>${variacao(m.varAnoAnterior)}</td>
         <td>${m.atestados}</td><td>${m.falhas}</td></tr>`).join("")}</tbody>
-    </table></div>
-    <p class="nota">Variação em pontos percentuais (p.p.): em vermelho quando o absenteísmo subiu.</p>`;
+    </table></div>`;
   }
 
   function historico(estado, u) {
     const H = E.historico, U = E.ui, D = E.datas;
     const j = H.janela(estado.abs.meses);
     const r = H.resumoPeriodo(u, j);
-
+    const meses = H.porMes(u);
+    const tendencia = U.sparkline(meses.slice(-12).map((m) => m.taxa), "Absenteísmo nos últimos 12 meses");
     const dias = H.porDiaSemana(u, j).map((x) => ({ rotulo: D.DIAS[x.dia], valor: x.taxa, detalhe: `${x.faltas} de ${U.numero(x.previstos)}` }));
     const semanas = H.porSemanaDoMes(u, j).map((x) => ({
       rotulo: `${x.semana}ª`, valor: x.taxa,
       detalhe: `${x.faltas} de ${U.numero(x.previstos)} · dias ${(x.semana - 1) * 7 + 1} a ${x.semana === 5 ? 31 : x.semana * 7}`,
     }));
-    const meses = H.porMes(u);
 
     return `
-      <div class="ctrl">
-        <h2 class="titulo-data">Absenteísmo de ${D.mesAno(j.inicio).toLowerCase()} a ${D.mesAno(j.fim).toLowerCase()}</h2>
-        <div class="ctrl-botoes">${seletorPeriodo(estado)}</div>
-      </div>
+      ${U.barraAcoes(`De ${periodoTexto(j)}`, seletorPeriodo(estado))}
       <div class="resumo resumo-5">
-        ${U.kpi("Pessoas-dia previstas", U.numero(r.previstos))}
-        ${U.kpi("Faltas injustificadas", r.faltas, "k-falta")}
-        ${U.kpi("Absenteísmo", U.pct(r.taxa), "", selo(H.faixa(r.taxa)))}
-        ${U.kpi("Atestados (justificados)", r.atestados, "k-atestado")}
-        ${U.kpi("Falhas de registro", r.falhas, "k-pendente", '<small class="kpi-nota">não contam como falta</small>')}
+        ${U.kpi("Absenteísmo", U.pct(r.taxa), "k-destaque", `${selo(H.faixa(r.taxa))}${tendencia}`, "taxa")}
+        ${U.kpi("Faltas", r.faltas, "k-falta", "", "ausencia")}
+        ${U.kpi("Pessoas-dia previstas", U.numero(r.previstos), "", "", "calendario")}
+        ${U.kpi("Atestados", r.atestados, "k-atestado", '<small class="kpi-nota">justificados</small>', "atestado")}
+        ${U.kpi("Falhas de registro", r.falhas, "k-pendente", '<small class="kpi-nota">não contam como falta</small>', "falha")}
       </div>
       <div class="colunas">
         <div class="painel"><h3>Por dia da semana</h3>${U.barras(dias, "Absenteísmo por dia da semana")}</div>
@@ -98,11 +88,15 @@
       <h3 class="secao">Evolução mensal</h3>
       <div class="painel">${colunasMensais(meses)}</div>
       <h3 class="secao">Comparação mês a mês</h3>
-      ${tabelaMensal(meses)}`;
+      ${tabelaMensal(meses.filter((m) => m.mes >= D.inicioDoMes(j.inicio)))}
+      ${U.comoCalculamos(`${baseDoCalculo()}
+        <p><b>Semana do mês:</b> 1ª = dias 1 a 7, 2ª = dias 8 a 14 ... 5ª = dias 29 a 31.</p>
+        <p><b>Variação</b> em pontos percentuais (p.p.): em vermelho quando o absenteísmo subiu.</p>
+        <p><b>Semáforo do absenteísmo:</b> até 3% normal, de 3% a 5% atenção, acima de 5% alta atenção (sugestão inicial, a validar com o RH).</p>`)}`;
   }
 
   /* ---------- Calendário de risco ---------- */
-  function evidencia(u, risco) {
+  function evidencia(risco) {
     const H = E.historico, U = E.ui, D = E.datas;
     const linhas = Object.entries(risco.sinais).map(([chave, s]) => `<tr class="${s.usado ? "" : "apagado"}">
       <td class="esquerda">${U.esc(s.descricao)}</td>
@@ -111,7 +105,6 @@
       <td>${Math.round(H.PESOS[chave] * 100)}%</td>
       <td>${s.usado ? "Sim" : `Não (menos de ${H.MIN_PREVISTOS} previstos)`}</td>
     </tr>`).join("");
-
     const escala = risco.escalados == null
       ? "Escala deste dia ainda não publicada."
       : `${risco.escalados} pessoa(s) escalada(s)${risco.faltasEsperadas != null ? `, cerca de ${U.numero(risco.faltasEsperadas, 1)} falta esperada pela estimativa` : ""}.`;
@@ -121,13 +114,12 @@
 
     return `<div class="painel evidencia">
       <h3>${D.extenso(risco.data)} ${selo(risco.nivel)}</h3>
-      <p>${comparacao}</p>
-      <p>${escala}</p>
+      <p>${comparacao} ${escala}</p>
       <div class="tabela-wrap"><table class="tabela-numeros">
         <thead><tr><th class="esquerda">Histórico que sustenta a estimativa</th><th>Faltas / previstos</th><th>Taxa</th><th>Peso</th><th>Usado</th></tr></thead>
         <tbody>${linhas}</tbody>
       </table></div>
-      <p class="nota">É um sinal para planejar a cobertura e acompanhar causas, não uma previsão de quem vai faltar.</p>
+      <p class="nota">Sinal para planejar a cobertura e acompanhar causas, não uma previsão de quem vai faltar.</p>
     </div>`;
   }
 
@@ -149,20 +141,21 @@
         <span class="risco-pct">${U.pct(x.estimativa)}</span>
       </button>`).join("");
 
-    const pesos = `${Math.round(H.PESOS.diaSemana * 100)}%, ${Math.round(H.PESOS.semanaMes * 100)}% e ${Math.round(H.PESOS.anoAnterior * 100)}%`;
+    const pct = (x) => Math.round(x * 100);
     return `
-      ${U.controlesPeriodo({ ant: "risco-ant", prox: "risco-prox", hoje: "risco-hoje", rotuloHoje: "Próximo mês", titulo: `Risco de ausência · ${D.mesAno(mes)}` })}
-      <p class="nota">Cada dia junta três sinais do histórico: o mesmo dia da semana nos últimos ${H.MESES_RECENTES} meses, a mesma semana do mês e o mesmo dia da semana no mesmo mês do ano anterior (pesos ${pesos}).
-        A cor compara com a média da unidade: <b>Atenção</b> a partir de ${Math.round((H.LIMITES.atencao - 1) * 100)}% acima e <b>Alta atenção</b> a partir de ${Math.round((H.LIMITES.alto - 1) * 100)}% acima. Clique num dia para ver o histórico.</p>
+      ${U.controlesPeriodo({ ant: "risco-ant", prox: "risco-prox", hoje: "risco-hoje", rotuloHoje: "Próximo mês", titulo: D.mesAno(mes) })}
       <div class="resumo resumo-4">
-        ${U.kpi("Média da unidade (12 meses)", U.pct(dias[0]?.base))}
-        ${U.kpi("Dias em alta atenção", conta("alto"), conta("alto") ? "k-atestado" : "")}
-        ${U.kpi("Dias em atenção", conta("atencao"), conta("atencao") ? "k-folga" : "")}
-        ${U.kpi("Maior risco", pico ? `${D.rotulo(pico.data)}` : "-", "", pico ? `<small class="kpi-nota">${U.pct(pico.estimativa)} estimado</small>` : "")}
+        ${U.kpi("Dias em alta atenção", conta("alto"), conta("alto") ? "k-atestado" : "", "", "risco")}
+        ${U.kpi("Dias em atenção", conta("atencao"), conta("atencao") ? "k-folga" : "", "", "risco")}
+        ${U.kpi("Maior risco", pico ? D.rotulo(pico.data) : "-", "", pico ? `<small class="kpi-nota">${U.pct(pico.estimativa)} estimado</small>` : "", "calendario")}
+        ${U.kpi("Média da unidade", U.pct(dias[0]?.base), "", '<small class="kpi-nota">últimos 12 meses</small>', "taxa")}
       </div>
       <div class="cal cal-risco">${celulas}</div>
-      <div class="legenda">${Object.keys(NIVEIS).map(selo).join("")}</div>
-      ${selecionado ? evidencia(u, selecionado) : ""}`;
+      <div class="legenda">${Object.keys(NIVEIS).filter((n) => n !== "poucos-dados").map(selo).join("")}<span>Clique num dia para ver o histórico</span></div>
+      ${selecionado ? evidencia(selecionado) : ""}
+      ${U.comoCalculamos(`${baseDoCalculo()}
+        <p><b>Estimativa do dia</b> = média ponderada de três sinais do histórico: o mesmo dia da semana nos últimos ${H.MESES_RECENTES} meses (${pct(H.PESOS.diaSemana)}%), a mesma semana do mês (${pct(H.PESOS.semanaMes)}%) e o mesmo dia da semana no mesmo mês do ano anterior (${pct(H.PESOS.anoAnterior)}%). Sinal com menos de ${H.MIN_PREVISTOS} pessoas-dia previstas é ignorado.</p>
+        <p><b>Cor:</b> compara a estimativa com a média da unidade nos últimos ${H.MESES_BASE} meses. <b>Atenção</b> a partir de ${pct(H.LIMITES.atencao - 1)}% acima; <b>Alta atenção</b> a partir de ${pct(H.LIMITES.alto - 1)}% acima.</p>`)}`;
   }
 
   /* ---------- Por colaborador ---------- */
@@ -170,6 +163,11 @@
     const U = E.ui, D = E.datas;
     if (pd.tipo === "dia") return `Recorrência às ${D.DIAS_PLURAL[pd.dia]} (${pd.faltas} faltas; ${U.pct(pd.taxa)} contra ${U.pct(pd.equipe)} do restante da equipe nesse dia)`;
     return `Recorrência em ${D.MESES[pd.mes].toLowerCase()} (${pd.faltas} faltas em ${pd.anos} anos; ${U.pct(pd.taxa)} contra ${U.pct(pd.equipe)} do restante da equipe no mesmo mês)`;
+  }
+  // Versão curta para a tabela (o texto completo fica no detalhe e na dica).
+  function textoPadraoCurto(pd) {
+    const D = E.datas;
+    return pd.tipo === "dia" ? `${D.NOMES_DIA[pd.dia]}s` : D.MESES[pd.mes];
   }
 
   function rotuloFiltro(f) {
@@ -193,22 +191,23 @@
     const dias = det.porDia.map((x) => ({ rotulo: D.DIAS[x.dia], valor: x.taxa, detalhe: `${x.faltas} de ${U.numero(x.previstos)}` }));
 
     return `<div class="painel detalhe-pessoa" id="detalhe-pessoa">
-      <h3>${U.esc(p.nome)} <small>${U.esc(p.funcao)} · ${U.esc(p.rota)}</small>${nivel ? selo(nivel) : ""}</h3>
-      <p class="nota">Histórico inteiro: <b>${U.numero(det.previstos)} dias previstos</b>${det.inicio ? ` desde ${dataCompleta(det.inicio)}` : ""}. Só faltas injustificadas contam.</p>
+      <div class="detalhe-topo">
+        ${U.avatar(p.nome)}
+        <div><h3>${U.esc(p.nome)}${nivel ? ` ${selo(nivel)}` : ""}</h3><span class="sub">${U.esc(p.funcao)} · ${U.esc(p.rota)} · ${U.numero(det.previstos)} dias previstos${det.inicio ? ` desde ${dataCompleta(det.inicio)}` : ""}</span></div>
+      </div>
       <div class="resumo resumo-4">
-        ${U.kpi("Faltas", det.faltas, "k-falta")}
-        ${U.kpi("Absenteísmo", U.pct(det.taxa))}
-        ${U.kpi("Episódios", det.episodios.length, "", '<small class="kpi-nota">faltas seguidas contam como 1</small>')}
-        ${U.kpi(`Bradford (${H.DIAS_RECENTES} dias)`, U.numero(det.bradford90), "", '<small class="kpi-nota">episódios² × dias</small>')}
+        ${U.kpi("Faltas", det.faltas, "k-falta", "", "ausencia")}
+        ${U.kpi("Absenteísmo", U.pct(det.taxa), "", "", "taxa")}
+        ${U.kpi("Episódios", det.episodios.length, "", '<small class="kpi-nota">faltas seguidas contam como 1</small>', "calendario")}
+        ${U.kpi(`Bradford (${H.DIAS_RECENTES} dias)`, U.numero(det.bradford90), "", '<small class="kpi-nota">episódios² × dias</small>', "risco")}
       </div>
       <h4>Padrões encontrados</h4>
       ${det.padroes.length ? `<ul class="padroes">${det.padroes.map((pd) => `<li>${U.esc(textoPadrao(pd))}</li>`).join("")}</ul>` : '<p class="apagado">Nenhum padrão de recorrência encontrado.</p>'}
-      <p class="nota">Um padrão só aparece quando a pessoa falta pelo menos o dobro do restante da equipe naquele dia ou mês e a chance de ser acaso (teste binomial) fica abaixo de ${U.numero(H.LIMITE_ACASO * 100, 1)}%. Num mês, também precisa ter faltas em pelo menos 2 anos.</p>
       <h4>Faltas por mês</h4>${colunasMensais(det.meses)}
       <h4>Por dia da semana</h4><div class="barras-estreitas">${U.barras(dias, `Faltas de ${p.nome} por dia da semana`)}</div>
-      <h4>Períodos das faltas</h4><div class="periodos">${periodos}</div>
+      <h4>Datas das faltas</h4><div class="periodos">${periodos}</div>
       <h4>Atestados (não pontuam)</h4><div class="periodos">${atestados}</div>
-      <p class="nota">É um sinal para acompanhamento e conversa com a pessoa, não uma afirmação de que ela vai faltar.</p>
+      <p class="nota">Sinal para acompanhamento e conversa com a pessoa, não uma afirmação de que ela vai faltar.</p>
     </div>`;
   }
 
@@ -228,54 +227,44 @@
     const selecionada = pessoas.find((x) => x.pessoa.matricula === estado.abs.pessoa)?.pessoa;
 
     const linhas = pessoas.map((x) => `<tr class="linha-clicavel${x.pessoa === selecionada ? " selecionada" : ""}" data-acao="abs-pessoa" data-matricula="${U.esc(x.pessoa.matricula)}" tabindex="0">
-      <td class="esquerda"><b>${U.esc(x.pessoa.nome)}</b><small>${U.esc(x.pessoa.funcao)} · ${U.esc(x.pessoa.rota)}</small></td>
-      <td>${U.numero(x.previstos)}</td>
-      <td>${x.faltas}</td>
-      <td><b>${U.pct(x.taxa)}</b></td>
-      <td>${x.episodios}</td>
-      <td>${U.pct(x.taxa90)}</td>
-      <td>${U.numero(x.bradford)}</td>
+      <td class="esquerda"><b>${U.esc(x.pessoa.nome)}</b><small>${U.esc(x.pessoa.funcao)} · ${U.numero(x.previstos)} dias previstos</small></td>
+      <td><b>${U.pct(x.taxa)}</b><small>${x.faltas} ${x.faltas === 1 ? "falta" : "faltas"}</small></td>
+      <td>${U.pct(x.taxa90)}<small>Bradford ${U.numero(x.bradford)}</small></td>
+      <td class="col-tendencia">${U.sparkline(x.serie, `Tendência de ${x.pessoa.nome} nos últimos 12 meses`)}</td>
       ${temFiltro ? `<td class="col-filtro"><b>${x.filtro.faltas}</b> de ${U.numero(x.filtro.previstos)}<small>${U.pct(x.filtro.taxa)}</small></td>` : ""}
-      <td class="esquerda">${x.padroes.length ? x.padroes.map((pd) => `<span class="tag-padrao">${U.esc(textoPadrao(pd))}</span>`).join("") : '<span class="apagado">-</span>'}</td>
+      <td class="esquerda">${x.padroes.length ? x.padroes.map((pd) => `<span class="tag-padrao" title="${U.esc(textoPadrao(pd))}">${U.esc(textoPadraoCurto(pd))}</span>`).join("") : '<span class="apagado">-</span>'}</td>
       <td>${selo(x.nivel)}</td>
     </tr>`).join("");
 
     return `
-      <div class="ctrl">
-        <h2 class="titulo-data">Colaboradores de ${D.mesAno(j.inicio).toLowerCase()} a ${D.mesAno(j.fim).toLowerCase()}</h2>
-        <div class="ctrl-botoes">
-          ${seletorPeriodo(estado)}
-          <select id="abs-dia" aria-label="Dia da semana"><option value="">Todos os dias</option>${opcoesDia}</select>
-          <select id="abs-mes" aria-label="Mês do ano"><option value="">Todos os meses</option>${opcoesMes}</select>
-        </div>
-      </div>
-      <p class="nota">Entram só os colaboradores que <b>continuam no CDD</b> e <b>já estavam na operação</b> no início do período.
-        O sinal olha os <b>últimos ${H.DIAS_RECENTES} dias</b> e é o pior entre dois critérios:
-        o absenteísmo da pessoa comparado com o da equipe (${U.pct(taxaEquipe90)} no mesmo período; atenção a partir de ${U.numero(H.RELATIVO_EQUIPE.atencao, 1)}×, alta a partir de ${H.RELATIVO_EQUIPE.alto}×, com pelo menos ${H.MIN_FALTAS_SINAL} faltas)
-        e o fator de Bradford, que mede a concentração de episódios (atenção a partir de ${H.FAIXAS_BRADFORD.atencao}, alta a partir de ${H.FAIXAS_BRADFORD.alto}).
-        Com menos de ${H.MIN_PREVISTOS_PESSOA} dias previstos no período: poucos dados.
-        ${temFiltro ? `<br>Filtro ativo: a coluna destacada mostra as faltas <b>${rotuloFiltro(filtro)}</b>, e a lista está ordenada por ela.` : ""}</p>
+      ${U.barraAcoes(`De ${periodoTexto(j)}${temFiltro ? ` · faltas <b>${rotuloFiltro(filtro)}</b> em destaque` : ""}`,
+        `${seletorPeriodo(estado)}
+         <select id="abs-dia" aria-label="Dia da semana"><option value="">Todos os dias</option>${opcoesDia}</select>
+         <select id="abs-mes" aria-label="Mês do ano"><option value="">Todos os meses</option>${opcoesMes}</select>`)}
       <div class="resumo resumo-4">
-        ${U.kpi("Colaboradores analisados", pessoas.length)}
-        ${U.kpi("Em alta atenção", conta("alto"), conta("alto") ? "k-atestado" : "")}
-        ${U.kpi("Em atenção", conta("atencao"), conta("atencao") ? "k-folga" : "")}
-        ${U.kpi("Fora da análise", foraDaAnalise, "k-pendente", '<small class="kpi-nota">desligados ou admitidos no período</small>')}
+        ${U.kpi("Colaboradores analisados", pessoas.length, "", "", "pessoas")}
+        ${U.kpi("Em alta atenção", conta("alto"), conta("alto") ? "k-atestado" : "", "", "risco")}
+        ${U.kpi("Em atenção", conta("atencao"), conta("atencao") ? "k-folga" : "", "", "risco")}
+        ${U.kpi("Fora da análise", foraDaAnalise, "k-pendente", '<small class="kpi-nota">desligados ou admitidos no período</small>', "ausencia")}
       </div>
       <div class="tabela-wrap"><table class="tabela-numeros tabela-colaboradores">
-        <thead><tr><th class="esquerda">Colaborador</th><th>Dias previstos</th><th>Faltas</th><th>Absenteísmo</th><th>Episódios</th><th>Absenteísmo ${H.DIAS_RECENTES} dias</th><th>Bradford ${H.DIAS_RECENTES} dias</th>
-          ${temFiltro ? `<th class="col-filtro">Faltas ${U.esc(rotuloFiltro(filtro))}</th>` : ""}<th class="esquerda">Padrões</th><th>Sinal</th></tr></thead>
-        <tbody>${linhas || `<tr><td colspan="10">${U.vazio("Nenhum colaborador com histórico no período.")}</td></tr>`}</tbody>
+        <thead><tr><th class="esquerda">Colaborador</th><th>No período</th><th>Últimos ${H.DIAS_RECENTES} dias</th><th>Tendência (12 meses)</th>
+          ${temFiltro ? `<th class="col-filtro">Faltas ${U.esc(rotuloFiltro(filtro))}</th>` : ""}<th class="esquerda">Recorrência</th><th>Sinal</th></tr></thead>
+        <tbody>${linhas || `<tr><td colspan="7">${U.vazio("Nenhum colaborador com histórico no período.")}</td></tr>`}</tbody>
       </table></div>
       <p class="nota">Clique num colaborador para ver o histórico completo.</p>
-      ${selecionada ? detalhePessoa(u, selecionada) : ""}`;
+      ${selecionada ? detalhePessoa(u, selecionada) : ""}
+      ${U.comoCalculamos(`${baseDoCalculo()}
+        <p><b>Quem entra:</b> só quem continua no CDD e já estava na operação no início do período.</p>
+        <p><b>Sinal</b> (últimos ${H.DIAS_RECENTES} dias) = o pior entre: o absenteísmo da pessoa comparado com o da equipe (${U.pct(taxaEquipe90)} no mesmo período; atenção a partir de ${U.numero(H.RELATIVO_EQUIPE.atencao, 1)}×, alta a partir de ${H.RELATIVO_EQUIPE.alto}×, com pelo menos ${H.MIN_FALTAS_SINAL} faltas) e o <b>fator de Bradford</b> (episódios² × dias; atenção a partir de ${H.FAIXAS_BRADFORD.atencao}, alta a partir de ${H.FAIXAS_BRADFORD.alto}). Com menos de ${H.MIN_PREVISTOS_PESSOA} dias previstos no período: poucos dados.</p>
+        <p><b>Recorrência</b> só aparece quando a pessoa falta pelo menos o dobro do restante da equipe naquele dia da semana ou mês e a chance de ser acaso (teste binomial) fica abaixo de ${U.numero(H.LIMITE_ACASO * 100, 1)}%. Num mês, também precisa ter faltas em pelo menos 2 anos.</p>`)}`;
   }
 
   const VISOES = { historico, risco, colaboradores };
 
   E.telas.absenteismo = {
     render(estado) {
-      const u = E.ui.unidadeAtual(estado);
-      return `${alternador(estado)}${notaFonte()}${(VISOES[estado.abs.visao] || historico)(estado, u)}`;
+      return (VISOES[estado.abs.visao] || historico)(estado, E.ui.unidadeAtual(estado));
     },
   };
 })(window.Escala);

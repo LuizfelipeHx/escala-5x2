@@ -9,16 +9,29 @@
 
   E.repositorio.carregar();
 
-  const ABAS_UNIDADE = [
-    { id: "hoje", rotulo: "Hoje", tela: "hoje", filtros: true },
-    { id: "semana", rotulo: "Semana", tela: "semana", filtros: true },
-    { id: "cobertura", rotulo: "Cobertura", tela: "cobertura" },
-    { id: "absenteismo", rotulo: "Absenteísmo", tela: "absenteismo" },
-    { id: "individual", rotulo: "Escala individual", tela: "individual" },
-    { id: "cadastro", rotulo: "Cadastro", tela: "cadastro" },
+  // Menu da liderança, em grupos. "visao" escolhe a visão dentro da tela de
+  // absenteísmo; "multi" só aparece para quem acompanha mais de um CDD;
+  // "geral" é a tela sem CDD específico.
+  const MENU = [
+    { grupo: "Operação", itens: [
+      { id: "hoje", rotulo: "Hoje", icone: "hoje", tela: "hoje", filtros: true },
+      { id: "semana", rotulo: "Semana", icone: "semana", tela: "semana", filtros: true },
+      { id: "cobertura", rotulo: "Cobertura", icone: "cobertura", tela: "cobertura" },
+      { id: "individual", rotulo: "Escala individual", icone: "individual", tela: "individual" },
+    ] },
+    { grupo: "Absenteísmo", itens: [
+      { id: "abs-historico", rotulo: "Histórico", icone: "historico", tela: "absenteismo", visao: "historico" },
+      { id: "abs-risco", rotulo: "Risco do mês", icone: "risco", tela: "absenteismo", visao: "risco" },
+      { id: "abs-pessoas", rotulo: "Por colaborador", icone: "pessoas", tela: "absenteismo", visao: "colaboradores" },
+    ] },
+    { grupo: "Gestão", itens: [
+      { id: "geral", rotulo: "Visão geral", icone: "geral", tela: "geral", multi: true, geral: true },
+      { id: "cadastro", rotulo: "Cadastro", icone: "cadastro", tela: "cadastro" },
+    ] },
   ];
-  const ABA_GERAL = { id: "geral", rotulo: "Visão geral", tela: "geral", semFaixa: true };
-  const ABAS_COLABORADOR = [{ id: "minha", rotulo: "Minha escala", tela: "colaborador" }];
+  // Atalhos da barra inferior no celular (o resto fica na gaveta "Mais").
+  const ATALHOS_CELULAR = [{ id: "hoje" }, { id: "semana" }, { id: "abs-historico", rotulo: "Absenteísmo" }];
+  const TELA_COLABORADOR = { id: "minha", rotulo: "Minha escala", tela: "colaborador" };
 
   const estado = {
     usuario: null,
@@ -35,13 +48,19 @@
     abs: { visao: "historico", meses: 6, mesRisco: D.addMeses(D.hoje(), 1), diaRisco: null, dia: null, mes: null, pessoa: null },
   };
 
-  // Liderança com mais de um CDD ganha a "Visão geral" consolidada.
-  function abas() {
-    if (!E.sessao.ehLideranca(estado.usuario)) return ABAS_COLABORADOR;
-    return estado.usuario.unidadeIds.length > 1 ? [ABA_GERAL, ...ABAS_UNIDADE] : ABAS_UNIDADE;
+  // Menu de quem está logado (null para colaborador, que tem uma tela só).
+  function menu() {
+    if (!E.sessao.ehLideranca(estado.usuario)) return null;
+    const multi = estado.usuario.unidadeIds.length > 1;
+    return MENU.map((g) => ({ ...g, itens: g.itens.filter((i) => !i.multi || multi) })).filter((g) => g.itens.length);
   }
-  const abaAtual = () => abas().find((a) => a.id === estado.aba) || abas()[0];
+  const itens = () => (menu() || [{ grupo: "", itens: [TELA_COLABORADOR] }]).flatMap((g) => g.itens.map((i) => ({ ...i, grupo: g.grupo })));
+  const abaAtual = () => itens().find((a) => a.id === estado.aba) || itens()[0];
+  const abaInicial = () => (itens().some((i) => i.id === "geral") ? "geral" : itens()[0].id);
   const unidadeAtual = () => R.unidade(estado.unidadeId);
+  const atalhos = () => ATALHOS_CELULAR
+    .map((a) => { const item = itens().find((i) => i.id === a.id); return item && { ...item, ...a }; })
+    .filter(Boolean);
 
   function selecionarUnidade(id) {
     const u = R.unidade(id);
@@ -61,18 +80,36 @@
       $("#app").innerHTML = E.telas.login.render();
       return;
     }
-    Object.assign(estado, { aba: abas()[0].id, data: D.hoje(), mes: D.inicioDoMes(D.hoje()), inicioCobertura: D.hoje() });
-    $("#app").innerHTML = E.ui.layout(estado.usuario, abas(), R.validarDados());
+    Object.assign(estado, { aba: abaInicial(), data: D.hoje(), mes: D.inicioDoMes(D.hoje()), inicioCobertura: D.hoje() });
+    $("#app").innerHTML = E.ui.layout(estado.usuario, menu(), atalhos(), R.validarDados());
     selecionarUnidade(estado.usuario.unidadeIds[0]);
+    ultimaTela = null;
     atualizar();
   }
 
+  let ultimaTela = null;
   function atualizar() {
     const aba = abaAtual();
-    document.querySelectorAll(".aba").forEach((b) => b.classList.toggle("ativa", b.dataset.aba === aba.id));
-    $("#filtros").classList.toggle("oculto", !aba.filtros);
-    $("#faixa-unidade").innerHTML = aba.semFaixa ? "" : E.ui.faixaUnidade(unidadeAtual(), estado.usuario.unidadeIds);
-    $("#conteudo").innerHTML = E.telas[aba.tela].render(estado);
+    if (aba.visao) estado.abs.visao = aba.visao;
+    document.querySelectorAll("[data-aba]").forEach((b) => b.classList.toggle("ativo", b.dataset.aba === aba.id));
+    document.querySelectorAll(".barra-item[data-grupo]").forEach((b) => {
+      if (b.dataset.grupo === "Absenteísmo") b.classList.toggle("ativo", aba.grupo === "Absenteísmo");
+    });
+    $("#filtros")?.classList.toggle("oculto", !aba.filtros);
+    if ($("#lateral-cdd")) $("#lateral-cdd").innerHTML = E.ui.blocoCdd(unidadeAtual(), estado.usuario.unidadeIds);
+    if ($("#cabecalho-pagina")) {
+      $("#cabecalho-pagina").innerHTML = E.ui.cabecalhoPagina({
+        grupo: aba.grupo, titulo: aba.rotulo, u: aba.geral ? null : unidadeAtual(), ficticio: aba.grupo === "Absenteísmo",
+      });
+    }
+    // Animação de entrada só quando a tela muda (não a cada filtro).
+    const trocou = ultimaTela !== aba.id;
+    ultimaTela = aba.id;
+    $("#conteudo").innerHTML = `<div class="tela${trocou ? " entrando" : ""}">${E.telas[aba.tela].render(estado)}</div>`;
+  }
+
+  function abrirMenu(abrir) {
+    document.body.classList.toggle("menu-aberto", abrir);
   }
 
   function entrar(matricula, senha) {
@@ -145,8 +182,11 @@
     "mes-hoje": () => { estado.mes = D.inicioDoMes(D.hoje()); },
     "abrir-unidade": (el) => { selecionarUnidade(el.dataset.unidade); estado.aba = "hoje"; window.scrollTo({ top: 0, behavior: "smooth" }); },
 
+    // Menu no celular (gaveta)
+    "abrir-menu":  () => { abrirMenu(true); return false; },
+    "fechar-menu": () => { abrirMenu(false); return false; },
+
     // Absenteísmo
-    "abs-visao":  (el) => { estado.abs.visao = el.dataset.visao; },
     "risco-ant":  () => { estado.abs.mesRisco = D.addMeses(estado.abs.mesRisco, -1); estado.abs.diaRisco = null; },
     "risco-prox": () => { estado.abs.mesRisco = D.addMeses(estado.abs.mesRisco, 1); estado.abs.diaRisco = null; },
     "risco-hoje": () => { estado.abs.mesRisco = D.addMeses(D.hoje(), 1); estado.abs.diaRisco = null; },
@@ -199,11 +239,17 @@
     const alvo = e.target;
     const acao = alvo.closest("[data-acao]");
 
-    if (acao?.dataset.acao === "sair") { E.sessao.sair(); return montar(); }
+    if (acao?.dataset.acao === "sair") { abrirMenu(false); E.sessao.sair(); return montar(); }
     if (acao?.dataset.acao === "ver-senha") return E.telas.login.alternarSenha(acao);
 
-    const aba = alvo.closest(".aba");
-    if (aba) { estado.aba = aba.dataset.aba; return atualizar(); }
+    const aba = alvo.closest("[data-aba]");
+    if (aba) {
+      estado.aba = aba.dataset.aba;
+      abrirMenu(false);
+      atualizar();
+      window.scrollTo({ top: 0 });
+      return;
+    }
 
     const pessoa = alvo.closest("[data-id]");
     if (pessoa && podeVerEquipe()) return abrirPessoa(pessoa.dataset.id);
@@ -251,8 +297,10 @@
     atualizar();
   });
 
-  // Teclado: Enter ou espaço numa linha clicável (que não é botão) age como clique.
+  // Teclado: Esc fecha o menu do celular; Enter ou espaço numa linha clicável
+  // (que não é botão) age como clique.
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && document.body.classList.contains("menu-aberto")) return abrirMenu(false);
     const alvo = e.target.closest("tr[data-acao]");
     if (!alvo || (e.key !== "Enter" && e.key !== " ")) return;
     e.preventDefault();

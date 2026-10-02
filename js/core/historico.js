@@ -293,6 +293,15 @@
     return achados;
   }
 
+  // Taxa de cada um dos últimos "meses" do histórico (para os mini gráficos).
+  function serieMensal(lista, meses = 12) {
+    const fimMes = D.inicioDoMes(periodo().fim);
+    return Array.from({ length: meses }, (_, i) => {
+      const chave = D.chaveMes(D.addMeses(fimMes, i - (meses - 1)));
+      return resumir(lista.filter((x) => x.mes === chave)).taxa;
+    });
+  }
+
   // Quem continua no CDD (ativo no fim do período) e já estava na operação no início.
   function elegivelNoPeriodo(p, j) {
     return R.ativoEm(p, j.fim) && (!p.admissao || p.admissao <= D.iso(j.inicio));
@@ -317,7 +326,7 @@
       const pior = [faixaRelativa(r90, taxaEquipe90), faixaBradford(b)].reduce((a, c) => ((ordemNivel[c] ?? 0) > (ordemNivel[a] ?? 0) ? c : a), "normal");
       return {
         pessoa: p, ...r, taxa90: r90.taxa, previstos90: r90.previstos,
-        episodios: episodios(noPeriodo).length, bradford: b, filtro: resumir(filtrados),
+        episodios: episodios(noPeriodo).length, bradford: b, filtro: resumir(filtrados), serie: serieMensal(daPessoa),
         padroes: padroes(daPessoa, todos), nivel: poucos ? "poucos-dados" : pior,
       };
     });
@@ -354,6 +363,6 @@
     semanaDoMes, periodo, janela, ocorrencias, registros, resumir,
     resumoPeriodo, porDiaSemana, porSemanaDoMes, porMes, riscoDoDia, riscoDoMes,
     MIN_PREVISTOS_PESSOA, DIAS_RECENTES, FAIXAS_BRADFORD, RELATIVO_EQUIPE, MIN_FALTAS_SINAL,
-    episodios, bradford, padroes, porColaborador, detalheColaborador, caudaBinomial, LIMITE_ACASO,
+    episodios, bradford, padroes, porColaborador, detalheColaborador, caudaBinomial, LIMITE_ACASO, serieMensal,
   });
 })(window.Escala);

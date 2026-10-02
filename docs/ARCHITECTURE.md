@@ -132,10 +132,21 @@ A semana vai de segunda a domingo. Contas de dias usam UTC para não sofrer com 
 ## Fluxo de desenho
 
 1. `app.js` lê a sessão. Sem usuário, desenha o login.
-2. Com usuário, monta a moldura uma vez (`ui/layout.js`) e escolhe a unidade: a do usuário, ou a primeira para o gestor.
-3. A cada ação, redesenha só a faixa da unidade e o `#conteudo`. A moldura fixa evita que a busca perca o foco ao digitar.
+2. Com usuário, monta a moldura uma vez (`ui/layout.js`): **liderança** ganha menu lateral agrupado (`MENU` em `app.js`) e barra inferior no celular; **colaborador** ganha só o topo.
+3. A cada ação, redesenha o bloco do CDD no menu, o cabeçalho da página e o `#conteudo`. A moldura fixa evita que a busca perca o foco ao digitar.
+4. O conteúdo ganha uma animação curta de entrada só quando a tela muda (não a cada filtro), desligada para quem prefere menos movimento.
 
 Eventos usam **delegação**: um único ouvinte no `document` lê `data-acao`, `data-aba`, `data-id` e `data-unidade`. As telas não registram eventos.
+
+### Menu
+
+`MENU` lista grupos e itens. Cada item diz qual tela usar e, no absenteísmo, qual **visão** (`historico`, `risco`, `colaboradores`); por isso a tela de absenteísmo não tem abas próprias. Itens com `multi` só aparecem para quem acompanha mais de um CDD. No celular, `ATALHOS_CELULAR` escolhe os 3 itens da barra inferior; o resto abre na gaveta "Mais" (Esc fecha).
+
+### Tema claro e escuro
+
+Todas as cores ficam em variáveis no começo de `css/base.css`, com a versão escura em `@media (prefers-color-scheme: dark)`. **Nenhum outro arquivo de estilo pode ter cor solta**; é isso que faz o modo escuro funcionar em tudo. `--tinta` é o "texto forte" (azul-marinho no claro, quase branco no escuro); `--navy` fica só para fundos escuros (menu, cabeçalho de tabela). Contraste dos textos de status medido: todos acima de 4,5:1 (WCAG AA) nos dois temas.
+
+> **Para aprender:** variável de CSS (`var(--card)`) é como uma célula nomeada numa planilha: mudando o valor num lugar só, tudo que usa aquela cor muda junto. O modo escuro é só um segundo conjunto de valores para as mesmas variáveis.
 
 ## Alertas
 
