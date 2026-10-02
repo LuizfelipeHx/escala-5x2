@@ -49,6 +49,8 @@ O site tem **duas visões**: **Liderança** e **Colaborador**. Na liderança, to
 - **Hoje:** quem está em operação e quem está fora, com alerta se faltar gente.
 - **Semana:** grade da equipe de segunda a domingo, com o total por função.
 - **Cobertura:** 28 dias à frente, dias abaixo do mínimo, dias a publicar e quem folga nos próximos domingos.
+- **Absenteísmo › Histórico:** faltas e % de absenteísmo por dia da semana, por semana do mês e mês a mês, com comparação contra o mês anterior e o mesmo mês do ano anterior. Mostra também atestados e falhas de registro, que não contam como falta.
+- **Absenteísmo › Calendário de risco:** cada dia do mês em Normal, Atenção ou Alta atenção, com o histórico que sustenta a estimativa ao clicar no dia.
 - **Escala individual:** o calendário de qualquer colaborador. Também abre ao clicar no nome.
 - **Cadastro:** tipo de jornada do CDD, equipe (com PIS/CPF, admissão e desligamento), escala de cada pessoa e ocorrências.
 
@@ -61,6 +63,14 @@ O site tem **duas visões**: **Liderança** e **Colaborador**. Na liderança, to
 > **Onde fica salvo:** nesta versão, o que você cadastra fica **só no seu navegador**. Quem abrir o site em outro aparelho vê os dados de exemplo. Use "Exportar dados" e "Importar dados" para levar o cadastro de um navegador para outro, e "Restaurar dados de exemplo" para recomeçar.
 
 > **Dados reais:** o site está publicado num endereço público. Não cadastre pessoas reais nem coloque arquivos de ponto reais na pasta do projeto: o `.gitignore` bloqueia arquivos `.txt`, `.afd` e `.afdt` fora da pasta `exemplos/`.
+
+## Absenteísmo (histórico fictício)
+
+Enquanto o arquivo de ponto (AFDT) não é importado, o site **gera um histórico fictício** de jul/2025 a set/2026, sempre igual, a partir de `dados/historico-ficticio.js`. Ele só cria ocorrência em dia em que a pessoa estava escalada e tem padrões de propósito (mais faltas às segundas, em novembro e dezembro, e algumas pessoas reincidentes).
+
+- **Absenteísmo** = faltas injustificadas ÷ pessoas-dia previstas. Folga, férias e afastamento não entram na conta.
+- **Risco de um dia** = média ponderada de 3 sinais: o mesmo dia da semana nos últimos 3 meses (40%), a mesma semana do mês (30%) e o mesmo dia da semana no mesmo mês do ano anterior (30%). Comparado à média da unidade: **Atenção** a partir de 15% acima, **Alta atenção** a partir de 40% acima. Sinal com menos de 15 pessoas-dia previstas é ignorado; sem nenhum, o dia fica "Sem dados".
+- É um **sinal para planejamento**, não uma previsão de quem vai faltar.
 
 ## Como alterar os dados de exemplo
 
@@ -75,15 +85,17 @@ Depois de editar, abra `testes.html` para conferir as regras. Se algo estiver er
 
 ```
 index.html              página do site
-testes.html             testes automáticos (31 testes)
+testes.html             testes automáticos (40 testes)
 dados/geral.js          dados comuns de exemplo
 dados/unidades/         um arquivo de exemplo por CDD
+dados/historico-ficticio.js  parâmetros do histórico de ponto fictício
 css/                    estilos (base, componentes, telas)
 img/                    foto do login e ícone da aba
 js/core/datas.js        utilitários de data
 js/core/documentos.js   validação de PIS e CPF
 js/core/regras/         uma regra por tipo de escala (fixa, rotativa, mensal)
 js/core/escala.js       regras comuns: quadro ativo, ausências, cobertura, alertas
+js/core/historico.js    histórico de ponto, análises de absenteísmo e risco por dia
 js/core/repositorio.js  leitura e gravação dos dados (hoje: navegador)
 js/core/sessao.js       login simulado e perfis
 js/ui/                  peças de interface reaproveitadas

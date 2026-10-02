@@ -13,6 +13,8 @@ Todos os módulos se registram no objeto global `window.Escala`. A ordem de carr
 | `js/core/regras/rotativa.js` | `Escala.regras.rotativa` | Escala rotativa semanal (também expõe `folgasDaSemana`) | `datas` |
 | `js/core/regras/mensal.js` | `Escala.regras.mensal` | Escala mensal publicada | `datas`, `regrasBase` |
 | `js/core/escala.js` | `Escala.escala` | Situação do dia, ausências, próximas folgas, cobertura, alertas e validação dos dados | `dados`, `datas`, `regras` |
+| `dados/historico-ficticio.js` | `Escala.configHistorico` | Parâmetros do histórico de ponto fictício (período, taxas, padrões, reincidentes) | nada |
+| `js/core/historico.js` | `Escala.historico` | Ocorrências de ponto, apuração dos dias previstos, análises e risco por dia | `datas`, `escala`, `configHistorico` |
 | `js/core/repositorio.js` | `Escala.repositorio` | Carregar (exemplo ou navegador), alterar com transação, exportar, importar e restaurar | `dados`, `escala`, `documentos` |
 | `js/core/sessao.js` | `Escala.sessao` | Login simulado com duas visões: colaborador e liderança (alcance pelos CDDs acompanhados) | `dados`, `escala` |
 | `js/ui/componentes.js` | `Escala.ui` | Peças de HTML: chips, indicadores, avisos, faixa da unidade, linha de pessoa, calendário, painel mensal | `datas`, `escala` |
@@ -24,6 +26,7 @@ Todos os módulos se registram no objeto global `window.Escala`. A ordem de carr
 | `js/telas/cobertura.js` | `Escala.telas.cobertura` | 28 dias de cobertura, alertas e domingos | `ui`, `escala`, `datas` |
 | `js/telas/individual.js` | `Escala.telas.individual` | Escala do mês de qualquer pessoa da unidade | `ui`, `escala`, `datas` |
 | `js/telas/geral.js` | `Escala.telas.geral` | Visão consolidada dos CDDs (coordenador e gerente) | `ui`, `escala`, `datas`, `regras` |
+| `js/telas/absenteismo.js` | `Escala.telas.absenteismo` | Histórico (gráficos e tabela mensal) e calendário de risco com o histórico de cada dia | `ui`, `historico`, `datas` |
 | `js/telas/cadastro.js` | `Escala.telas.cadastro` | Cadastro do CDD, equipe e ocorrências; formulários e leitura deles | `ui`, `escala`, `datas`, `regras`, `repositorio` |
 | `js/app.js` | nada | Estado, abas por perfil, unidade selecionada, ações e eventos | todos |
 
@@ -54,7 +57,7 @@ Toda tela é um objeto com `render(estado)` que **devolve HTML** e não registra
 
 ## Testes
 
-`testes.html` carrega dados e núcleo (sem interface) e roda 31 testes: tipos de escala, regras comuns, login e visões, PIS/CPF e cadastro. Usa uma chave de armazenamento própria, então nunca mexe no que o usuário cadastrou. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.
+`testes.html` carrega dados e núcleo (sem interface) e roda 40 testes: tipos de escala, regras comuns, histórico e risco, login e visões, PIS/CPF e cadastro. Usa uma chave de armazenamento própria, então nunca mexe no que o usuário cadastrou. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.
 
 ## Funções principais de `Escala.repositorio`
 

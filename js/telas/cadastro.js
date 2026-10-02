@@ -39,11 +39,13 @@
         `<select name="posicaoInicial">${opcoes(POSICOES.map((t, i) => [i, t]), p?.posicaoInicial ?? 0)}</select>`,
         `O ciclo começou em ${D.curto(D.deIso(u.inicioCiclo))}. A cada semana o par de folgas avança 1 dia.`);
     }
-    const meses = Object.keys(u.meses).sort();
-    if (!meses.length) return '<p class="nota">Nenhum mês publicado ainda nesta unidade.</p>';
+    // Só os meses recentes e futuros; os antigos ficam guardados sem mudança.
+    const desde = D.chaveMes(D.addMeses(D.hoje(), -2));
+    const meses = Object.keys(u.meses).sort().filter((k) => k >= desde);
+    if (!meses.length) return '<p class="nota">Nenhum mês recente publicado nesta unidade.</p>';
     return `<fieldset class="campo campo-meses"><legend>Folgas em cada mês publicado (2 dias)</legend>
       ${meses.map((k) => `<div class="mes-op"><span>${nomeDoMes(k)}</span>${seletorDias(`mes-${k}`, u.meses[k].folgas[p?.matricula] || [])}</div>`).join("")}
-      <small>Meses antes da admissão podem ficar em branco.</small></fieldset>`;
+      <small>Meses antes da admissão podem ficar em branco. Meses mais antigos ficam guardados e não aparecem aqui.</small></fieldset>`;
   }
 
   const rodapeForm = (extra = "") => `<div class="form-erros" role="alert"></div>
@@ -100,7 +102,9 @@
     if (u.tipoEscala === "fixa") p.folgas = dias("folgas");
     if (u.tipoEscala === "rotativa") p.posicaoInicial = Number(f.get("posicaoInicial"));
     if (u.tipoEscala === "mensal") {
-      p.folgasMensais = Object.fromEntries(Object.keys(u.meses).map((k) => [k, dias(`mes-${k}`)]));
+      // Lê só os meses que estavam no formulário (os antigos não aparecem e não mudam).
+      const noFormulario = [...new Set([...form.querySelectorAll('input[name^="mes-"]')].map((i) => i.name.slice(4)))];
+      p.folgasMensais = Object.fromEntries(noFormulario.map((k) => [k, dias(`mes-${k}`)]));
     }
     return p;
   }

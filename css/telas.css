@@ -16,7 +16,7 @@
 .login-foto { position: fixed; inset: 0; overflow: hidden; }
 .login-foto::before, .login-foto::after {
   content: ""; position: absolute;
-  background-image: url("../img/login-fundo.webp?v=0.8.1");
+  background-image: url("../img/login-fundo.webp?v=0.9");
   background-repeat: no-repeat;
 }
 .login-foto::before {
@@ -97,6 +97,34 @@
 .cdd-linha b.ruim { color: var(--atestado); }
 .cdd .btn { margin-top: 6px; }
 .tabela-tipos { min-width: 560px; }
+
+/* ---------- Absenteísmo ---------- */
+.alternador {
+  display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 6px;
+  background: var(--card); border-radius: 12px; box-shadow: var(--sombra);
+}
+.alternador-op {
+  border: 0; background: transparent; padding: 9px 16px; border-radius: 9px;
+  font-weight: 700; color: var(--muted); cursor: pointer;
+}
+.alternador-op.ativo { background: var(--gold); color: var(--navy); }
+#abs-periodo { padding: 9px 12px; border: 1px solid var(--linha); border-radius: 10px; background: var(--card); font-weight: 600; }
+
+.cal-risco .risco-dia {
+  min-height: 74px; border: 2px solid transparent; border-radius: 10px; padding: 6px 8px;
+  display: flex; flex-direction: column; justify-content: space-between; text-align: left;
+  background: var(--rbg); color: var(--rc); cursor: pointer; font: inherit; font-weight: 700;
+}
+.cal-risco .risco-dia:hover { border-color: var(--rc); }
+.cal-risco .risco-dia.selecionado { border-color: var(--navy); box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--navy); }
+.cal-risco .risco-dia.hoje .cal-num { text-decoration: underline; }
+.cal-risco .risco-dia small { font-size: 10.5px; letter-spacing: 0.2px; }
+.cal-risco .risco-dia small i { font-style: normal; }
+.risco-pct { font-size: 12px; color: var(--texto); font-weight: 600; font-variant-numeric: tabular-nums; }
+.evidencia { margin-top: 14px; }
+.evidencia h3 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 8px; font-size: 16px; }
+.evidencia p { margin: 6px 0; font-size: 14px; }
+.evidencia .tabela-wrap { box-shadow: none; border: 1px solid var(--linha); margin-top: 10px; }
 
 /* ---------- Cadastro ---------- */
 .bloco { margin-bottom: 18px; }
@@ -181,7 +209,7 @@ td em { font-style: normal; color: var(--muted); font-size: 12.5px; }
     position: relative; inset: auto; justify-self: stretch; height: min(84vw, 60vh);
     background:
       linear-gradient(180deg, rgba(13, 27, 46, 0) 55%, var(--navy)),
-      url("../img/login-fundo.webp?v=0.8.1") center 30% / cover no-repeat;
+      url("../img/login-fundo.webp?v=0.9") center 30% / cover no-repeat;
   }
   .login-foto::before, .login-foto::after { display: none; }
   .login-card { width: calc(100% - 24px); align-self: start; margin: -56px 0 24px; padding: 26px 20px 22px; }
@@ -207,6 +235,12 @@ td em { font-style: normal; color: var(--muted); font-size: 12.5px; }
   .pessoa-dir .tag { white-space: normal; text-align: right; }
   .rodizio, .cdds { grid-template-columns: 1fr; }
   .form-grade { grid-template-columns: 1fr; }
+  .resumo-5 { grid-template-columns: 1fr 1fr; }
+  .resumo-5 .kpi:nth-child(3) { grid-column: 1 / -1; }
+  .cal-risco .risco-dia { min-height: 52px; padding: 4px 5px; }
+  .cal-risco .risco-rotulo { display: none; } /* no celular fica só o ícone + a cor */
+  .risco-pct { font-size: 10.5px; }
+  .barra-valor { min-width: 70px; }
   .form { padding: 18px 16px; }
   .faixa-resumo { width: 100%; }
 }

@@ -2,7 +2,9 @@
 
 ## Próximo passo
 
-- [ ] **Etapa 2:** importação do AFDT (aguardando aprovação)
+- [ ] **Item 4:** cruzamento do histórico por funcionário (aguardando aprovação)
+- [ ] Decidir se o calendário de risco destaca os dias **dentro do mês** (hoje compara com a média dos 12 meses; em mês de pico quase todos os dias ficam destacados, como novembro em Curitiba)
+- [ ] Importação do AFDT real
 
 ## Antes da apresentação
 
@@ -21,7 +23,8 @@
 
 ## Pendências técnicas
 
-- [ ] Histórico de jornada do CDD (hoje vale o tipo atual para todo o passado)
+- [ ] Histórico de jornada do CDD (hoje vale o tipo atual para todo o passado, inclusive na análise de absenteísmo)
+- [ ] Visão consolidada de absenteísmo de vários CDDs para coordenação e gerência (hoje é um CDD por vez)
 - [ ] Escala mensal com folgas diferentes por semana dentro do mês (se a operação usar)
 - [ ] Testes de interface (hoje os testes cobrem regras e cadastro)
 - [ ] Permitir mais de um parceiro de rota

@@ -13,6 +13,7 @@
     { id: "hoje", rotulo: "Hoje", tela: "hoje", filtros: true },
     { id: "semana", rotulo: "Semana", tela: "semana", filtros: true },
     { id: "cobertura", rotulo: "Cobertura", tela: "cobertura" },
+    { id: "absenteismo", rotulo: "Absenteísmo", tela: "absenteismo" },
     { id: "individual", rotulo: "Escala individual", tela: "individual" },
     { id: "cadastro", rotulo: "Cadastro", tela: "cadastro" },
   ];
@@ -29,6 +30,8 @@
     inicioCobertura: D.hoje(),
     busca: "",
     funcao: "",
+    // Absenteísmo: visão (histórico ou risco), período do histórico e mês/dia do calendário.
+    abs: { visao: "historico", meses: 6, mesRisco: D.addMeses(D.hoje(), 1), diaRisco: null },
   };
 
   // Liderança com mais de um CDD ganha a "Visão geral" consolidada.
@@ -42,6 +45,7 @@
   function selecionarUnidade(id) {
     const u = R.unidade(id);
     Object.assign(estado, { unidadeId: id, pessoaMatricula: u.equipe[0]?.matricula || null, busca: "", funcao: "" });
+    estado.abs.diaRisco = null;
     const busca = $("#f-busca"), funcao = $("#f-funcao");
     if (busca) busca.value = "";
     if (funcao) funcao.value = "";
@@ -139,6 +143,13 @@
     "mes-hoje": () => { estado.mes = D.inicioDoMes(D.hoje()); },
     "abrir-unidade": (el) => { selecionarUnidade(el.dataset.unidade); estado.aba = "hoje"; window.scrollTo({ top: 0, behavior: "smooth" }); },
 
+    // Absenteísmo
+    "abs-visao":  (el) => { estado.abs.visao = el.dataset.visao; },
+    "risco-ant":  () => { estado.abs.mesRisco = D.addMeses(estado.abs.mesRisco, -1); estado.abs.diaRisco = null; },
+    "risco-prox": () => { estado.abs.mesRisco = D.addMeses(estado.abs.mesRisco, 1); estado.abs.diaRisco = null; },
+    "risco-hoje": () => { estado.abs.mesRisco = D.addMeses(D.hoje(), 1); estado.abs.diaRisco = null; },
+    "risco-dia":  (el) => { estado.abs.diaRisco = el.dataset.dia; },
+
     // Cadastro: estas ações cuidam do próprio redesenho.
     "nova-pessoa":     () => { abrirDialogo(C.formPessoa(unidadeAtual(), null)); return false; },
     "editar-pessoa":   (el) => { abrirDialogo(C.formPessoa(unidadeAtual(), R.porMatricula(el.dataset.alvo))); return false; },
@@ -225,6 +236,7 @@
     else if (id === "pessoa-sel") estado.pessoaMatricula = value;
     else if (id === "unidade-sel") selecionarUnidade(value);
     else if (id === "f-funcao") estado.funcao = value;
+    else if (id === "abs-periodo") estado.abs.meses = Number(value);
     else return;
     atualizar();
   });

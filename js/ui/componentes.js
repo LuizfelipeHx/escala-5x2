@@ -17,6 +17,27 @@
   const chipTipo = (u) => `<span class="chip-tipo tipo-${u.tipoEscala}">${esc(R.tipoDe(u).nome)}</span>`;
   const vazio = (texto) => `<div class="vazio">${esc(texto)}</div>`;
 
+  /* ---------- Números ---------- */
+  const numero = (n, casas = 0) => n.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
+  const pct = (taxa) => (taxa == null ? "-" : `${numero(taxa * 100, 1)}%`);
+  // Variação em pontos percentuais, com sinal: "+0,4 p.p."
+  const pp = (delta) => (delta == null ? "-" : `${delta > 0 ? "+" : delta < 0 ? "−" : ""}${numero(Math.abs(delta) * 100, 1)} p.p.`);
+
+  /* ---------- Gráfico de barras horizontais (uma série) ----------
+     itens: [{ rotulo, valor (0 a 1), detalhe }]. A maior barra fica em destaque;
+     os valores aparecem na ponta das barras e na dica ao passar o mouse. */
+  function barras(itens, titulo) {
+    const max = Math.max(...itens.map((i) => i.valor ?? 0), 0.0001);
+    const maior = itens.reduce((a, b) => ((b.valor ?? -1) > (a.valor ?? -1) ? b : a), itens[0]);
+    return `<div class="grafico" role="figure" aria-label="${esc(titulo)}">
+      ${itens.map((i) => `<div class="barra-linha" title="${esc(`${i.rotulo}: ${pct(i.valor)} (${i.detalhe})`)}">
+        <span class="barra-rotulo">${esc(i.rotulo)}</span>
+        <span class="barra-trilho"><span class="barra${i === maior ? " barra-destaque" : ""}" style="width:${((i.valor ?? 0) / max) * 100}%"></span></span>
+        <span class="barra-valor"><b>${pct(i.valor)}</b><small>${esc(i.detalhe)}</small></span>
+      </div>`).join("")}
+    </div>`;
+  }
+
   // valorHtml e detalheHtml já devem vir escapados.
   const kpi = (rotulo, valorHtml, variante = "", detalheHtml = "") =>
     `<div class="kpi ${variante}"><small>${esc(rotulo)}</small><b>${valorHtml}</b>${detalheHtml ? `<span>${detalheHtml}</span>` : ""}</div>`;
@@ -145,6 +166,7 @@
 
   E.ui = Object.assign(E.ui || {}, {
     esc, iniciais, primeiroNome, nomesCurtos, avatar, chip, chipTipo, vazio, kpi, controlesPeriodo,
+    numero, pct, pp, barras,
     unidadeAtual, filtrarEquipe, faixaUnidade, alertaCobertura, avisoFeriado, avisoSemDomingo,
     detalheSituacao, linhaPessoa, legenda, calendario, kpisProximas, painelMensal,
   });

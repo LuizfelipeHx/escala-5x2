@@ -27,7 +27,9 @@
   const unidade = (id) => unidades().find((u) => u.id === id) || null;
 
   // Índice matrícula > { pessoa, unidade }. Refeito quando os dados mudam.
+  // "versao" sobe a cada mudança: outros módulos usam para invalidar cache.
   let indice = null;
+  let versao = 0;
   function buscar(matricula) {
     if (!indice) {
       indice = new Map();
@@ -35,7 +37,8 @@
     }
     return indice.get(matricula) || null;
   }
-  const reindexar = () => { indice = null; };
+  const reindexar = () => { indice = null; versao++; };
+  const versaoDados = () => versao;
   const porMatricula = (m) => buscar(m)?.p || null;
   const unidadeDe = (p) => buscar(p.matricula)?.u || null;
 
@@ -205,7 +208,7 @@
 
   E.escala = Object.freeze({
     SITUACOES, AUSENCIAS, JUSTIFICADAS, SEMANAS_DOMINGO,
-    unidades, unidade, porMatricula, unidadeDe, reindexar, tipoDe, funcoes, todasFuncoes, parceiroDeRota, feriado,
+    unidades, unidade, porMatricula, unidadeDe, reindexar, versaoDados, tipoDe, funcoes, todasFuncoes, parceiroDeRota, feriado,
     unidadesDoLider, liderancaLocal,
     ativoEm, equipeAtiva,
     situacaoNaEscala, ausencia, situacao, trabalha,

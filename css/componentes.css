@@ -62,6 +62,50 @@
 .k-ferias { border-color: var(--ferias); }
 .k-atestado { border-color: var(--atestado); }
 .k-pendente { border-color: #9aa5b5; }
+.k-falta { border-color: var(--falta); }
+.kpi .kpi-nota { color: var(--muted); font-size: 12px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.resumo-5 { grid-template-columns: repeat(5, 1fr); }
+
+/* ---------- Gráficos (barras horizontais e colunas, uma série) ----------
+   Marcas finas, ponta arredondada só no fim do dado, grade discreta.
+   Texto sempre em cor de texto; a cor fica só na barra. */
+:root { --serie: #1f5fbf; --serie-claro: #a9c1ea; --grade: #e9edf3; }
+.grafico { display: flex; flex-direction: column; gap: 10px; }
+.barra-linha { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px; }
+.barra-rotulo { font-size: 13px; font-weight: 700; color: var(--texto); }
+.barra-trilho { height: 18px; border-left: 1px solid var(--grade); display: flex; align-items: center; }
+.barra { height: 14px; background: var(--serie-claro); border-radius: 0 4px 4px 0; min-width: 2px; }
+.barra-destaque { background: var(--serie); }
+.barra-valor { text-align: right; min-width: 92px; font-variant-numeric: tabular-nums; }
+.barra-valor b { font-size: 13.5px; color: var(--texto); }
+.barra-valor small { display: block; font-size: 11px; color: var(--muted); }
+
+.colunas-grafico {
+  display: flex; align-items: flex-end; gap: 6px; height: 190px;
+  padding-top: 6px; border-bottom: 1px solid var(--grade); overflow-x: auto;
+}
+.coluna-item { flex: 1 0 34px; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.coluna-valor { font-size: 11.5px; font-weight: 700; color: var(--texto); min-height: 16px; white-space: nowrap; }
+.coluna-trilho { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.coluna { width: 20px; background: var(--serie-claro); border-radius: 4px 4px 0 0; min-height: 2px; }
+.coluna-destaque { background: var(--serie); }
+.coluna-rotulo { font-size: 11px; color: var(--muted); padding: 6px 0 4px; white-space: nowrap; }
+
+.tabela-numeros td { font-variant-numeric: tabular-nums; }
+.sobe { color: var(--atestado); font-weight: 700; }
+.desce { color: var(--trabalho); font-weight: 700; }
+
+/* ---------- Risco (semáforo sempre com ícone e texto, nunca só cor) ---------- */
+.r-normal    { --rc: #1e7a4e; --rbg: var(--trabalho-bg); }
+.r-atencao   { --rc: #7a5600; --rbg: #ffefc2; }
+.r-alto      { --rc: #a32b1f; --rbg: var(--atestado-bg); }
+.r-sem-dados { --rc: var(--muted); --rbg: #eceff4; }
+.selo-risco {
+  display: inline-flex; align-items: center; gap: 5px; vertical-align: middle;
+  padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  background: var(--rbg); color: var(--rc);
+}
+.selo-risco i { font-style: normal; font-size: 10px; }
 
 /* ---------- Avisos ---------- */
 .aviso {

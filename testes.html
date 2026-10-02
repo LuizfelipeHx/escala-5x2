@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/svg+xml" href="img/icone.svg?v=0.8.1">
+  <link rel="icon" type="image/svg+xml" href="img/icone.svg?v=0.9">
   <title>Consulta de Escala - Testes automáticos</title>
   <style>
     body { font-family: "Segoe UI", system-ui, Arial, sans-serif; background: #f3f5f9; color: #17212f; margin: 0; padding: 24px; }
@@ -28,20 +28,22 @@
   <div id="lista"></div>
 </main>
 
-<script src="dados/geral.js?v=0.8.1"></script>
-<script src="dados/unidades/maua.js?v=0.8.1"></script>
-<script src="dados/unidades/vitoria.js?v=0.8.1"></script>
-<script src="dados/unidades/paranagua.js?v=0.8.1"></script>
-<script src="dados/unidades/curitiba.js?v=0.8.1"></script>
-<script src="js/core/datas.js?v=0.8.1"></script>
-<script src="js/core/documentos.js?v=0.8.1"></script>
-<script src="js/core/regras/base.js?v=0.8.1"></script>
-<script src="js/core/regras/fixa.js?v=0.8.1"></script>
-<script src="js/core/regras/rotativa.js?v=0.8.1"></script>
-<script src="js/core/regras/mensal.js?v=0.8.1"></script>
-<script src="js/core/escala.js?v=0.8.1"></script>
-<script src="js/core/repositorio.js?v=0.8.1"></script>
-<script src="js/core/sessao.js?v=0.8.1"></script>
+<script src="dados/geral.js?v=0.9"></script>
+<script src="dados/unidades/maua.js?v=0.9"></script>
+<script src="dados/unidades/vitoria.js?v=0.9"></script>
+<script src="dados/unidades/paranagua.js?v=0.9"></script>
+<script src="dados/unidades/curitiba.js?v=0.9"></script>
+<script src="dados/historico-ficticio.js?v=0.9"></script>
+<script src="js/core/datas.js?v=0.9"></script>
+<script src="js/core/documentos.js?v=0.9"></script>
+<script src="js/core/regras/base.js?v=0.9"></script>
+<script src="js/core/regras/fixa.js?v=0.9"></script>
+<script src="js/core/regras/rotativa.js?v=0.9"></script>
+<script src="js/core/regras/mensal.js?v=0.9"></script>
+<script src="js/core/escala.js?v=0.9"></script>
+<script src="js/core/historico.js?v=0.9"></script>
+<script src="js/core/repositorio.js?v=0.9"></script>
+<script src="js/core/sessao.js?v=0.9"></script>
 <script>
 (function () {
   "use strict";
@@ -222,6 +224,57 @@
     D.diasEntre(D.deIso("2026-12-30"), D.deIso("2027-01-02")) === 3 || "contagem errada");
   teste("Nomes dos dias saem na ordem de segunda a domingo", () =>
     D.nomesDias([0, 6]) === "Sábado e Domingo" || D.nomesDias([0, 6]));
+
+  /* ---------- Histórico e risco ---------- */
+  secao("Histórico de absenteísmo e risco");
+  const H = E.historico;
+  teste("O histórico fictício é sempre o mesmo (determinístico)", () => {
+    const a = JSON.stringify(H.ocorrencias());
+    R.reindexar(); // força gerar de novo
+    const b = JSON.stringify(H.ocorrencias());
+    return (a === b && H.ocorrencias().length > 50) || `diferente ou vazio (${H.ocorrencias().length} ocorrências)`;
+  });
+  teste("Ocorrência de ponto só em dia em que a pessoa estava escalada", () => {
+    const ruim = H.ocorrencias().find((o) => R.situacao(R.porMatricula(o.matricula), D.deIso(o.data)) !== "trabalho");
+    return !ruim || `${ruim.matricula} em ${ruim.data}`;
+  });
+  teste("Previstos não incluem folga, férias, afastamento, fora do quadro nem escala a publicar", () => {
+    for (const u of R.unidades()) {
+      const ruim = H.registros(u).find((x) => R.situacaoNaEscala(R.porMatricula(x.matricula), x.data) !== "trabalho" ||
+        ["ferias", "afastamento", "inativo"].includes(R.situacao(R.porMatricula(x.matricula), x.data)));
+      if (ruim) return `${u.nome}: ${ruim.matricula} em ${D.iso(ruim.data)}`;
+    }
+    return true;
+  });
+  teste("Taxa = faltas ÷ previstos, e atestado e falha de registro não contam como falta", () => {
+    const r = H.resumir([{ tipo: "presenca" }, { tipo: "falta" }, { tipo: "atestado" }, { tipo: "falha_registro" }]);
+    return (r.previstos === 4 && r.faltas === 1 && r.atestados === 1 && r.falhas === 1 && r.taxa === 0.25) || JSON.stringify(r);
+  });
+  teste("Semana do mês: dias 1 a 7 = 1ª, 8 = 2ª, 29 = 5ª", () =>
+    (H.semanaDoMes(D.deIso("2026-11-01")) === 1 && H.semanaDoMes(D.deIso("2026-11-07")) === 1 &&
+     H.semanaDoMes(D.deIso("2026-11-08")) === 2 && H.semanaDoMes(D.deIso("2026-11-29")) === 5) || "semana errada");
+  teste("O padrão inventado aparece na análise (segunda pior que quarta em Mauá)", () => {
+    const dias = H.porDiaSemana(R.unidade("maua"), H.janela(15));
+    const seg = dias.find((x) => x.dia === 1).taxa, qua = dias.find((x) => x.dia === 3).taxa;
+    return seg > qua || `segunda ${seg} x quarta ${qua}`;
+  });
+  teste("Comparação com o mesmo mês do ano anterior só existe quando há os dois meses", () => {
+    const meses = H.porMes(R.unidade("vitoria"));
+    const set26 = meses.find((m) => D.chaveMes(m.mes) === "2026-09");
+    const out25 = meses.find((m) => D.chaveMes(m.mes) === "2025-10");
+    return (set26.varAnoAnterior != null && out25.varAnoAnterior == null && out25.varMesAnterior != null) || "comparação errada";
+  });
+  teste("Risco usa só sinais com dados suficientes e marca 'sem dados' sem nenhum", () => {
+    const u = R.unidade("curitiba");
+    const nov = H.riscoDoDia(u, D.deIso("2026-11-19"));
+    const sinaisOk = Object.values(nov.sinais).every((s) => s.usado === (s.previstos >= H.MIN_PREVISTOS));
+    const longe = H.riscoDoDia(u, D.deIso("2031-03-10")); // ano anterior sem histórico, mas sinais recentes existem
+    return (sinaisOk && ["normal", "atencao", "alto"].includes(nov.nivel) && longe.sinais.anoAnterior.usado === false) || JSON.stringify(nov.sinais);
+  });
+  teste("Risco de novembro em Paranaguá funciona com a escala ainda a publicar", () => {
+    const r = H.riscoDoDia(R.unidade("paranagua"), D.deIso("2026-11-16"));
+    return (r.escalados === null && r.estimativa != null) || JSON.stringify({ escalados: r.escalados, estimativa: r.estimativa });
+  });
 
   /* ---------- Login ---------- */
   secao("Login simulado");

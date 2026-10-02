@@ -1,5 +1,26 @@
 # Devlog
 
+## 02/10/2026: v0.9, análise histórica e calendário de risco
+
+**Pedido:** itens 2 e 3 do texto do MBL, com histórico inventado para ficar visível (a importação do AFDT fica para depois).
+
+**Feito**
+- Histórico de ponto **fictício e determinístico** de jul/2025 a set/2026 (`dados/historico-ficticio.js`), só em dias escalados, com padrões de propósito: segundas e sábados, 1ª semana do mês, novembro e dezembro, e 5 pessoas reincidentes.
+- `js/core/historico.js`: ocorrências de ponto (mesmo formato que o AFDT vai gerar), apuração dos dias previstos e análises.
+- Aba **Absenteísmo**:
+  - **Histórico:** indicadores (previstos, faltas, %, atestados, falhas de registro), barras por dia da semana e por semana do mês, colunas da evolução mensal e tabela com variação contra o mês anterior e o mesmo mês do ano anterior. Períodos de 3, 6, 12 ou 15 meses.
+  - **Calendário de risco:** cada dia em Normal, Atenção, Alta atenção ou Sem dados (ícone + texto + cor), estimativa por 3 sinais com pesos e o histórico que sustenta cada dia ao clicar.
+- Escala mensal de jul/2025 a jun/2026 em Paranaguá e Curitiba (rodízio fictício), necessária para comparar com o ano anterior.
+- Formulário de pessoa na escala mensal mostra só os meses recentes. **Bug evitado:** a leitura antiga pegava todos os meses e apagaria as folgas dos meses que não estavam na tela.
+- Servidor local de teste com fila maior (64): o servidor simples do Python recusava parte dos ~30 arquivos carregados ao mesmo tempo.
+
+**Validado**
+- 40 de 40 testes (9 novos: determinismo, ocorrência só em dia escalado, previstos sem folga/férias/afastamento, taxa, semana do mês, padrão visível, comparação com ano anterior, sinais com dados mínimos, risco com escala a publicar).
+- Cores do semáforo validadas para daltonismo (script do guia de visualização); o amarelo tem pouco contraste, por isso todo dia leva ícone e texto.
+- Telas no computador e no celular sem rolagem lateral; nenhum erro no console.
+
+**Observação:** em Curitiba, 20 dos 30 dias de novembro ficam destacados, porque novembro é o mês de pico e há um reincidente de novembro. É coerente com o histórico inventado, mas dilui o destaque (ver TODO).
+
 ## 02/10/2026: v0.8.1, login mais enxuto
 
 - Removido o subtítulo "Equipe de Entrega · 4 CDDs" do cartão de login, a pedido. Ficam só o título e "Faça login para continuar".

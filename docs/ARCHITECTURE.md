@@ -67,6 +67,20 @@ Cada arquivo em `js/core/regras/` registra `Escala.regras[tipo]` com:
 
 Só a **falta** é absenteísmo. Uma falta só pode ser lançada em dia de trabalho da escala, o que impede contar folga como falta.
 
+## Histórico de absenteísmo (`js/core/historico.js`)
+
+Três camadas, para o AFDT entrar depois sem mexer nas telas:
+
+1. **Ocorrências de ponto**: `{ matricula, data, tipo }`, com tipo `falta`, `atestado` ou `falha_registro`. Hoje vêm de um gerador fictício determinístico (semente + matrícula + data passam por um hash e viram um número entre 0 e 1). A importação do AFDT vai produzir esse mesmo formato.
+2. **Apuração**: cada dia em que a pessoa estava **prevista** para trabalhar (escala = trabalho, no quadro, sem férias ou afastamento) vira um registro: presença, falta, atestado ou falha de registro. Faltas e atestados lançados no cadastro também entram.
+3. **Análises**: agrupamentos por dia da semana, semana do mês (dias 1 a 7 = 1ª ... 29 a 31 = 5ª) e mês, além do risco de cada dia.
+
+O resultado fica em cache e é refeito quando os dados mudam: `escala.versaoDados()` sobe a cada `reindexar()`.
+
+> **Para aprender:** "determinístico" quer dizer que a mesma entrada sempre dá a mesma saída. O histórico inventado não muda a cada vez que a página abre, então os números da apresentação são reproduzíveis.
+
+**Limitação conhecida:** o passado é calculado com a jornada **atual** do CDD. Se um CDD mudou de jornada, o histórico antigo seria recalculado com a regra de hoje (ver TODO).
+
 ## Repositório e transação
 
 Toda alteração passa por `js/core/repositorio.js`, dentro de uma **transação**:
