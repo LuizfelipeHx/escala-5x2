@@ -1,5 +1,30 @@
 # Devlog
 
+## 02/10/2026: v0.4, 4 CDDs com 3 tipos de escala
+
+**Pedido:** Mauá com escala rotativa (muda toda semana), Vitória com escala fixa e Paranaguá e Curitiba com escala mensal.
+
+**Feito**
+- Regras separadas por tipo em `js/core/regras/` (padrão Strategy): fixa, rotativa (folgas andam 1 dia por semana, ciclo de 7) e mensal (publicada por mês, com estado "a publicar").
+- Dados separados: `dados/geral.js` e um arquivo por CDD em `dados/unidades/`, 6 pessoas fictícias em cada.
+- Perfis: colaborador, supervisor (só a sua unidade) e gestor regional (as 4, com seletor de unidade).
+- Nova tela **Visão geral** para o gestor e faixa com nome do CDD e tipo de escala em todas as telas.
+- Novo alerta "sem domingo de folga nas próximas 8 semanas"; a cobertura passou a reconhecer dias a publicar.
+- Testes reescritos: 20 testes agrupados por tipo de escala.
+- Ícone da aba do navegador (resolvia um erro 404 de favicon).
+
+**Validado**
+- 20 de 20 testes passando; validação acusa erro ao estragar dados de propósito (testado e revertido).
+- Login dos 5 acessos de demonstração e perfis corretos.
+- Visão geral com os 4 CDDs; seletor de unidade; cobertura de Vitória lista os 4 sem domingo de folga.
+- Paranaguá em novembro aparece "a publicar" na semana, no calendário e na visão geral.
+- Rotativa: Carlos folga Qui+Sex nesta semana e Sex+Sáb na próxima.
+- Celular (390 px) sem rolagem lateral; nenhum erro no console.
+
+**Observação para a apresentação**
+- Com 3 pessoas por função, qualquer férias deixa a unidade abaixo do mínimo (Mauá tem 10 dias de alerta em 28 por causa de 1 férias). É um bom ponto para discutir dimensionamento de equipe.
+- Na mensal com a mesma folga o mês inteiro, sempre sobra alguém sem domingo por 2 meses (o alerta aparece em Curitiba). Validar com os CDDs se a escala mensal real varia semana a semana.
+
 ## 02/10/2026: v0.3, publicado para o time testar
 
 - Código versionado no GitHub (`LuizfelipeHx/escala-5x2`) e publicado pelo GitHub Pages.

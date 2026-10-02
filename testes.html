@@ -4,15 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2714%27 fill=%27%23f5b800%27/%3E%3Ctext x=%2732%27 y=%2742%27 font-family=%27Arial%27 font-size=%2724%27 font-weight=%27bold%27 text-anchor=%27middle%27 fill=%27%230d1b2e%27%3E5x2%3C/text%3E%3C/svg%3E">
   <title>Escala 5x2 - Testes automáticos</title>
   <style>
     body { font-family: "Segoe UI", system-ui, Arial, sans-serif; background: #f3f5f9; color: #17212f; margin: 0; padding: 24px; }
     main { max-width: 820px; margin: 0 auto; }
     h1 { margin: 0 0 6px; }
+    h2 { font-size: 15px; margin: 22px 0 8px; color: #667388; text-transform: uppercase; letter-spacing: .5px; }
     #resumo { font-weight: 700; padding: 12px 16px; border-radius: 12px; }
     .ok-geral { background: #ddf3e8; color: #1e8e5a; }
     .falha-geral { background: #fde3e0; color: #c0392b; }
-    ul { list-style: none; padding: 0; }
+    ul { list-style: none; padding: 0; margin: 0; }
     li { background: #fff; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; border-left: 5px solid #1e8e5a; }
     li.falha { border-color: #c0392b; }
     li small { display: block; color: #c0392b; margin-top: 4px; }
@@ -21,130 +23,239 @@
 <body>
 <main>
   <h1>Testes automáticos da escala</h1>
-  <p>Confere as regras do arquivo <code>js/core/escala.js</code> com os dados de <code>dados/equipe.js</code>. Abra de novo depois de editar os dados.</p>
+  <p>Confere as regras de <code>js/core/</code> com os dados da pasta <code>dados/</code>. Abra de novo depois de editar os dados.</p>
   <p id="resumo"></p>
-  <ul id="lista"></ul>
+  <div id="lista"></div>
 </main>
 
-<script src="dados/equipe.js"></script>
+<script src="dados/geral.js"></script>
+<script src="dados/unidades/maua.js"></script>
+<script src="dados/unidades/vitoria.js"></script>
+<script src="dados/unidades/paranagua.js"></script>
+<script src="dados/unidades/curitiba.js"></script>
 <script src="js/core/datas.js"></script>
+<script src="js/core/regras/base.js"></script>
+<script src="js/core/regras/fixa.js"></script>
+<script src="js/core/regras/rotativa.js"></script>
+<script src="js/core/regras/mensal.js"></script>
 <script src="js/core/escala.js"></script>
 <script src="js/core/sessao.js"></script>
 <script>
 (function () {
   "use strict";
-  const { datas: D, escala: R, sessao: S, dados } = window.Escala;
-  const resultados = [];
+  const { datas: D, escala: R, sessao: S, regras, dados } = window.Escala;
+  const grupos = [];
+  let grupo = null;
 
+  const secao = (nome) => { grupo = { nome, itens: [] }; grupos.push(grupo); };
   function teste(nome, fn) {
     try {
       const r = fn();
-      resultados.push({ nome, ok: r === true, msg: r === true ? "" : String(r) });
+      grupo.itens.push({ nome, ok: r === true, msg: r === true ? "" : String(r) });
     } catch (e) {
-      resultados.push({ nome, ok: false, msg: e.message });
+      grupo.itens.push({ nome, ok: false, msg: e.message });
     }
   }
 
+  /* ---------- Apoio ---------- */
   const ANO = 2026;
-  const segundas = (n) => {
-    const s0 = D.deIso(dados.config.inicioRodizio);
-    return Array.from({ length: n }, (_, i) => D.addDias(s0, i * 7));
+  const doTipo = (tipo) => R.unidades().filter((u) => u.tipoEscala === tipo);
+  const segundasDoAno = () => {
+    const s0 = D.segundaDaSemana(new Date(ANO, 0, 5));
+    return Array.from({ length: 52 }, (_, i) => D.addDias(s0, i * 7));
   };
+  const diasDoAno = () => Array.from({ length: 365 }, (_, i) => D.addDias(new Date(ANO, 0, 1), i));
+  const folgasNaSemana = (p, seg) =>
+    Array.from({ length: 7 }, (_, i) => D.addDias(seg, i)).filter((d) => R.situacaoNaEscala(p, d) === "folga").map((d) => d.getDay());
+  const mesesPublicados = (u) => Object.keys(u.meses).sort().map((k) => D.deIso(`${k}-01`));
+  const diasDoMes = (m) => Array.from({ length: D.diasNoMes(m) }, (_, i) => new Date(m.getFullYear(), m.getMonth(), i + 1));
 
-  teste("O arquivo de dados é válido", () => {
+  function coberturaSemAusencias(u, dias) {
+    for (const d of dias) {
+      for (const [funcao, minimo] of Object.entries(u.coberturaMinima)) {
+        const n = u.equipe.filter((p) => p.funcao === funcao && R.situacaoNaEscala(p, d) === "trabalho").length;
+        if (n < minimo) return `${u.nome}, ${D.iso(d)}: ${n} ${funcao}s (mínimo ${minimo})`;
+      }
+    }
+    return true;
+  }
+
+  /* ---------- Dados ---------- */
+  secao("Dados");
+  teste("Os arquivos de dados são válidos", () => {
     const erros = R.validarDados();
     return erros.length === 0 || erros.join(" | ");
   });
+  teste("Existe pelo menos uma unidade de cada tipo de escala", () =>
+    ["rotativa", "fixa", "mensal"].every((t) => doTipo(t).length) || "falta algum tipo");
 
-  teste(`Todos trabalham 5 e folgam 2 em todas as semanas de ${ANO} (sem contar ausências)`, () => {
-    for (const p of dados.equipe) {
-      for (const seg of segundas(52)) {
-        let folgas = 0;
-        for (let i = 0; i < 7; i++) if (R.situacaoNaEscala(p, D.addDias(seg, i)) === "folga") folgas++;
-        if (folgas !== 2) return `${p.nome}, semana de ${D.iso(seg)}: ${folgas} folgas`;
+  /* ---------- Rotativa ---------- */
+  secao("Escala rotativa (Mauá)");
+  teste(`Todos folgam exatamente 2 dias seguidos em todas as semanas de ${ANO}`, () => {
+    for (const u of doTipo("rotativa")) for (const p of u.equipe) for (const seg of segundasDoAno()) {
+      const f = folgasNaSemana(p, seg);
+      if (f.length !== 2) return `${p.nome}, semana de ${D.iso(seg)}: ${f.length} folgas`;
+    }
+    return true;
+  });
+  teste("As folgas avançam 1 dia a cada semana", () => {
+    const inicioDoPar = (dias) => {
+      const idx = dias.map((d) => (d + 6) % 7);
+      return idx.find((k) => idx.includes((k + 1) % 7));
+    };
+    for (const u of doTipo("rotativa")) for (const p of u.equipe) {
+      const semanas = segundasDoAno();
+      for (let i = 1; i < semanas.length; i++) {
+        const antes = inicioDoPar(regras.rotativa.folgasDaSemana(p, semanas[i - 1], u));
+        const depois = inicioDoPar(regras.rotativa.folgasDaSemana(p, semanas[i], u));
+        if (depois !== (antes + 1) % 7) return `${p.nome}: não avançou na semana de ${D.iso(semanas[i])}`;
       }
     }
     return true;
   });
-
-  teste("Cada pessoa folga exatamente 1 domingo em qualquer sequência de semanas do rodízio", () => {
-    const n = dados.config.gruposDomingo.length;
-    const domingos = segundas(52).map((s) => D.addDias(s, 6));
-    for (const p of dados.equipe) {
-      for (let i = 0; i + n <= domingos.length; i++) {
-        const c = domingos.slice(i, i + n).filter((d) => R.situacaoNaEscala(p, d) === "folga").length;
-        if (c !== 1) return `${p.nome}: ${c} domingos de folga a partir de ${D.iso(domingos[i])}`;
+  teste("Todos folgam pelo menos 1 domingo a cada 7 semanas", () => {
+    for (const u of doTipo("rotativa")) for (const p of u.equipe) {
+      const doms = segundasDoAno().map((s) => D.addDias(s, 6));
+      for (let i = 0; i + 7 <= doms.length; i++) {
+        if (!doms.slice(i, i + 7).some((d) => R.situacaoNaEscala(p, d) === "folga")) return `${p.nome}: sem domingo a partir de ${D.iso(doms[i])}`;
       }
     }
     return true;
   });
+  teste(`Sem ausências, a cobertura mínima é atendida em ${ANO}`, () => {
+    for (const u of doTipo("rotativa")) { const r = coberturaSemAusencias(u, diasDoAno()); if (r !== true) return r; }
+    return true;
+  });
 
-  teste(`Sem ausências, a cobertura mínima é atendida em todos os dias de ${ANO}`, () => {
-    for (let i = 0; i < 365; i++) {
-      const d = D.addDias(new Date(ANO, 0, 1), i);
-      for (const [funcao, minimo] of Object.entries(dados.config.coberturaMinima)) {
-        const n = dados.equipe.filter((p) => p.funcao === funcao && R.situacaoNaEscala(p, d) === "trabalho").length;
-        if (n < minimo) return `${D.iso(d)}: ${n} ${funcao}s (mínimo ${minimo})`;
+  /* ---------- Fixa ---------- */
+  secao("Escala fixa (Vitória)");
+  teste(`Todos folgam nos mesmos 2 dias em todas as semanas de ${ANO}`, () => {
+    for (const u of doTipo("fixa")) for (const p of u.equipe) {
+      const esperado = [...p.folgas].sort().join();
+      for (const seg of segundasDoAno()) {
+        const f = folgasNaSemana(p, seg).sort().join();
+        if (f !== esperado) return `${p.nome}, semana de ${D.iso(seg)}: ${f} (esperado ${esperado})`;
       }
     }
     return true;
   });
+  teste(`Sem ausências, a cobertura mínima é atendida em ${ANO}`, () => {
+    for (const u of doTipo("fixa")) { const r = coberturaSemAusencias(u, diasDoAno()); if (r !== true) return r; }
+    return true;
+  });
+  teste("Alerta de domingo lista exatamente quem nunca folga no domingo", () => {
+    for (const u of doTipo("fixa")) {
+      const esperado = u.equipe.filter((p) => !p.folgas.includes(0)).map((p) => p.matricula).join();
+      const obtido = R.semDomingoDeFolga(u, D.hoje()).map((p) => p.matricula).join();
+      if (esperado !== obtido) return `${u.nome}: esperado [${esperado}], obtido [${obtido}]`;
+    }
+    return true;
+  });
 
+  /* ---------- Mensal ---------- */
+  secao("Escala mensal (Paranaguá e Curitiba)");
+  teste("Em cada mês publicado, toda semana inteira do mês tem 2 folgas", () => {
+    for (const u of doTipo("mensal")) for (const m of mesesPublicados(u)) {
+      const fim = D.addDias(D.addMeses(m, 1), -1);
+      for (let seg = D.segundaDaSemana(m); seg <= fim; seg = D.addDias(seg, 7)) {
+        if (seg < m || D.addDias(seg, 6) > fim) continue; // semana atravessa o mês
+        for (const p of u.equipe) {
+          const f = folgasNaSemana(p, seg);
+          if (f.length !== 2) return `${u.nome}, ${p.nome}, semana de ${D.iso(seg)}: ${f.length} folgas`;
+        }
+      }
+    }
+    return true;
+  });
+  teste("A escala muda de um mês publicado para o seguinte", () => {
+    for (const u of doTipo("mensal")) {
+      const chaves = Object.keys(u.meses).sort();
+      for (let i = 1; i < chaves.length; i++) {
+        const mudou = u.equipe.some((p) => u.meses[chaves[i]].folgas[p.matricula].join() !== u.meses[chaves[i - 1]].folgas[p.matricula].join());
+        if (!mudou) return `${u.nome}: ${chaves[i]} igual a ${chaves[i - 1]}`;
+      }
+    }
+    return true;
+  });
+  teste("Mês não publicado aparece como 'a publicar'", () => {
+    const u = doTipo("mensal").find((x) => !x.meses["2026-11"]);
+    if (!u) return true;
+    return R.situacao(u.equipe[0], new Date(2026, 10, 10)) === "pendente" && R.statusDia(u, new Date(2026, 10, 10)) === "pendente"
+      || "não ficou pendente";
+  });
+  teste("Sem ausências, a cobertura mínima é atendida nos meses publicados", () => {
+    for (const u of doTipo("mensal")) {
+      const r = coberturaSemAusencias(u, mesesPublicados(u).flatMap(diasDoMes));
+      if (r !== true) return r;
+    }
+    return true;
+  });
+
+  /* ---------- Comum ---------- */
+  secao("Regras comuns");
   teste("Férias e atestado têm prioridade sobre a escala", () => {
-    for (const a of dados.ausencias) {
+    for (const u of R.unidades()) for (const a of u.ausencias) {
       const p = R.porMatricula(a.matricula);
-      if (R.situacao(p, D.deIso(a.inicio)) !== a.tipo) return `${p.nome} em ${a.inicio} não aparece como ${a.tipo}`;
-      if (R.situacao(p, D.deIso(a.fim)) !== a.tipo) return `${p.nome} em ${a.fim} não aparece como ${a.tipo}`;
+      for (const dia of [a.inicio, a.fim]) {
+        if (R.situacao(p, D.deIso(dia)) !== a.tipo) return `${p.nome} em ${dia} não aparece como ${a.tipo}`;
+      }
     }
     return true;
   });
-
-  teste("O alerta de cobertura dispara quando falta gente (férias de motorista)", () => {
-    const ferias = dados.ausencias.find((a) => a.tipo === "ferias" && R.porMatricula(a.matricula).funcao === "Motorista");
-    if (!ferias) return true;
-    let d = D.deIso(ferias.inicio);
-    const fim = D.deIso(ferias.fim);
-    while (d <= fim) {
-      if (R.cobertura(d).some((c) => !c.ok)) return true;
-      d = D.addDias(d, 1);
+  teste("O alerta de cobertura dispara em férias que deixam a unidade abaixo do mínimo", () => {
+    const u = R.unidade("maua");
+    const ferias = u.ausencias.find((a) => a.tipo === "ferias");
+    for (let d = D.deIso(ferias.inicio); d <= D.deIso(ferias.fim); d = D.addDias(d, 1)) {
+      if (R.statusDia(u, d) === "baixa") return true;
     }
     return "nenhum dia abaixo do mínimo durante as férias";
   });
-
   teste("A semana começa na segunda-feira", () =>
     D.iso(D.segundaDaSemana(D.deIso("2026-10-04"))) === "2026-09-28" || "início da semana errado");
-
   teste("Contagem de dias atravessa mês e ano", () =>
     D.diasEntre(D.deIso("2026-12-30"), D.deIso("2027-01-02")) === 3 || "contagem errada");
+  teste("Nomes dos dias saem na ordem de segunda a domingo", () =>
+    D.nomesDias([0, 6]) === "Sábado e Domingo" || D.nomesDias([0, 6]));
 
-  teste("Login recusa senha errada e matrícula inexistente", () =>
+  /* ---------- Login ---------- */
+  secao("Login simulado");
+  teste("Recusa senha errada e matrícula inexistente", () =>
     (!!S.entrar("10001", "senha-errada").erro && !!S.entrar("99999", dados.senhaDemo).erro) || "aceitou acesso inválido");
-
-  teste("Login identifica colaborador e supervisor", () => {
-    const a = S.entrar("10001", dados.senhaDemo).usuario;
-    const b = S.entrar(dados.supervisores[0].matricula, dados.senhaDemo).usuario;
+  teste("Identifica colaborador, supervisor e gestor com a unidade certa", () => {
+    const c = S.entrar("10001", dados.senhaDemo).usuario;
+    const s = S.entrar("92001", dados.senhaDemo).usuario;
+    const g = S.entrar(dados.gestores[0].matricula, dados.senhaDemo).usuario;
     S.sair();
-    return (a.perfil === "colaborador" && b.perfil === "supervisor") || "perfis trocados";
+    const ok = c.perfil === "colaborador" && c.unidadeId === "maua" &&
+               s.perfil === "supervisor" && s.unidadeId === "vitoria" &&
+               g.perfil === "gestor" && g.unidadeId === null;
+    return ok || JSON.stringify({ c, s, g });
   });
 
-  const falhas = resultados.filter((r) => !r.ok).length;
+  /* ---------- Resultado ---------- */
+  const todos = grupos.flatMap((g) => g.itens);
+  const falhas = todos.filter((r) => !r.ok).length;
   const resumo = document.getElementById("resumo");
-  resumo.textContent = falhas
-    ? `${falhas} de ${resultados.length} testes falharam.`
-    : `Todos os ${resultados.length} testes passaram.`;
+  resumo.textContent = falhas ? `${falhas} de ${todos.length} testes falharam.` : `Todos os ${todos.length} testes passaram.`;
   resumo.className = falhas ? "falha-geral" : "ok-geral";
 
   const lista = document.getElementById("lista");
-  resultados.forEach((r) => {
-    const li = document.createElement("li");
-    li.className = r.ok ? "" : "falha";
-    li.textContent = (r.ok ? "OK  " : "FALHOU  ") + r.nome;
-    if (!r.ok) {
-      const s = document.createElement("small");
-      s.textContent = r.msg;
-      li.appendChild(s);
-    }
-    lista.appendChild(li);
+  grupos.forEach((g) => {
+    const h = document.createElement("h2");
+    h.textContent = g.nome;
+    const ul = document.createElement("ul");
+    g.itens.forEach((r) => {
+      const li = document.createElement("li");
+      li.className = r.ok ? "" : "falha";
+      li.textContent = (r.ok ? "OK  " : "FALHOU  ") + r.nome;
+      if (!r.ok) {
+        const s = document.createElement("small");
+        s.textContent = r.msg;
+        li.appendChild(s);
+      }
+      ul.appendChild(li);
+    });
+    lista.append(h, ul);
   });
 })();
 </script>

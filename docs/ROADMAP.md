@@ -9,6 +9,7 @@
 - [x] Alerta de cobertura mínima por função
 - [x] Testes automáticos das regras
 - [x] Publicado no GitHub Pages para o time testar (dados fictícios)
+- [x] 4 CDDs com 3 tipos de escala (rotativa, fixa, mensal) e visão do gestor
 - [ ] Apresentação para o time Ambev
 
 ## Fase 1: Validação com a operação
@@ -22,7 +23,7 @@
 
 - Publicar o site (ex.: GitHub Pages ou hospedagem da empresa)
 - Login real por matrícula e PIN (ex.: Firebase ou Supabase) ou pela conta corporativa
-- Supervisor editando a escala e as ausências pelo próprio site
+- Supervisor editando a escala e as ausências pelo próprio site (na mensal: montar e publicar o mês)
 - Instalar no celular como aplicativo (PWA) e funcionar sem internet
 - Exportar a escala do mês em PDF para o mural
 

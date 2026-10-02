@@ -1,14 +1,15 @@
-/* Supervisor: escala do mês de qualquer colaborador. */
+/* Supervisão: escala do mês de qualquer colaborador da unidade. */
 (function (E) {
   "use strict";
 
   E.telas.individual = {
     render(estado) {
       const D = E.datas, R = E.escala, U = E.ui;
-      const p = R.porId(estado.pessoaId) || E.dados.equipe[0];
+      const u = U.unidadeAtual(estado);
+      const p = u.equipe.find((x) => x.matricula === estado.pessoaMatricula) || u.equipe[0];
       const s = R.situacao(p, D.hoje());
-      const opcoes = E.dados.equipe.map((x) =>
-        `<option value="${x.id}"${x.id === p.id ? " selected" : ""}>${U.esc(x.nome)} (${U.esc(x.funcao)})</option>`).join("");
+      const opcoes = u.equipe.map((x) =>
+        `<option value="${U.esc(x.matricula)}"${x.matricula === p.matricula ? " selected" : ""}>${U.esc(x.nome)} (${U.esc(x.funcao)})</option>`).join("");
 
       return `
         <div class="seletor-pessoa">

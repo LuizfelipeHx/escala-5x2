@@ -10,9 +10,11 @@
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   const iniciais = (nome) => nome.split(" ").filter(Boolean).map((x) => x[0]).slice(0, 2).join("").toUpperCase();
   const primeiroNome = (nome) => nome.split(" ")[0];
+  const nomesCurtos = (pessoas) => pessoas.map((p) => esc(primeiroNome(p.nome))).join(", ");
 
   const avatar = (nome, situacao = "neutro") => `<div class="avatar s-${situacao}">${esc(iniciais(nome))}</div>`;
   const chip = (situacao) => `<span class="chip s-${situacao}">${R.SITUACOES[situacao].rotulo}</span>`;
+  const chipTipo = (u) => `<span class="chip-tipo tipo-${u.tipoEscala}">${esc(R.tipoDe(u).nome)}</span>`;
   const vazio = (texto) => `<div class="vazio">${esc(texto)}</div>`;
 
   // valorHtml e detalheHtml já devem vir escapados.
@@ -31,16 +33,31 @@
     </div>`;
   }
 
+  const unidadeAtual = (estado) => R.unidade(estado.unidadeId);
+
   function filtrarEquipe(estado) {
     const q = estado.busca.trim().toLowerCase();
-    return E.dados.equipe.filter((p) =>
+    return unidadeAtual(estado).equipe.filter((p) =>
       (!estado.funcao || p.funcao === estado.funcao) &&
       (!q || p.nome.toLowerCase().includes(q) || p.rota.toLowerCase().includes(q) || p.matricula.includes(q)));
   }
 
+  /* ---------- Faixa da unidade (nome + tipo de escala) ---------- */
+  function faixaUnidade(u, podeTrocar) {
+    const nome = podeTrocar
+      ? `<select id="unidade-sel" aria-label="Unidade">${R.unidades().map((x) =>
+          `<option value="${x.id}"${x.id === u.id ? " selected" : ""}>${esc(x.nome)} (${esc(x.uf)})</option>`).join("")}</select>`
+      : `<b class="faixa-nome">${esc(u.nome)} <small>${esc(u.uf)}</small></b>`;
+    return `<div class="faixa">${nome}${chipTipo(u)}<span class="faixa-resumo">${esc(R.tipoDe(u).resumo)}</span></div>`;
+  }
+
   /* ---------- Avisos ---------- */
-  function alertaCobertura(d) {
-    const falhas = R.cobertura(d).filter((c) => !c.ok);
+  function alertaCobertura(u, d) {
+    const cob = R.cobertura(u, d);
+    if (cob.some((c) => c.pendente)) {
+      return `<div class="aviso aviso-info"><b>Escala deste dia ainda não publicada</b><span>A supervisão publica a escala mensal antes do início do mês.</span></div>`;
+    }
+    const falhas = cob.filter((c) => !c.ok);
     if (!falhas.length) return "";
     return `<div class="aviso aviso-erro"><b>Cobertura abaixo do mínimo</b>
       ${falhas.map((c) => `<span>${esc(c.funcao)}s: ${c.emOperacao} em operação (mínimo ${c.minimo})</span>`).join("")}</div>`;
@@ -51,23 +68,34 @@
     return f ? `<div class="aviso aviso-feriado"><b>Feriado: ${esc(f.nome)}</b><span>Operação conforme programação da unidade.</span></div>` : "";
   }
 
+  function avisoSemDomingo(u) {
+    const lista = R.semDomingoDeFolga(u, D.hoje());
+    if (!lista.length) return "";
+    return `<div class="aviso aviso-atencao"><b>Sem domingo de folga nas próximas ${R.SEMANAS_DOMINGO} semanas</b>
+      <span>${nomesCurtos(lista)}. Confirme com o RH a regra de revezamento aos domingos.</span></div>`;
+  }
+
   /* ---------- Pessoa em lista ---------- */
+  function detalheSituacao(p, d, s) {
+    if (s === "trabalho") return `Próxima folga: ${D.rotulo(R.proximaFolga(p, d))}`;
+    if (s === "pendente") return "Escala a publicar";
+    return `Volta em: ${D.rotulo(R.proximoRetorno(p, d))}`;
+  }
+
   function linhaPessoa(p, d, clicavel) {
     const s = R.situacao(p, d);
-    const detalhe = s === "trabalho"
-      ? `Próxima folga: ${D.rotulo(R.proximaFolga(p, d))}`
-      : `Volta em: ${D.rotulo(R.proximoRetorno(p, d))}`;
-    return `<div class="pessoa${clicavel ? " clicavel" : ""}"${clicavel ? ` data-id="${p.id}" title="Ver escala de ${esc(p.nome)}"` : ""}>
+    return `<div class="pessoa${clicavel ? " clicavel" : ""}"${clicavel ? ` data-id="${esc(p.matricula)}" title="Ver escala de ${esc(p.nome)}"` : ""}>
       ${avatar(p.nome, s)}
       <div class="pessoa-info"><div class="nome">${esc(p.nome)}</div><div class="sub">${esc(p.funcao)} · ${esc(p.rota)}</div></div>
-      <div class="pessoa-dir">${s !== "trabalho" ? chip(s) : ""}<span class="tag">${detalhe}</span></div>
+      <div class="pessoa-dir">${s !== "trabalho" ? chip(s) : ""}<span class="tag">${detalheSituacao(p, d, s)}</span></div>
     </div>`;
   }
 
   /* ---------- Calendário e painel mensal ---------- */
-  function legenda() {
+  function legenda(u) {
+    const situacoes = ["trabalho", "folga", "ferias", "atestado"].concat(u.tipoEscala === "mensal" ? ["pendente"] : []);
     return `<div class="legenda">
-      ${Object.keys(R.SITUACOES).map(chip).join("")}
+      ${situacoes.map(chip).join("")}
       <span><i class="marca-feriado"></i> Feriado</span>
       <span><i class="marca-hoje"></i> Hoje</span>
     </div>`;
@@ -96,26 +124,24 @@
   }
 
   function painelMensal(p, mesRef) {
+    const u = R.unidadeDe(p);
     const r = R.resumoMes(p, mesRef);
-    const semanas = E.dados.config.gruposDomingo.length;
-    return `<div class="regra">
-        <span><b>Folga fixa:</b> ${D.DIAS_LONGO[p.folgaFixa]}</span>
-        <span><b>Folga extra:</b> ${D.DIAS_LONGO[p.folgaExtra]} (nas semanas sem domingo)</span>
-        <span><b>Grupo de domingo:</b> ${esc(p.grupoDomingo)} (1 domingo de folga a cada ${semanas} semanas)</span>
-      </div>
+    const regra = R.descreverRegra(p, { hoje: D.hoje(), mes: mesRef });
+    return `<div class="regra">${chipTipo(u)}${regra.map((t) => `<span>${esc(t)}</span>`).join("")}</div>
       ${controlesPeriodo({ ant: "mes-ant", prox: "mes-prox", hoje: "mes-hoje", rotuloHoje: "Este mês", titulo: D.mesAno(mesRef) })}
       <div class="resumo resumo-4">
         ${kpi("Dias de trabalho", r.trabalho, "k-trabalho")}
         ${kpi("Folgas", r.folga, "k-folga")}
-        ${kpi("Férias", r.ferias, "k-ferias")}
-        ${kpi("Atestado", r.atestado, "k-atestado")}
+        ${kpi("Férias / atestado", r.ferias + r.atestado, "k-ferias")}
+        ${r.pendente ? kpi("A publicar", r.pendente, "k-pendente") : kpi("Domingos de folga", r.domingos, "k-folga")}
       </div>
       ${calendario(p, mesRef)}
-      ${legenda()}`;
+      ${legenda(u)}`;
   }
 
   E.ui = Object.assign(E.ui || {}, {
-    esc, iniciais, primeiroNome, avatar, chip, vazio, kpi, controlesPeriodo, filtrarEquipe,
-    alertaCobertura, avisoFeriado, linhaPessoa, legenda, calendario, kpisProximas, painelMensal,
+    esc, iniciais, primeiroNome, nomesCurtos, avatar, chip, chipTipo, vazio, kpi, controlesPeriodo,
+    unidadeAtual, filtrarEquipe, faixaUnidade, alertaCobertura, avisoFeriado, avisoSemDomingo,
+    detalheSituacao, linhaPessoa, legenda, calendario, kpisProximas, painelMensal,
   });
 })(window.Escala);

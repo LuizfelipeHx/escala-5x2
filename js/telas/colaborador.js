@@ -8,10 +8,11 @@
       const p = R.porMatricula(estado.usuario.matricula);
       const hoje = D.hoje();
       const s = R.situacao(p, hoje);
-      const detalhe = s === "trabalho"
-        ? `Próxima folga: ${D.rotulo(R.proximaFolga(p, hoje))}`
-        : `Você volta em ${D.rotulo(R.proximoRetorno(p, hoje))}`;
       const f = R.feriado(hoje);
+      const detalhe = {
+        trabalho: () => `Próxima folga: ${D.rotulo(R.proximaFolga(p, hoje))}`,
+        pendente: () => "Aguarde a publicação da escala pela supervisão.",
+      }[s]?.() ?? `Você volta em ${D.rotulo(R.proximoRetorno(p, hoje))}`;
 
       const parceiro = R.parceiroDeRota(p);
       const kpiParceiro = parceiro

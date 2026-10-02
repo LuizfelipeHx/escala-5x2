@@ -1,43 +1,54 @@
 # Módulos
 
-Todos os módulos se registram no objeto global `window.Escala`. A ordem de carregamento é a desta tabela.
+Todos os módulos se registram no objeto global `window.Escala`. A ordem de carregamento é a desta tabela (ver `index.html`).
 
 | Arquivo | Expõe | Responsabilidade | Depende de |
 |---|---|---|---|
-| `dados/equipe.js` | `Escala.dados` | Configuração, equipe, supervisores, ausências e feriados (fictícios) | nada |
-| `js/core/datas.js` | `Escala.datas` | Criar, somar, comparar e formatar datas. Sem regra de negócio | nada |
-| `js/core/escala.js` | `Escala.escala` | Regra 5x2, rodízio de domingo, ausências, próximas folgas, cobertura e validação dos dados | `dados`, `datas` |
-| `js/core/sessao.js` | `Escala.sessao` | Login simulado (`entrar`, `sair`, `atual`) | `dados`, `escala` |
-| `js/ui/componentes.js` | `Escala.ui` | Peças de HTML: chip, avatar, indicador, avisos, linha de pessoa, calendário, painel mensal, filtro da equipe | `datas`, `escala` |
-| `js/ui/layout.js` | `Escala.ui.layout` | Moldura da área logada (cabeçalho, abas, filtros, rodapé) | `ui`, `escala` |
-| `js/telas/login.js` | `Escala.telas.login` | Tela de login com acessos de demonstração | `ui`, `dados` |
-| `js/telas/colaborador.js` | `Escala.telas.colaborador` | Tela do colaborador: hoje, próximas folgas, parceiro de rota e mês | `ui`, `escala`, `datas` |
-| `js/telas/hoje.js` | `Escala.telas.hoje` | Supervisor: em operação e fora num dia | `ui`, `escala`, `datas` |
-| `js/telas/semana.js` | `Escala.telas.semana` | Supervisor: grade semanal e totais por função | `ui`, `escala`, `datas` |
-| `js/telas/cobertura.js` | `Escala.telas.cobertura` | Supervisor: 28 dias de cobertura e rodízio de domingo | `ui`, `escala`, `datas` |
-| `js/telas/individual.js` | `Escala.telas.individual` | Supervisor: escala do mês de qualquer pessoa | `ui`, `escala`, `datas` |
-| `js/app.js` | nada | Estado, abas por perfil, ações dos botões e eventos | todos |
+| `dados/geral.js` | `Escala.dados` | Senha de demonstração, gestores, feriados e a lista de unidades | nada |
+| `dados/unidades/*.js` | item em `Escala.dados.unidades` | Uma unidade: tipo de escala, cobertura mínima, supervisor, equipe, ausências e dados do tipo | `dados/geral.js` |
+| `js/core/datas.js` | `Escala.datas` | Criar, somar, comparar e formatar datas | nada |
+| `js/core/regras/base.js` | `Escala.regras`, `Escala.regrasBase` | Contrato das regras e validações comuns | nada |
+| `js/core/regras/fixa.js` | `Escala.regras.fixa` | Escala fixa | `datas`, `regrasBase` |
+| `js/core/regras/rotativa.js` | `Escala.regras.rotativa` | Escala rotativa semanal (também expõe `folgasDaSemana`) | `datas` |
+| `js/core/regras/mensal.js` | `Escala.regras.mensal` | Escala mensal publicada | `datas`, `regrasBase` |
+| `js/core/escala.js` | `Escala.escala` | Situação do dia, ausências, próximas folgas, cobertura, alertas e validação dos dados | `dados`, `datas`, `regras` |
+| `js/core/sessao.js` | `Escala.sessao` | Login simulado com perfis colaborador, supervisor e gestor | `dados`, `escala` |
+| `js/ui/componentes.js` | `Escala.ui` | Peças de HTML: chips, indicadores, avisos, faixa da unidade, linha de pessoa, calendário, painel mensal | `datas`, `escala` |
+| `js/ui/layout.js` | `Escala.ui.layout` | Moldura da área logada | `ui`, `escala` |
+| `js/telas/login.js` | `Escala.telas.login` | Login com acessos de demonstração (um por perfil e tipo) | `ui`, `escala` |
+| `js/telas/colaborador.js` | `Escala.telas.colaborador` | Própria escala do colaborador | `ui`, `escala`, `datas` |
+| `js/telas/hoje.js` | `Escala.telas.hoje` | Em operação e fora num dia | `ui`, `escala`, `datas` |
+| `js/telas/semana.js` | `Escala.telas.semana` | Grade semanal e totais por função | `ui`, `escala`, `datas` |
+| `js/telas/cobertura.js` | `Escala.telas.cobertura` | 28 dias de cobertura, alertas e domingos | `ui`, `escala`, `datas` |
+| `js/telas/individual.js` | `Escala.telas.individual` | Escala do mês de qualquer pessoa da unidade | `ui`, `escala`, `datas` |
+| `js/telas/geral.js` | `Escala.telas.geral` | Visão consolidada dos CDDs (gestor) | `ui`, `escala`, `datas`, `regras` |
+| `js/app.js` | nada | Estado, abas por perfil, unidade selecionada, ações e eventos | todos |
 
 ## Contrato das telas
 
-Toda tela é um objeto com `render(estado)` que **devolve uma string de HTML** e não registra eventos. Botões usam atributos:
+Toda tela é um objeto com `render(estado)` que **devolve HTML** e não registra eventos. Atributos usados nos botões:
 
 - `data-acao="nome"`: executa a ação de mesmo nome em `ACOES` (`app.js`).
 - `data-aba="id"`: troca de aba.
-- `data-id="n"`: abre a escala individual da pessoa (só supervisor).
+- `data-id="matrícula"`: abre a escala individual da pessoa (supervisor e gestor).
+- `data-unidade="id"`: com `data-acao="abrir-unidade"`, abre um CDD (gestor).
 
 ## Funções principais de `Escala.escala`
 
 | Função | Retorna |
 |---|---|
-| `situacao(pessoa, data)` | `"trabalho"`, `"folga"`, `"ferias"` ou `"atestado"` |
-| `situacaoNaEscala(pessoa, data)` | Igual, mas ignorando ausências |
-| `grupoDeFolgaNoDomingo(data)` | Grupo que folga no domingo daquela semana |
+| `situacao(pessoa, dia)` | `trabalho`, `folga`, `ferias`, `atestado` ou `pendente` |
+| `situacaoNaEscala(pessoa, dia)` | Igual, ignorando ausências |
+| `unidades()`, `unidade(id)`, `unidadeDe(pessoa)` | Unidades |
+| `tipoDe(unidade)` | Nome e resumo do tipo de escala |
 | `proximaFolga`, `proximoRetorno`, `proximoDomingoDeFolga` | Próxima data ou `null` |
-| `cobertura(data)` | Lista por função: em operação, total, mínimo e se está ok |
-| `resumoMes(pessoa, inicioDoMes)` | Contagem de cada situação no mês |
-| `validarDados()` | Lista de problemas no arquivo de dados |
+| `descreverRegra(pessoa, { hoje, mes })` | Frases da regra da pessoa |
+| `publicacao(unidade, mes)` | Situação de publicação (só mensal) |
+| `cobertura(unidade, dia)` | Por função: em operação, total, mínimo, pendente, ok |
+| `statusDia(unidade, dia)` | `ok`, `baixa` ou `pendente` |
+| `semDomingoDeFolga(unidade, dia)` | Pessoas sem domingo de folga nas próximas 8 semanas |
+| `validarDados()` | Problemas nos arquivos de dados |
 
 ## Testes
 
-`testes.html` carrega dados e núcleo (sem interface) e confere as regras. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.
+`testes.html` carrega dados e núcleo (sem interface) e roda 20 testes agrupados por tipo de escala. Abrir depois de qualquer mudança em `dados/` ou `js/core/`.

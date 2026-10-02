@@ -5,7 +5,27 @@
 .s-folga    { --sc: var(--folga);    --sbg: var(--folga-bg);    --sdot: var(--folga-bg); }
 .s-ferias   { --sc: var(--ferias);   --sbg: var(--ferias-bg);   --sdot: var(--ferias); }
 .s-atestado { --sc: var(--atestado); --sbg: var(--atestado-bg); --sdot: var(--atestado); }
+.s-pendente { --sc: var(--muted);    --sbg: #eceff4;            --sdot: #9aa5b5; }
 .s-neutro   { --sc: var(--navy);     --sbg: var(--gold-soft);   --sdot: var(--navy); }
+
+/* ---------- Tipo de escala ---------- */
+.chip-tipo {
+  display: inline-block; padding: 4px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; white-space: nowrap;
+}
+.tipo-rotativa { background: #f1e8fb; color: var(--feriado); }
+.tipo-fixa     { background: var(--gold-soft); color: #8a6600; }
+.tipo-mensal   { background: var(--trabalho-bg); color: var(--trabalho); }
+
+.faixa {
+  display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap;
+  background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra);
+  padding: 12px 16px; margin-bottom: 14px;
+}
+.faixa-nome { font-size: 16px; }
+.faixa-nome small, .cdd h3 small { color: var(--muted); font-weight: 600; font-size: 12px; }
+.faixa select { padding: 8px 12px; border: 1px solid var(--linha); border-radius: 10px; background: var(--card); font-weight: 700; }
+.faixa-resumo { color: var(--muted); font-size: 13.5px; }
 
 .chip {
   display: inline-block; min-width: 70px; text-align: center;
@@ -38,6 +58,7 @@
 .k-folga { border-color: var(--gold); }
 .k-ferias { border-color: var(--ferias); }
 .k-atestado { border-color: var(--atestado); }
+.k-pendente { border-color: #9aa5b5; }
 
 /* ---------- Avisos ---------- */
 .aviso {
@@ -48,6 +69,8 @@
 .aviso b { width: 100%; font-size: 14.5px; }
 .aviso-erro { background: var(--atestado-bg); border-color: var(--atestado); color: #7c2219; }
 .aviso-feriado { background: #f1e8fb; border-color: var(--feriado); color: #4b2577; }
+.aviso-atencao { background: #fff4d6; border-color: #e0a100; color: #6b4d00; }
+.aviso-info { background: #eceff4; border-color: #9aa5b5; color: #3c4656; }
 
 /* ---------- Listas de pessoas ---------- */
 .colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -88,6 +111,7 @@ td.nome-col:hover { color: var(--azul); }
 td.nome-col small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
 tr.total td { background: var(--fundo); font-weight: 700; font-size: 13px; }
 td.ruim { color: var(--atestado); font-weight: 800; }
+td.pend { color: var(--muted); font-weight: 600; font-style: italic; }
 .esquerda { text-align: left !important; }
 
 /* ---------- Calendário ---------- */
@@ -113,7 +137,7 @@ td.ruim { color: var(--atestado); font-weight: 800; }
 .legenda span { display: inline-flex; align-items: center; gap: 6px; }
 
 .regra {
-  display: flex; flex-wrap: wrap; gap: 6px 18px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px;
   background: var(--card); border-radius: 12px; box-shadow: var(--sombra);
   padding: 12px 16px; margin-bottom: 14px; font-size: 13.5px;
 }

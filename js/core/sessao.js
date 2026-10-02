@@ -1,5 +1,7 @@
 /* Login SIMULADO para apresentação. Não há segurança real aqui:
-   na versão com servidor, só este arquivo precisa ser trocado. */
+   na versão com servidor, só este arquivo precisa ser trocado.
+   Perfis: colaborador (própria escala), supervisor (sua unidade),
+   gestor (todas as unidades). */
 (function (E) {
   "use strict";
 
@@ -14,13 +16,15 @@
   let atualEmMemoria = null;
 
   function buscarUsuario(matricula) {
-    const colaborador = E.escala.porMatricula(matricula);
-    if (colaborador) {
-      const { nome, funcao, rota } = colaborador;
-      return { matricula, nome, funcao, rota, perfil: "colaborador" };
+    const p = E.escala.porMatricula(matricula);
+    if (p) {
+      return { matricula, nome: p.nome, funcao: p.funcao, rota: p.rota, perfil: "colaborador", unidadeId: E.escala.unidadeDe(p).id };
     }
-    const sup = E.dados.supervisores.find((s) => s.matricula === matricula);
-    return sup ? { matricula, nome: sup.nome, funcao: sup.funcao, perfil: "supervisor" } : null;
+    const u = E.escala.unidades().find((x) => x.supervisor?.matricula === matricula);
+    if (u) return { matricula, nome: u.supervisor.nome, funcao: u.supervisor.funcao, perfil: "supervisor", unidadeId: u.id };
+
+    const g = E.dados.gestores.find((x) => x.matricula === matricula);
+    return g ? { matricula, nome: g.nome, funcao: g.funcao, perfil: "gestor", unidadeId: null } : null;
   }
 
   function entrar(matricula, senha) {

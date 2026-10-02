@@ -32,10 +32,18 @@
   const rotulo = (d) => (d ? `${DIAS[d.getDay()]}, ${curto(d)}` : "Sem previsão");
   const extenso = (d) => `${DIAS_LONGO[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()].toLowerCase()}`;
   const mesAno = (d) => `${MESES[d.getMonth()]} de ${d.getFullYear()}`;
+  const chaveMes = (d) => iso(d).slice(0, 7); // "AAAA-MM"
+
+  // [6, 0] -> "Sábado e Domingo" (sempre na ordem de segunda a domingo).
+  const NOMES_DIA = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+  function nomesDias(dias) {
+    const nomes = [...dias].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)).map((d) => NOMES_DIA[d]);
+    return nomes.length > 1 ? `${nomes.slice(0, -1).join(", ")} e ${nomes[nomes.length - 1]}` : nomes.join("");
+  }
 
   E.datas = Object.freeze({
-    DIAS, DIAS_LONGO, MESES,
+    DIAS, DIAS_LONGO, MESES, NOMES_DIA,
     hoje, addDias, addMeses, inicioDoMes, diasNoMes, mesmoDia, segundaDaSemana,
-    iso, deIso, diasEntre, curto, rotulo, extenso, mesAno,
+    iso, deIso, diasEntre, curto, rotulo, extenso, mesAno, chaveMes, nomesDias,
   });
 })(window.Escala = window.Escala || {});

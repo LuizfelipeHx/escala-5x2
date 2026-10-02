@@ -35,7 +35,11 @@
 .demo-item:hover { border-color: var(--gold); background: var(--gold-soft); }
 .demo-item b { display: block; font-size: 14px; }
 .demo-item small { color: var(--muted); font-size: 12px; }
-.demo-seta { margin-left: auto; font-size: 22px; color: var(--muted); }
+.demo-tipo {
+  margin-left: auto; white-space: nowrap;
+  font-size: 11px; font-weight: 700; color: var(--navy);
+  background: var(--card); border: 1px solid var(--linha); border-radius: 999px; padding: 2px 8px;
+}
 .login-nota { margin: 14px 0 0; font-size: 12px; color: var(--muted); text-align: center; }
 
 /* ---------- Colaborador ---------- */
@@ -54,11 +58,27 @@
 .seletor-pessoa { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
 .seletor-pessoa select { font-weight: 600; min-width: 240px; }
 
+/* ---------- Visão geral (gestor) ---------- */
+.cdds { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.cdd {
+  background: var(--card); border-radius: var(--raio); box-shadow: var(--sombra);
+  padding: 16px 18px; border-top: 4px solid var(--navy);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cdd-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+.cdd h3 { margin: 0; font-size: 17px; }
+.cdd-linha { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; padding: 6px 0; border-bottom: 1px solid var(--linha); }
+.cdd-linha span { color: var(--muted); }
+.cdd-linha b.ruim { color: var(--atestado); }
+.cdd .btn { margin-top: 6px; }
+.tabela-tipos { min-width: 560px; }
+
 /* ---------- Cobertura ---------- */
 tr.linha-alerta td { background: #fff6f5; }
 .status { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .status-ok { background: var(--trabalho-bg); color: var(--trabalho); }
 .status-ruim { background: var(--atestado-bg); color: var(--atestado); }
+.status-pend { background: #eceff4; color: var(--muted); }
 .mini-tag { font-size: 10.5px; font-weight: 700; color: var(--feriado); background: #f1e8fb; padding: 1px 6px; border-radius: 6px; }
 td em { font-style: normal; color: var(--muted); font-size: 12.5px; }
 .apagado { color: var(--muted); }
@@ -95,5 +115,7 @@ td em { font-style: normal; color: var(--muted); font-size: 12.5px; }
   .hero { padding: 16px; flex-direction: column; align-items: flex-start; }
   .hero h2 { font-size: 21px; }
   .pessoa-dir .tag { white-space: normal; text-align: right; }
-  .rodizio { grid-template-columns: 1fr; }
+  .rodizio, .cdds { grid-template-columns: 1fr; }
+  .faixa-resumo { width: 100%; }
+  .demo-tipo { display: none; }
 }
