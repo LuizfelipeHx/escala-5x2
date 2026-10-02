@@ -1,5 +1,21 @@
 # Devlog
 
+## 02/10/2026: v0.8, login no estilo do LogOn
+
+**Pedido:** imagem na tela toda com o login flutuando por cima, como no LogOn da Ambev, e o texto "Faça login para continuar".
+
+**Feito**
+- Computador: a foto cobre a tela toda em duas camadas. Ao fundo vai a própria foto desfocada e escurecida; por cima, à esquerda, a foto nítida e inteira, esmaecendo para a direita. O cartão flutua à direita sobre a parte desfocada, sem cobrir as garrafas (a foto é quase quadrada e a tela é larga).
+- Cartão: marca centralizada, "Faça login para continuar", campos com ícone de pessoa e de cadeado, botão de olho para mostrar ou esconder a senha, mensagem de erro centralizada.
+- Celular: mantida a foto no topo com o cartão por cima (em tela vertical, cobrir tudo cortaria as garrafas).
+- Utilitário `.visualmente-oculto` para os rótulos dos campos continuarem acessíveis a leitores de tela.
+
+**Validado**
+- 31 de 31 testes (servidor local e abrindo pelo arquivo).
+- Computador em 1366x768 e 1920x1080; celular em 390 px sem rolagem lateral; olho da senha alterna e volta; senha errada mostra o erro; login de colaborador pelo celular; nenhum erro no console.
+
+**Correção durante o teste:** no celular a foto sumiu porque `justify-items: center` encolheu o bloco vazio da foto para largura zero. Resolvido com `justify-self: stretch`.
+
 ## 02/10/2026: v0.7, login novo e marca limpa
 
 **Pedido:** foto da Corona no login (pedido do próprio time Ambev), sem o texto "CORONA"; tirar o quadrado amarelo "5x2"; tirar a lista de acessos de demonstração da tela.

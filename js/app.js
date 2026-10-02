@@ -181,6 +181,7 @@
     const acao = alvo.closest("[data-acao]");
 
     if (acao?.dataset.acao === "sair") { E.sessao.sair(); return montar(); }
+    if (acao?.dataset.acao === "ver-senha") return E.telas.login.alternarSenha(acao);
 
     const aba = alvo.closest(".aba");
     if (aba) { estado.aba = aba.dataset.aba; return atualizar(); }
